@@ -1,6 +1,0 @@
-\\storage\home\My Documents\GitHub\CSMud\bin\Release\CSMud.exe.config
-\\storage\home\My Documents\GitHub\CSMud\bin\Release\CSMud.exe
-\\storage\home\My Documents\GitHub\CSMud\bin\Release\CSMud.pdb
-\\storage\home\My Documents\GitHub\CSMud\obj\Release\CSMud.csproj.CoreCompileInputs.cache
-\\storage\home\My Documents\GitHub\CSMud\obj\Release\CSMud.exe
-\\storage\home\My Documents\GitHub\CSMud\obj\Release\CSMud.pdb
