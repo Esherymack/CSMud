@@ -1,0 +1,7 @@
+E:\programming\320\CSMUD\CSMud\CSMud\bin\Debug\CSMud.exe.config
+E:\programming\320\CSMUD\CSMud\CSMud\bin\Debug\CSMud.exe
+E:\programming\320\CSMUD\CSMud\CSMud\bin\Debug\CSMud.pdb
+E:\programming\320\CSMUD\CSMud\CSMud\obj\Debug\CSMud.csprojAssemblyReference.cache
+E:\programming\320\CSMUD\CSMud\CSMud\obj\Debug\CSMud.csproj.CoreCompileInputs.cache
+E:\programming\320\CSMUD\CSMud\CSMud\obj\Debug\CSMud.exe
+E:\programming\320\CSMUD\CSMud\CSMud\obj\Debug\CSMud.pdb
