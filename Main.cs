@@ -150,7 +150,9 @@ namespace CSMud
             }
             finally
             {
-                Writer.WriteLine($"{this.User} has disconnected.");
+                // when a user disconnects, tell the server they've left
+                string msg = $"{this.User} has disconnected.";
+                Broadcast(msg);
                 socket.Close();
                 OnDisconnect();
             }
@@ -206,13 +208,22 @@ namespace CSMud
          */
         void SendMessage(string line)
         {
-            lock(connections)
-            {
-                foreach(Connection conn in connections)
-                {
-                    conn.Writer.WriteLine($"{this.User} says, '{line}'");
-                }
-            }
+            string msg = $"{this.User} says, '{line}'";
+            Broadcast(msg);
+        }
+
+        /*
+         * Broadcast handles sending a message over the server - y'know, broadcasting it.
+         */
+        void Broadcast(string msg)
+        {
+           lock(connections)
+           {
+               foreach(Connection conn in connections)
+               {
+                   conn.Writer.WriteLine(msg);
+               }
+           }
         }
 
         void Beat()
