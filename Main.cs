@@ -125,15 +125,19 @@ namespace CSMud
                 OnConnect();
                 while(true)
                 {
+                    // is this necessary? I set Writer.AutoFlush = true above.
                     foreach(Connection conn in connections)
                     {
                         conn.Writer.Flush();
                     }
+                    // Get a message that's sent to the server
                     string line = Reader.ReadLine();
+                    // if the line is empty, or if the line says "quit," then break the loop
                     if(line == null || line == "quit")
                     {
                         break;
                     }
+                    // otherwise, we process the line
                     else
                     {
                         ProcessLine(line);
@@ -189,6 +193,7 @@ namespace CSMud
 
         /*
          * ProcessLine handles organizing messages on the MUD server
+         * as of right now it just trims and sends the message to SendMessasge
          */
         void ProcessLine(string line)
         {
