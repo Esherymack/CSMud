@@ -13,7 +13,6 @@ using System.Timers;
 namespace CSMud
 {
     /* The Server class is a simple TCP server to accept connections
-     * Used a lock to hold everything process-y
      * Server also holds the main function.
      * this is very largely based off of this forum post:
      * https://bytes.com/topic/c-sharp/answers/275416-c-mud-telnet-server
@@ -226,14 +225,21 @@ namespace CSMud
            }
         }
 
+        /*
+         * Beat handles sending a periodic message over the server to serve as "ambiance."
+         * Currently, the timer is set for 45 seconds.
+         */
         void Beat()
         {
+            // 45 seconds, a la milliseconds.
             Timer tmr = new Timer(45000);
             tmr.Elapsed += OnTimedEvent;
             tmr.AutoReset = true;
             tmr.Enabled = true;
         }
-
+        /*
+         * OnTimedEvent goes with Beat() and is the function containing whatever happens every time the timer runs out.
+         */
         void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             Writer.WriteLine("The world is dark and silent.");
