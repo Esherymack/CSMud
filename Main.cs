@@ -82,7 +82,7 @@ namespace CSMud
         Socket socket;
         public StreamReader Reader;
         public StreamWriter Writer;
-        readonly string user;
+        public string User { get; set; }
 
         /*
          * Last, we need an ArrayList to hold our connections
@@ -103,7 +103,7 @@ namespace CSMud
             Writer = new StreamWriter(new NetworkStream(socket, true));
             Writer.AutoFlush = true;
             // Get the user's screen name for later use
-            user = GetLogin();
+            GetLogin();
             // Call Beat to start the timer when a new connection is made.
             // Individual users get their ambient message every 45 seconds, independent of other users
             Beat();
@@ -120,6 +120,7 @@ namespace CSMud
         {
             try
             {
+                // Welcome the user to the game
                 OnConnect();
                 while(true)
                 {
@@ -144,7 +145,7 @@ namespace CSMud
             }
             finally
             {
-                Writer.WriteLine($"{user} has disconnected.");
+                Writer.WriteLine($"{this.User} has disconnected.");
                 socket.Close();
                 OnDisconnect();
             }
@@ -153,11 +154,10 @@ namespace CSMud
         /*
         * GetLogin gets a screen name for individual users. This name is displayed for messages sent, actions, and connection/disconnection
         */
-        string GetLogin()
+        void GetLogin()
         {
             Writer.Write("Please enter a name: ");
-            string userName = Reader.ReadLine();
-            return userName;
+            this.User = Reader.ReadLine();
         }
 
         /*
@@ -167,7 +167,7 @@ namespace CSMud
         {
             Writer.WriteLine("Welcome!");
             Writer.WriteLine("Send 'quit' to exit.");
-            Console.WriteLine($"{user} has connected.");
+            Console.WriteLine($"{this.User} has connected.");
             lock(connections)
             {
                 connections.Add(this);
@@ -183,7 +183,7 @@ namespace CSMud
             {
                 connections.Remove(this);
             }
-            Console.WriteLine($"{user} has disconnected.");
+            Console.WriteLine($"{this.User} has disconnected.");
         }
 
         /*
@@ -204,7 +204,7 @@ namespace CSMud
             {
                 foreach(Connection conn in connections)
                 {
-                    conn.Writer.WriteLine($"{user} says, '{line}'");
+                    conn.Writer.WriteLine($"{this.User} says, '{line}'");
                 }
             }
         }
