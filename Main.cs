@@ -82,6 +82,7 @@ namespace CSMud
         Socket socket;
         public StreamReader Reader;
         public StreamWriter Writer;
+        // User property for the user's screen name
         public string User { get; set; }
 
         /*
