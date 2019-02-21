@@ -249,6 +249,7 @@ namespace CSMud
     // The Commands class holds all user commands other than movement
     public class Commands
     {
+
     }
 
     // The Movement class is movement-specific commands
