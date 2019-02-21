@@ -17,16 +17,18 @@ namespace CSMud
      * Server also holds the main function.
      * this is very largely based off of this forum post:
      * https://bytes.com/topic/c-sharp/answers/275416-c-mud-telnet-server
-     * (okay, like 85%)
+     * (okay, like 80%)
      * and also from Microsoft's notes:
      * https://docs.microsoft.com/en-us/dotnet/csharp/
      * 
      * My major modifications are as follows:
-     * - Moved the locks down into the methods that actually affect connections, cleaner code
+     * - Moved the locks down into the methods that actually affect connections, cleaner code 
+     *      - TODO: Possibly refactor for async/await instead of threading?
      * - Added 'user' name for differentiating between users
      * - Changed ProcessLine to handle all incoming messages, differentiate between messages and commands
      * - Designated SendMessage for sending chat messages.
      * - Added connection and disconnection messages on the server for other users
+     * - Added ambient periodic message sending (HeartBeat)
      */
     public class Server
     {
@@ -52,12 +54,13 @@ namespace CSMud
             server.Bind(new IPEndPoint(IPAddress.Any, port));
             /*
              * Socket.Listen method takes an integer and places the socket into a listening state. 
+             * backLog is the maximum length of pending connections queue
              */
             server.Listen(backLog);
             while(true)
             {
                 /*
-                 * Accept incoming connections and bring them down to Connection 
+                 * Accept incoming connections and create new Connections 
                  */
                 Socket conn = server.Accept();
                 new Connection(conn);
@@ -71,10 +74,7 @@ namespace CSMud
      */
     public class Connection
     {
-        /* We use a lock statement for the connections
-         * Lock statements are used in threading, and limit the number of threads that can perform an activity at any time.
-         * The benefit of this is that we can ensure that one thread does not enter a critical section while another thread is in that critical section.
-         *
+        /*
          * We need a new Socket, as well as a StreamReader and StreamWriter 
          * StreamReader class reads characters from a byte stream in a particular encoding
          * StreamWriter writes characters to a stream in a particular encoding
@@ -83,8 +83,11 @@ namespace CSMud
         public StreamReader Reader;
         public StreamWriter Writer;
         readonly string user;
+
         /*
          * Last, we need an ArrayList to hold our connections
+         * This could be avoided by using async/await code, but because this is using threading, we need some sort of data structure to hold the connections
+         * I've seen people using hashtables and dictionaries but really i think an array makes sense.
          */
         static ArrayList connections = new ArrayList();
 
@@ -94,10 +97,15 @@ namespace CSMud
         public Connection(Socket socket)
         {
             this.socket = socket;
+            // Every connection gets a reader and writer
+            // the writer is set to auto-flush for every user - this helps get messages displayed properly to each individual user
             Reader = new StreamReader(new NetworkStream(socket, false));
             Writer = new StreamWriter(new NetworkStream(socket, true));
             Writer.AutoFlush = true;
+            // Get the user's screen name for later use
             user = GetLogin();
+            // Call Beat to start the timer when a new connection is made.
+            // Individual users get their ambient message every 45 seconds, independent of other users
             Beat();
             /*
              * Start a new Thread running ClientLoop()
