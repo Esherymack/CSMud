@@ -23,7 +23,7 @@ namespace CSMud
      * My major modifications are as follows:
      * - Moved the locks into the methods that actually affect connections, cleaner code 
      *      - TODO: Possibly refactor for async/await instead of threading?
-     * - Lots of QOL refactoring
+     * - Lots of QOL refactoring - World now holds Connections instead of Server holding Connections, a Connection has a World
      * - Added 'user' name for differentiating between users
      * - Changed ProcessLine to handle all incoming messages, differentiate between messages and commands
      * - Designated SendMessage for sending chat messages.
