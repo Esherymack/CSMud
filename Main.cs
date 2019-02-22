@@ -121,17 +121,15 @@ namespace CSMud
         */
         void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            string msg = "The world is dark and silent.";
-            Broadcast(msg);
+            Broadcast("The world is dark and silent.");
         }
 
         // add new Connections to the world
         public void NewConnection(Connection conn)
         {
             // tell the server that a user has connected
-            string msg = $"{conn.User} has connected.";
-            Console.WriteLine(msg);
-            Broadcast(msg);
+            Console.WriteLine($"{conn.User} has connected.");
+            Broadcast($"{conn.User} has connected.");
             // add the new connection to the list
             lock (Connections)
             {
@@ -235,13 +233,10 @@ namespace CSMud
                     {
                        string line = reader.ReadLine();
                        // if the line is empty, or if the line says "quit," then break the loop
+                            // TODO : Move the "quit" condition to a command rather than something that happens in here
                        if (line == null || line == "quit")
                        {
                            break;
-                       }
-                       else if (line == "help")
-                       {
-
                        }
                        // otherwise, we process the line
                        else
@@ -258,10 +253,8 @@ namespace CSMud
             finally
             {
                 // when a user disconnects, tell the server they've left
-                string msg = $"{this.User} has disconnected.";
-                this.World.Broadcast(msg);
-                Console.WriteLine(msg);
-
+                this.World.Broadcast($"{this.User} has disconnected.");
+                Console.WriteLine($"{this.User} has disconnected.");
                 OnDisconnect();
             }
         }
@@ -278,6 +271,7 @@ namespace CSMud
             using (StreamReader reader = this.Reader)
             {
                 string user = reader.ReadLine();
+                // if the user does not enter a line in for their "name," just call them "Someone"
                 if (user == "")
                 {
                     user = "Someone";
@@ -324,8 +318,7 @@ namespace CSMud
          */
         void SendMessage(string line)
         {
-            string msg = $"{this.User} says, '{line}'";
-            this.World.Broadcast(msg);
+            this.World.Broadcast($"{this.User} says, '{line}'");
         }
     }
 
