@@ -74,7 +74,7 @@ namespace CSMud
                 * Accept incoming connections and create new Connections 
                 */
                 Socket conn = ListenSocket.Accept();
-                new Connection(conn, this.World);
+                World.NewConnection(new Connection(conn, this.World));
             }
         }
 
@@ -91,32 +91,52 @@ namespace CSMud
         public List<Connection> Connections
         { get; }
 
-        public void NewConnection()
-        {
+        private Timer Beat
+        { get; }
 
-        }
-
-        /*
-        * Beat handles sending a periodic message over the server to serve as "ambiance."
-        * Currently, the timer is set for 45 seconds.
-         */
-        public void Beat()
+        public World()
         {
-            // 45 seconds, a la milliseconds.
-            Timer tmr = new Timer(45000)
+            this.Connections = new List<Connection>();
+            /*
+            * Beat handles sending a periodic message over the server to serve as "ambiance."
+            * Currently, the timer is set for 45 seconds.
+            */
+            this.Beat = new Timer(45000)
             {
                 AutoReset = true,
                 Enabled = true
             };
-            tmr.Elapsed += OnTimedEvent;
+            this.Beat.Elapsed += OnTimedEvent;
         }
+
         /*
-         * OnTimedEvent goes with Beat() and is the function containing whatever happens every time the timer runs out.
-         */
+        * OnTimedEvent goes with Beat() and is the function containing whatever happens every time the timer runs out.
+        */
         void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             string msg = "The world is dark and silent.";
             Broadcast(msg);
+        }
+
+        // add new Connections to the world
+        public void NewConnection(Connection conn)
+        {
+            string msg = $"{conn.User} has connected.";
+            Console.WriteLine(msg);
+            Broadcast(msg);
+            lock (Connections)
+            {
+                Connections.Add(conn);
+            }
+            conn.Start();
+        }
+
+        public void EndConnection(Connection conn)
+        {
+            lock(Connections)
+            {
+                Connections.Remove(conn);
+            }
         }
 
         /*
@@ -149,6 +169,9 @@ namespace CSMud
         public StreamReader Reader;
         public StreamWriter Writer;
 
+        private System.Threading.Thread LoopThread
+        { get; set; }
+
         // User property for the user's screen name
         public string User
         { get; set; }
@@ -156,13 +179,6 @@ namespace CSMud
         // a connection has a world
         public World World
         { get; }
-
-        /*
-         * Last, we need an ArrayList to hold our connections
-         * This could be avoided by using async/await code, but because this is using threading, we need some sort of data structure to hold the connections
-         * I've seen people using hashtables and dictionaries but really i think an array makes sense.
-         */
-        static ArrayList connections = new ArrayList();
 
         /*
          * Constructor
@@ -178,10 +194,15 @@ namespace CSMud
             Writer.AutoFlush = true;
             // Get the user's screen name for later use
             GetLogin();
+            this.LoopThread = new System.Threading.Thread(ClientLoop);
+        }
+
+        public void Start()
+        {
             /*
-             * Start a new Thread running ClientLoop()
-             */
-            new System.Threading.Thread(ClientLoop).Start();
+            * Start a new Thread running ClientLoop()
+            */
+            LoopThread.Start();
         }
 
         /*
@@ -195,11 +216,6 @@ namespace CSMud
                 OnConnect();
                 while (true)
                 {
-                    // is this necessary? I set Writer.AutoFlush = true above.
-                    foreach (Connection conn in connections)
-                    {
-                        conn.Writer.Flush();
-                    }
                     // Get a message that's sent to the server
                     string line = Reader.ReadLine();
                     // if the line is empty, or if the line says "quit," then break the loop
@@ -224,11 +240,11 @@ namespace CSMud
             }
             finally
             {
-                // when a user disconnects, tell the server they've left
-                string msg = $"{this.User} has disconnected.";
-                Broadcast(msg);
                 socket.Close();
                 OnDisconnect();
+                // when a user disconnects, tell the server they've left
+                string msg = $"{this.User} has disconnected.";
+                this.World.Broadcast(msg);
             }
         }
 
@@ -254,13 +270,6 @@ namespace CSMud
             Writer.WriteLine("Welcome!");
             Writer.WriteLine("Send 'quit' to exit.");
             Writer.WriteLine("Send 'help' for help.");
-            string msg = $"{this.User} has connected.";
-            Console.WriteLine(msg);
-            Broadcast(msg);
-            lock (connections)
-            {
-                connections.Add(this);
-            }
         }
 
         /*
@@ -268,10 +277,7 @@ namespace CSMud
          */
         void OnDisconnect()
         {
-            lock (connections)
-            {
-                connections.Remove(this);
-            }
+            this.World.EndConnection(this);
             Console.WriteLine($"{this.User} has disconnected.");
         }
 
@@ -291,7 +297,7 @@ namespace CSMud
         void SendMessage(string line)
         {
             string msg = $"{this.User} says, '{line}'";
-            Broadcast(msg);
+            this.World.Broadcast(msg);
         }
     }
 
