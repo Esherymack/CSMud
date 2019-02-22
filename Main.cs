@@ -149,6 +149,7 @@ namespace CSMud
                 foreach (Connection conn in Connections)
                 {
                     conn.Writer.WriteLine(msg);
+                    conn.Writer.Flush();
                 }
             }
         }
@@ -240,7 +241,11 @@ namespace CSMud
             }
             finally
             {
-                socket.Close();
+                // when a user disconnects, tell the server they've left
+                string msg = $"{this.User} has disconnected.";
+                this.World.Broadcast(msg);
+                Console.WriteLine(msg);
+
                 OnDisconnect();
             }
         }
@@ -274,12 +279,9 @@ namespace CSMud
          */
         void OnDisconnect()
         {
-            // when a user disconnects, tell the server they've left
-            string msg = $"{this.User} has disconnected.";
-            this.World.Broadcast(msg);
-            Console.WriteLine(msg);
-            this.LoopThread.Abort();
             this.World.EndConnection(this);
+            socket.Close();
+            this.LoopThread.Abort();
         }
 
         /*
