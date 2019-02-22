@@ -220,7 +220,7 @@ namespace CSMud
                     {
                        string line = reader.ReadLine();
                        // if the line is empty, or if the line says "quit," then break the loop
-                            // TODO : Move the "quit" condition to a command rather than something that happens in here
+                            // TODO : Move the "quit" condition to a command rather than something that's checked here
                        if (line == null || line == "quit")
                        {
                            break;
