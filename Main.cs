@@ -17,7 +17,7 @@ namespace CSMud
      * Server also holds the main function.
      * this is very largely based off of this forum post:
      * https://bytes.com/topic/c-sharp/answers/275416-c-mud-telnet-server
-     * (okay, like 80%)
+     * (okay, like 50%)
      * and also from Microsoft's notes:
      * https://docs.microsoft.com/en-us/dotnet/csharp/
      * 
