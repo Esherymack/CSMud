@@ -1,10 +1,11 @@
 ﻿/* CSMud - Rev 1
  * Author: Madison Tibbett
- * Last Modified: 02/20/2019
+ * Last Modified: 02/22/2019
  */
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -28,6 +29,7 @@ namespace CSMud
      * - Designated SendMessage for sending chat messages.
      * - Added connection and disconnection messages on the server for other users
      * - Added ambient periodic message sending (HeartBeat)
+     * - Broadcast function
      */
     public class Server
     {
@@ -35,34 +37,99 @@ namespace CSMud
         const int port = 8088;
         const int backLog = 20;
 
-        // main 
-        static void Main(string[] args)
+        // a server has a world
+        public World World
+        { get; private set; }
+
+        private Socket ListenSocket
+        { get; }
+
+        public Server()
         {
+            this.World = new World();
             /* 
-             * Instantiate Socket object 'server'
-             * 'AddressFamily.InterNetwork' refers to the AddressFamily enum - specifically addresses for IPv4
-             * 'SocketType.Stream' refers to the SocketType enum - Stream supports two-way conn-based byte streams without duplication of data
-             * 'ProtocolType.Tcp' refers to the ProtocolType enum - Tcp is a TCP server
-             */            
-            Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            
+            * Instantiate Socket object 'server'
+            * 'AddressFamily.InterNetwork' refers to the AddressFamily enum - specifically addresses for IPv4
+            * 'SocketType.Stream' refers to the SocketType enum - Stream supports two-way conn-based byte streams without duplication of data
+            * 'ProtocolType.Tcp' refers to the ProtocolType enum - Tcp is a TCP server
+            */
+            this.ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             /*
-             * Socket.Bind method takes a local endpoint
-             * IPEndPoint class represents a network endpoint as an IP address and port number
-             */
-            server.Bind(new IPEndPoint(IPAddress.Any, port));
+            * Socket.Bind method takes a local endpoint
+            * IPEndPoint class represents a network endpoint as an IP address and port number
+            */
+            this.ListenSocket.Bind(new IPEndPoint(IPAddress.Any, port));
+        }
+
+        public void Start()
+        {
             /*
-             * Socket.Listen method takes an integer and places the socket into a listening state. 
-             * backLog is the maximum length of pending connections queue
-             */
-            server.Listen(backLog);
+            * Socket.Listen method takes an integer and places the socket into a listening state. 
+            * backLog is the maximum length of pending connections queue
+            */
+            ListenSocket.Listen(backLog);
             while(true)
             {
                 /*
-                 * Accept incoming connections and create new Connections 
-                 */
-                Socket conn = server.Accept();
-                new Connection(conn);
+                * Accept incoming connections and create new Connections 
+                */
+                Socket conn = ListenSocket.Accept();
+                new Connection(conn, this.World);
+            }
+        }
+
+        // main 
+        static void Main(string[] args)
+        {
+            new Server().Start();
+        }
+    }
+
+    public class World
+    {
+        // a world has connections
+        public List<Connection> Connections
+        { get; }
+
+        public void NewConnection()
+        {
+
+        }
+
+        /*
+        * Beat handles sending a periodic message over the server to serve as "ambiance."
+        * Currently, the timer is set for 45 seconds.
+         */
+        public void Beat()
+        {
+            // 45 seconds, a la milliseconds.
+            Timer tmr = new Timer(45000)
+            {
+                AutoReset = true,
+                Enabled = true
+            };
+            tmr.Elapsed += OnTimedEvent;
+        }
+        /*
+         * OnTimedEvent goes with Beat() and is the function containing whatever happens every time the timer runs out.
+         */
+        void OnTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            string msg = "The world is dark and silent.";
+            Broadcast(msg);
+        }
+
+        /*
+        * Broadcast handles sending a message over the server - y'know, broadcasting it.
+        */
+        public void Broadcast(string msg)
+        {
+            lock (Connections)
+            {
+                foreach (Connection conn in Connections)
+                {
+                    conn.Writer.WriteLine(msg);
+                }
             }
         }
     }
@@ -81,8 +148,14 @@ namespace CSMud
         Socket socket;
         public StreamReader Reader;
         public StreamWriter Writer;
+
         // User property for the user's screen name
-        public string User { get; set; }
+        public string User
+        { get; set; }
+
+        // a connection has a world
+        public World World
+        { get; }
 
         /*
          * Last, we need an ArrayList to hold our connections
@@ -94,9 +167,10 @@ namespace CSMud
         /*
          * Constructor
          */
-        public Connection(Socket socket)
+        public Connection(Socket socket, World world)
         {
             this.socket = socket;
+            this.World = world;
             // Every connection gets a reader and writer
             // the writer is set to auto-flush for every user - this helps get messages displayed properly to each individual user
             Reader = new StreamReader(new NetworkStream(socket, false));
@@ -104,9 +178,6 @@ namespace CSMud
             Writer.AutoFlush = true;
             // Get the user's screen name for later use
             GetLogin();
-            // Call Beat to start the timer when a new connection is made.
-            // Individual users get their ambient message every 45 seconds, independent of other users
-            Beat();
             /*
              * Start a new Thread running ClientLoop()
              */
@@ -122,19 +193,23 @@ namespace CSMud
             {
                 // Welcome the user to the game
                 OnConnect();
-                while(true)
+                while (true)
                 {
                     // is this necessary? I set Writer.AutoFlush = true above.
-                    foreach(Connection conn in connections)
+                    foreach (Connection conn in connections)
                     {
                         conn.Writer.Flush();
                     }
                     // Get a message that's sent to the server
                     string line = Reader.ReadLine();
                     // if the line is empty, or if the line says "quit," then break the loop
-                    if(line == null || line == "quit")
+                    if (line == null || line == "quit")
                     {
                         break;
+                    }
+                    else if (line == "help")
+                    {
+
                     }
                     // otherwise, we process the line
                     else
@@ -143,7 +218,7 @@ namespace CSMud
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"Error: {e}");
             }
@@ -158,12 +233,17 @@ namespace CSMud
         }
 
         /*
-        * GetLogin gets a screen name for individual users. This name is displayed for messages sent, actions, and connection/disconnection
-        */
+         * GetLogin gets a screen name for individual users. This name is displayed for messages sent, actions, and connection/disconnection
+         */
         void GetLogin()
         {
             Writer.Write("Please enter a name: ");
-            this.User = Reader.ReadLine();
+            string user = Reader.ReadLine();
+            if (user == "")
+            {
+                user = "Someone";
+            }
+            this.User = user;
         }
 
         /*
@@ -173,8 +253,11 @@ namespace CSMud
         {
             Writer.WriteLine("Welcome!");
             Writer.WriteLine("Send 'quit' to exit.");
-            Console.WriteLine($"{this.User} has connected.");
-            lock(connections)
+            Writer.WriteLine("Send 'help' for help.");
+            string msg = $"{this.User} has connected.";
+            Console.WriteLine(msg);
+            Broadcast(msg);
+            lock (connections)
             {
                 connections.Add(this);
             }
@@ -185,7 +268,7 @@ namespace CSMud
          */
         void OnDisconnect()
         {
-            lock(connections)
+            lock (connections)
             {
                 connections.Remove(this);
             }
@@ -210,51 +293,21 @@ namespace CSMud
             string msg = $"{this.User} says, '{line}'";
             Broadcast(msg);
         }
-
-        /*
-         * Broadcast handles sending a message over the server - y'know, broadcasting it.
-         */
-        void Broadcast(string msg)
-        {
-           lock(connections)
-           {
-               foreach(Connection conn in connections)
-               {
-                   conn.Writer.WriteLine(msg);
-               }
-           }
-        }
-
-        /*
-         * Beat handles sending a periodic message over the server to serve as "ambiance."
-         * Currently, the timer is set for 45 seconds.
-         */
-        void Beat()
-        {
-            // 45 seconds, a la milliseconds.
-            Timer tmr = new Timer(45000);
-            tmr.Elapsed += OnTimedEvent;
-            tmr.AutoReset = true;
-            tmr.Enabled = true;
-        }
-        /*
-         * OnTimedEvent goes with Beat() and is the function containing whatever happens every time the timer runs out.
-         */
-        void OnTimedEvent(Object source, ElapsedEventArgs e)
-        {
-            Writer.WriteLine("The world is dark and silent.");
-        }
     }
 
     // The Commands class holds all user commands other than movement
     public class Commands
     {
-
+        
     }
 
     // The Movement class is movement-specific commands
     public class Movement
     {
+        public enum Directions
+        {
+            Undefined, North, South, East, West, Up, Down, NorthEast, NorthWest, SouthEast, SouthWest, In, Out
+        };
     }
 
     // The Map class is all map-generating specifics
