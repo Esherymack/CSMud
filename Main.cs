@@ -242,9 +242,6 @@ namespace CSMud
             {
                 socket.Close();
                 OnDisconnect();
-                // when a user disconnects, tell the server they've left
-                string msg = $"{this.User} has disconnected.";
-                this.World.Broadcast(msg);
             }
         }
 
@@ -277,8 +274,12 @@ namespace CSMud
          */
         void OnDisconnect()
         {
+            // when a user disconnects, tell the server they've left
+            string msg = $"{this.User} has disconnected.";
+            this.World.Broadcast(msg);
+            Console.WriteLine(msg);
+            this.LoopThread.Abort();
             this.World.EndConnection(this);
-            Console.WriteLine($"{this.User} has disconnected.");
         }
 
         /*
