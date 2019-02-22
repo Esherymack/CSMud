@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -22,8 +21,9 @@ namespace CSMud
      * https://docs.microsoft.com/en-us/dotnet/csharp/
      * 
      * My major modifications are as follows:
-     * - Moved the locks down into the methods that actually affect connections, cleaner code 
+     * - Moved the locks into the methods that actually affect connections, cleaner code 
      *      - TODO: Possibly refactor for async/await instead of threading?
+     * - Lots of QOL refactoring
      * - Added 'user' name for differentiating between users
      * - Changed ProcessLine to handle all incoming messages, differentiate between messages and commands
      * - Designated SendMessage for sending chat messages.
@@ -41,11 +41,16 @@ namespace CSMud
         public World World
         { get; private set; }
 
+        // a ListenSocket is a socket
         private Socket ListenSocket
         { get; }
 
+        /*
+         * Constructor
+         */
         public Server()
         {
+            // Create a new world on the server
             this.World = new World();
             /* 
             * Instantiate Socket object 'server'
@@ -61,6 +66,7 @@ namespace CSMud
             this.ListenSocket.Bind(new IPEndPoint(IPAddress.Any, port));
         }
 
+        // Start starts the server. 
         public void Start()
         {
             /*
@@ -85,22 +91,23 @@ namespace CSMud
         }
     }
 
+    // A World holds connections and handles broadcasting messages from those connections
     public class World
     {
         // a world has connections
         public List<Connection> Connections
         { get; }
 
+        // a beat is a periodic message sent over the server
         private Timer Beat
         { get; }
 
+        // constructor
         public World()
         {
+            // create a list object of connections
             this.Connections = new List<Connection>();
-            /*
-            * Beat handles sending a periodic message over the server to serve as "ambiance."
-            * Currently, the timer is set for 45 seconds.
-            */
+            // Create a beat on the server
             this.Beat = new Timer(45000)
             {
                 AutoReset = true,
@@ -110,7 +117,7 @@ namespace CSMud
         }
 
         /*
-        * OnTimedEvent goes with Beat() and is the function containing whatever happens every time the timer runs out.
+        * OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
         */
         void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
@@ -121,16 +128,20 @@ namespace CSMud
         // add new Connections to the world
         public void NewConnection(Connection conn)
         {
+            // tell the server that a user has connected
             string msg = $"{conn.User} has connected.";
             Console.WriteLine(msg);
             Broadcast(msg);
+            // add the new connection to the list
             lock (Connections)
             {
                 Connections.Add(conn);
             }
+            // start the connection
             conn.Start();
         }
 
+        // when someone leaves, endconnection removes the connection from the list
         public void EndConnection(Connection conn)
         {
             lock(Connections)
@@ -170,6 +181,7 @@ namespace CSMud
          */
         Socket socket;
 
+        // a LoopThread is a thread
         private System.Threading.Thread LoopThread
         { get; set; }
 
@@ -181,6 +193,7 @@ namespace CSMud
         public World World
         { get; }
 
+        // Reader and Writer get expression-valued properties
         public StreamWriter Writer => new StreamWriter(new NetworkStream(socket, false));
         public StreamReader Reader => new StreamReader(new NetworkStream(socket, false));
 
