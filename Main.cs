@@ -16,7 +16,7 @@ namespace CSMud
      * Server also holds the main function.
      * this is very largely based off of this forum post:
      * https://bytes.com/topic/c-sharp/answers/275416-c-mud-telnet-server
-     * (okay, like 50%)
+     * (okay, like 50% - i just mostly refactored it)
      * and also from Microsoft's notes:
      * https://docs.microsoft.com/en-us/dotnet/csharp/
      * 
@@ -45,9 +45,7 @@ namespace CSMud
         private Socket ListenSocket
         { get; }
 
-        /*
-         * Constructor
-         */
+        // Constructor
         public Server()
         {
             // Create a new world on the server
@@ -76,9 +74,7 @@ namespace CSMud
             ListenSocket.Listen(backLog);
             while(true)
             {
-                /*
-                * Accept incoming connections and create new Connections 
-                */
+                // Accept incoming connections and create new Connections 
                 Socket conn = ListenSocket.Accept();
                 World.NewConnection(new Connection(conn, this.World));
             }
@@ -116,9 +112,7 @@ namespace CSMud
             this.Beat.Elapsed += OnTimedEvent;
         }
 
-        /*
-        * OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
-        */
+        // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
         void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             Broadcast("The world is dark and silent.");
@@ -148,9 +142,7 @@ namespace CSMud
             }
         }
 
-        /*
-        * Broadcast handles sending a message over the server - y'know, broadcasting it.
-        */
+        // Broadcast handles sending a message over the server - y'know, broadcasting it.
         public void Broadcast(string msg)
         {
             lock (Connections)
@@ -195,31 +187,26 @@ namespace CSMud
         public StreamWriter Writer => new StreamWriter(new NetworkStream(socket, false));
         public StreamReader Reader => new StreamReader(new NetworkStream(socket, false));
 
-        /*
-         * Constructor
-         */
+        // Constructor
         public Connection(Socket socket, World world)
         {
             this.socket = socket;
             this.World = world;
-            // Every connection gets a reader and writer
-            // the writer is set to auto-flush for every user - this helps get messages displayed properly to each individual user
-            // Get the user's screen name for later use
+            /* Every connection gets a reader and writer
+            * the writer is set to auto-flush for every user - this helps get messages displayed properly to each individual user
+            * Get the user's screen name for later use
+            */
             GetLogin();
             this.LoopThread = new System.Threading.Thread(ClientLoop);
         }
 
         public void Start()
         {
-            /*
-            * Start a new Thread running ClientLoop()
-            */
+            // Start a new Thread running ClientLoop()
             LoopThread.Start();
         }
 
-        /*
-         * ClientLoop basically handles the sending and receiving of messages as well as handling incoming and outgoing connections.
-         */
+        //  ClientLoop basically handles the sending and receiving of messages as well as handling incoming and outgoing connections.
         void ClientLoop()
         {
             try
@@ -259,9 +246,7 @@ namespace CSMud
             }
         }
 
-        /*
-         * GetLogin gets a screen name for individual users. This name is displayed for messages sent, actions, and connection/disconnection
-         */
+        // GetLogin gets a screen name for individual users. This name is displayed for messages sent, actions, and connection/disconnection
         void GetLogin()
         {
             using (StreamWriter writer = this.Writer)
@@ -280,9 +265,7 @@ namespace CSMud
             }
         }
 
-        /*
-         * OnConnect handles the welcome messages and tells the server client that someone has connected.
-         */
+        // OnConnect handles the welcome messages and tells the server client that someone has connected.
         void OnConnect()
         {
             using (StreamWriter writer = this.Writer)
@@ -293,9 +276,7 @@ namespace CSMud
             }
         }
 
-        /*
-         * OnDisconnect handles removing the terminated connections and tells the sever client that someone has disconnected.
-         */
+        // OnDisconnect handles removing the terminated connections and tells the sever client that someone has disconnected.
         void OnDisconnect()
         {
             this.World.EndConnection(this);
@@ -313,9 +294,7 @@ namespace CSMud
             SendMessage(line);
         }
 
-        /*
-         * SendMessage handles sending speech messages on the MUD server
-         */
+        // SendMessage handles sending speech messages on the MUD server
         void SendMessage(string line)
         {
             this.World.Broadcast($"{this.User} says, '{line}'");
