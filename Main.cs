@@ -80,7 +80,7 @@ namespace CSMud
             }
         }
 
-        // main 
+        // main just starts a new server 
         static void Main(string[] args)
         {
             new Server().Start();
