@@ -148,8 +148,10 @@ namespace CSMud
             {
                 foreach (Connection conn in Connections)
                 {
-                    conn.Writer.WriteLine(msg);
-                    conn.Writer.Flush();
+                    using (StreamWriter writer = conn.Writer)
+                    {
+                        writer.WriteLine(msg);
+                    }
                 }
             }
         }
@@ -167,8 +169,6 @@ namespace CSMud
          * StreamWriter writes characters to a stream in a particular encoding
          */
         Socket socket;
-        public StreamReader Reader;
-        public StreamWriter Writer;
 
         private System.Threading.Thread LoopThread
         { get; set; }
@@ -181,6 +181,9 @@ namespace CSMud
         public World World
         { get; }
 
+        public StreamWriter Writer => new StreamWriter(new NetworkStream(socket, false));
+        public StreamReader Reader => new StreamReader(new NetworkStream(socket, false));
+
         /*
          * Constructor
          */
@@ -190,9 +193,6 @@ namespace CSMud
             this.World = world;
             // Every connection gets a reader and writer
             // the writer is set to auto-flush for every user - this helps get messages displayed properly to each individual user
-            Reader = new StreamReader(new NetworkStream(socket, false));
-            Writer = new StreamWriter(new NetworkStream(socket, true));
-            Writer.AutoFlush = true;
             // Get the user's screen name for later use
             GetLogin();
             this.LoopThread = new System.Threading.Thread(ClientLoop);
@@ -218,21 +218,24 @@ namespace CSMud
                 while (true)
                 {
                     // Get a message that's sent to the server
-                    string line = Reader.ReadLine();
-                    // if the line is empty, or if the line says "quit," then break the loop
-                    if (line == null || line == "quit")
+                    using (StreamReader reader = this.Reader)
                     {
-                        break;
-                    }
-                    else if (line == "help")
-                    {
+                       string line = reader.ReadLine();
+                       // if the line is empty, or if the line says "quit," then break the loop
+                       if (line == null || line == "quit")
+                       {
+                           break;
+                       }
+                       else if (line == "help")
+                       {
 
-                    }
-                    // otherwise, we process the line
-                    else
-                    {
-                        ProcessLine(line);
-                    }
+                       }
+                       // otherwise, we process the line
+                       else
+                       {
+                           ProcessLine(line);
+                       }
+                    }    
                 }
             }
             catch (Exception e)
@@ -255,13 +258,19 @@ namespace CSMud
          */
         void GetLogin()
         {
-            Writer.Write("Please enter a name: ");
-            string user = Reader.ReadLine();
-            if (user == "")
+            using (StreamWriter writer = this.Writer)
             {
-                user = "Someone";
+                writer.Write("Please enter a name: ");
             }
-            this.User = user;
+            using (StreamReader reader = this.Reader)
+            {
+                string user = reader.ReadLine();
+                if (user == "")
+                {
+                    user = "Someone";
+                }
+                this.User = user;
+            }
         }
 
         /*
@@ -269,9 +278,12 @@ namespace CSMud
          */
         void OnConnect()
         {
-            Writer.WriteLine("Welcome!");
-            Writer.WriteLine("Send 'quit' to exit.");
-            Writer.WriteLine("Send 'help' for help.");
+            using (StreamWriter writer = this.Writer)
+            {
+                writer.WriteLine("Welcome!");
+                writer.WriteLine("Send 'quit' to exit.");
+                writer.WriteLine("Send 'help' for help.");
+            }
         }
 
         /*
