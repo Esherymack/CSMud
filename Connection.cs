@@ -25,9 +25,6 @@ namespace CSMud
         private System.Threading.CancellationTokenSource CTSource
         { get; set; }
 
-        private NetworkStream NStream
-        { get; set; }
-
         // User property for the user's screen name
         public string User
         { get; set; }
@@ -37,18 +34,14 @@ namespace CSMud
         { get; }
 
         // Reader and Writer get expression-valued properties
-        private StreamWriter Writer => new StreamWriter(this.NStream);
-        private StreamReader Reader => new StreamReader(this.NStream);
+        private StreamWriter Writer => new StreamWriter(new NetworkStream(socket, false));
+        private StreamReader Reader => new StreamReader(new NetworkStream(socket, false));
 
         // Constructor
         public Connection(Socket socket, World world)
         {
             this.socket = socket;
             this.World = world;
-            this.NStream = new NetworkStream(socket, false)
-            {
-                //ReadTimeout = 10000
-            };
             /* Every connection gets a reader and writer
             * the writer is set to auto-flush for every user - this helps get messages displayed properly to each individual user
             * Get the user's screen name for later use
@@ -63,48 +56,43 @@ namespace CSMud
             // Start a new Thread running ClientLoop()
             // LoopThread.Start();
             this.CTSource = new System.Threading.CancellationTokenSource();
-            Task.Run(() => ClientLoop(), CTSource.Token);
+            Task.Run(() => ClientLoop(), CTSource.Token).ContinueWith(t =>
+                {
+                    this.World.EndConnection(this);
+                    socket.Close();
+                    this.World.Broadcast($"{this.User} has disconnected.");
+                    Console.WriteLine($"{this.User} has disconnected.");
+                }
+            );
+
         }
 
         //  ClientLoop basically handles the sending and receiving of messages as well as handling incoming and outgoing connections.
         void ClientLoop()
         {
-            try
+
+            // Welcome the user to the game
+            OnConnect();
+            while (true)
             {
-                // Welcome the user to the game
-                OnConnect();
-                while (true)
+                // Get a message that's sent to the server
+                string line = this.ReadMessage();
+                // if the line is empty, or if the line says "quit," then break the loop
+                // TODO : Move the "quit" condition to a command rather than something that's checked here
+                if (line == null || line == "quit")
                 {
-                    // Get a message that's sent to the server
-                    using (StreamReader reader = this.Reader)
-                    {
-                        string line = reader.ReadLine();
-                        // if the line is empty, or if the line says "quit," then break the loop
-                        // TODO : Move the "quit" condition to a command rather than something that's checked here
-                        if (line == null || line == "quit")
-                        {
-                            break;
-                        }
-                        // otherwise, we process the line
-                        else
-                        {
-                            string message = FormatMessage(line);
-                            SendMessage(message);
-                        }
-                    }
+                    break;
+                }
+                // otherwise, we process the line
+                else
+                {
+                    string message = FormatMessage(line);
+                    this.World.Broadcast(message);
                 }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error: {e}");
-            }
-            finally
-            {
-                // when a user disconnects, tell the server they've left
-                this.World.Broadcast($"{this.User} has disconnected.");
-                Console.WriteLine($"{this.User} has disconnected.");
-                OnDisconnect();
-            }
+            // when a user disconnects, tell the server they've left
+
+            //OnDisconnect();
         }
 
         // GetLogin gets a screen name for individual users. This name is displayed for messages sent, actions, and connection/disconnection
@@ -137,6 +125,8 @@ Send 'help' for help.");
         {
             this.World.EndConnection(this);
             socket.Close();
+            this.World.Broadcast($"{this.User} has disconnected.");
+            Console.WriteLine($"{this.User} has disconnected.");
             this.CTSource.Cancel();
         }
 
