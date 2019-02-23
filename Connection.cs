@@ -22,9 +22,6 @@ namespace CSMud
         // private System.Threading.Thread LoopThread
         // { get; set; }
 
-        private System.Threading.CancellationTokenSource CTSource
-        { get; set; }
-
         // User property for the user's screen name
         public string User
         { get; set; }
@@ -55,8 +52,7 @@ namespace CSMud
         {
             // Start a new Thread running ClientLoop()
             // LoopThread.Start();
-            this.CTSource = new System.Threading.CancellationTokenSource();
-            Task.Run(() => ClientLoop(), CTSource.Token).ContinueWith(t =>
+            Task.Run(() => ClientLoop()).ContinueWith(t =>
                 {
                     this.World.EndConnection(this);
                     socket.Close();
@@ -90,9 +86,6 @@ namespace CSMud
                     this.World.Broadcast(message);
                 }
             }
-            // when a user disconnects, tell the server they've left
-
-            //OnDisconnect();
         }
 
         // GetLogin gets a screen name for individual users. This name is displayed for messages sent, actions, and connection/disconnection
@@ -127,7 +120,6 @@ Send 'help' for help.");
             socket.Close();
             this.World.Broadcast($"{this.User} has disconnected.");
             Console.WriteLine($"{this.User} has disconnected.");
-            this.CTSource.Cancel();
         }
 
         /*
@@ -142,31 +134,16 @@ Send 'help' for help.");
         // SendMessage handles sending speech messages on the MUD server
         public void SendMessage(string line)
         {
-            try
+            using (StreamWriter writer = this.Writer)
             {
-                using (StreamWriter writer = this.Writer)
-                {
-                    writer.WriteLine(line);
-                }
-            }
-            catch (IOException e) when (e.InnerException is SocketException)
-            {
-                OnDisconnect();
+                writer.WriteLine(line);
             }
         }        // SendMessage handles sending speech messages on the MUD server
         public string ReadMessage()
         {
-            try
+            using (StreamReader reader = this.Reader)
             {
-                using (StreamReader reader = this.Reader)
-                {
-                    return reader.ReadLine();
-                }
-            }
-            catch (IOException e) when (e.InnerException is SocketException)
-            {
-                OnDisconnect();
-                return null;
+                return reader.ReadLine();
             }
         }
     }
