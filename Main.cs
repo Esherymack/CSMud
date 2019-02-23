@@ -149,10 +149,7 @@ namespace CSMud
             {
                 foreach (Connection conn in Connections)
                 {
-                    using (StreamWriter writer = conn.Writer)
-                    {
-                        writer.WriteLine(msg);
-                    }
+                    conn.SendMessage(msg);
                 }
             }
         }
@@ -184,8 +181,8 @@ namespace CSMud
         { get; }
 
         // Reader and Writer get expression-valued properties
-        public StreamWriter Writer => new StreamWriter(new NetworkStream(socket, false));
-        public StreamReader Reader => new StreamReader(new NetworkStream(socket, false));
+        private StreamWriter Writer => new StreamWriter(new NetworkStream(socket, false));
+        private StreamReader Reader => new StreamReader(new NetworkStream(socket, false));
 
         // Constructor
         public Connection(Socket socket, World world)
@@ -228,7 +225,8 @@ namespace CSMud
                        // otherwise, we process the line
                        else
                        {
-                           ProcessLine(line);
+                           string message = FormatMessage(line);
+                           SendMessage(message);
                        }
                     }    
                 }
@@ -249,10 +247,7 @@ namespace CSMud
         // GetLogin gets a screen name for individual users. This name is displayed for messages sent, actions, and connection/disconnection
         void GetLogin()
         {
-            using (StreamWriter writer = this.Writer)
-            {
-                writer.Write("Please enter a name: ");
-            }
+            this.SendMessage("Please enter a name: ");
             using (StreamReader reader = this.Reader)
             {
                 string user = reader.ReadLine();
@@ -268,12 +263,9 @@ namespace CSMud
         // OnConnect handles the welcome messages and tells the server client that someone has connected.
         void OnConnect()
         {
-            using (StreamWriter writer = this.Writer)
-            {
-                writer.WriteLine("Welcome!");
-                writer.WriteLine("Send 'quit' to exit.");
-                writer.WriteLine("Send 'help' for help.");
-            }
+            this.SendMessage(@"Welcome!
+Send 'quit' to exit.
+Send 'help' for help.");
         }
 
         // OnDisconnect handles removing the terminated connections and tells the sever client that someone has disconnected.
@@ -288,16 +280,26 @@ namespace CSMud
          * ProcessLine handles organizing messages on the MUD server
          * as of right now it just trims and sends the message to SendMessasge
          */
-        void ProcessLine(string line)
+        string FormatMessage(string line)
         {
-            line = line.Trim();
-            SendMessage(line);
+            return $"{this.User} says, '{line.Trim()}'";     
         }
 
         // SendMessage handles sending speech messages on the MUD server
-        void SendMessage(string line)
+        public void SendMessage(string line)
         {
-            this.World.Broadcast($"{this.User} says, '{line}'");
+            try
+            {
+                using (StreamWriter writer = this.Writer)
+                {
+                    writer.WriteLine(line);
+                }
+            }
+            catch(IOException e) when (e.InnerException is SocketException)
+            {
+                // Console.WriteLine($"Error: {e}");
+                OnDisconnect();
+            }
         }
     }
 
