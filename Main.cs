@@ -81,46 +81,4 @@ namespace CSMud
             new Server().Start();
         }
     }
-
-
-
-    // The Commands class holds all user commands other than movement
-    public class Commands
-    {
-        
-    }
-
-    // The Movement class is movement-specific commands
-    public class Movement
-    {
-        public enum Directions
-        {
-            Undefined, North, South, East, West, Up, Down, NorthEast, NorthWest, SouthEast, SouthWest, In, Out
-        };
-    }
-
-    // The Map class is all map-generating specifics
-    public class Map
-    {
-    }
-
-    // The Objects class holds all interactable object interactions
-    public class Objects
-    {
-    }
-
-    // The Entity class holds NPC and enemy specifics
-    public class Entity
-    {
-    }
-
-    // The Timer class simply starts and stops a timer for the run.
-    public class MapTimer
-    {
-    }
-
-    // The Combat class holds commands specific to combat. 
-    public class Combat
-    {
-    }
 }
