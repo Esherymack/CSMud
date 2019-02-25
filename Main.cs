@@ -5,6 +5,7 @@
 
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace CSMud
 {
@@ -36,6 +37,8 @@ namespace CSMud
         public World World
         { get; private set; }
 
+        private readonly ManualResetEvent connectionEvent = new ManualResetEvent(false);
+
         // a ListenSocket is a socket
         private Socket ListenSocket
         { get; }
@@ -62,6 +65,7 @@ namespace CSMud
         // Start starts the server. 
         public void Start()
         {
+            System.Console.WriteLine($"Listening on port {port}");
             /*
             * Socket.Listen method takes an integer and places the socket into a listening state. 
             * backLog is the maximum length of pending connections queue
@@ -69,10 +73,19 @@ namespace CSMud
             ListenSocket.Listen(backLog);
             while(true)
             {
-                // Accept incoming connections and create new Connections 
-                Socket conn = ListenSocket.Accept();
-                World.NewConnection(new Connection(conn, this.World));
+                connectionEvent.Reset();
+
+                ListenSocket.BeginAccept(new System.AsyncCallback(AcceptConnection), ListenSocket);
+
+                connectionEvent.WaitOne();
             }
+        }
+
+        private void AcceptConnection(System.IAsyncResult ar)
+        {
+            Socket clientSock = (ar.AsyncState as Socket).EndAccept(ar);
+            connectionEvent.Set();
+            this.World.NewConnection(clientSock);
         }
 
         // main just starts a new server 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace CSMud
@@ -8,7 +10,7 @@ namespace CSMud
     public class World
     {
         // a world has connections
-        public List<Connection> Connections
+        public List<User> Users
         { get; }
 
         // a beat is a periodic message sent over the server
@@ -19,7 +21,7 @@ namespace CSMud
         public World()
         {
             // create a list object of connections
-            this.Connections = new List<Connection>();
+            this.Users = new List<User>();
             // Create a beat on the server
             this.Beat = new Timer(45000)
             {
@@ -36,37 +38,87 @@ namespace CSMud
         }
 
         // add new Connections to the world
-        public void NewConnection(Connection conn)
+        public void NewConnection(Socket clientSock)
         {
-            // tell the server that a user has connected
-            Console.WriteLine($"{conn.User} has connected.");
-            Broadcast($"{conn.User} has connected.");
-            // add the new connection to the list
-            lock (Connections)
+            User handshake(Connection conn)
             {
-                Connections.Add(conn);
+                conn.SendMessage("Please enter a name: ");
+                while (true)
+                {
+                    string username = conn.ReadMessage();
+                    if (username is null)
+                    {
+                        continue;
+                    }
+                    else if (username == "")
+                    {
+                        username = "Someone";
+                    }
+                    User user = new User(conn, this, username);
+
+                    lock (Users)
+                    {
+                        Users.Add(user);
+                    }
+                    return user;
+                }
             }
-            // start the connection
-            conn.Start();
+            
+            Task.Run(() =>
+            {
+                using (Connection conn = new Connection(clientSock))
+                {
+                    User user = null;
+
+                    try
+                    {
+                        user = handshake(conn);
+
+                        // tell the server that a user has connected
+                        Console.WriteLine($"{user.Name} has connected.");
+                        Broadcast($"{user.Name} has connected.");
+                    }
+                    catch (System.IO.IOException e) when (e.InnerException is SocketException)
+                    {
+                        Console.WriteLine("Connection attempt aborted: client disconnected.");
+                        return;
+                    }
+
+                    try
+                    {
+                        user.Start();
+                    }
+                    catch (System.IO.IOException e) when (e.InnerException is SocketException)
+                    {
+                        Console.WriteLine("Connection aborted by client.");
+                    }
+                    finally
+                    {
+                        this.EndConnection(user);
+                        this.Broadcast($"{user.Name} has disconnected.");
+                        Console.WriteLine($"{user.Name} has disconnected.");
+                    }
+                }
+            });
         }
 
         // when someone leaves, endconnection removes the connection from the list
-        public void EndConnection(Connection conn)
+        public void EndConnection(User user)
         {
-            lock (Connections)
+            lock (Users)
             {
-                Connections.Remove(conn);
+                Users.Remove(user);
             }
         }
 
         // Broadcast handles sending a message over the server - y'know, broadcasting it.
         public void Broadcast(string msg)
         {
-            lock (Connections)
+            lock (Users)
             {
-                foreach (Connection conn in Connections)
+                foreach (User user in Users)
                 {
-                    conn.SendMessage(msg);
+                    user.Connection.SendMessage(msg);
                 }
             }
         } 
