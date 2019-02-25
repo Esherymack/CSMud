@@ -55,11 +55,34 @@ namespace CSMud
                         username = "Someone";
                     }
                     User user = new User(conn, this, username);
-
                     lock (Users)
                     {
                         Users.Add(user);
                     }
+                    /*
+                     * Subscribe the user to events. 
+                     */ 
+                    user.RaiseLookEvent += this.HandleLookEvent;
+                    user.RaiseHelpEvent += this.HandleHelpEvent;
+                    user.RaiseInventoryQueryEvent += this.HandleInventoryQueryEvent;
+                    user.RaiseJumpEvent += this.HandleJumpEvent;
+                    user.RaiseListenEvent += this.HandleListenEvent;
+                    user.RaiseNoEvent += this.HandleNoEvent;
+                    user.RaisePrayEvent += this.HandlePrayEvent;
+                    user.RaiseSingEvent += this.HandleSingEvent;
+                    user.RaiseSleepEvent += this.HandleSleepEvent;
+                    user.RaiseSorryEvent += this.HandleSorryEvent;
+                    user.RaiseSwimEvent += this.HandleSwimEvent;
+                    user.RaiseThinkEvent += this.HandleThinkEvent;
+                    user.RaiseWakeUpEvent += this.HandleWakeUpEvent;
+                    user.RaiseWaveEvent += this.HandleWaveEvent;
+                    user.RaiseYesEvent += this.HandleYesEvent;
+                    user.RaiseYeetEvent += this.HandleYeetEvent;
+
+                    /*
+                     * End subscriptions
+                     */ 
+
                     return user;
                 }
             }
@@ -122,5 +145,108 @@ namespace CSMud
                 }
             }
         } 
+
+        /*
+         * Handlers for events 
+         */ 
+        void HandleLookEvent(object sender, EventArgs e)
+        {
+           (sender as User).Connection.SendMessage("You are in a room. It is very plain, white walls, featureless, doorless.");
+        }
+
+        void HandleHelpEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage(@"Help:
+'help' : Display this message
+'quit' : Exit the game
+'inventory' or 'i' : Display inventory.
+'jump' : Jump in place.
+'listen' : Take in the ambient sounds.
+'no' or 'n' : Decline.
+'pray' : Offer a prayer to your deity.
+'sing' : Sing a little tune.
+'sleep' : Take a nap.
+'sorry' : Apologize.
+'swim' : Take a dip.
+'think' : Ponder.
+'wake up' : Wake yourself up.
+'wave' : Wave.
+'yes' or 'y' : Agree.
+'this bitch empty' : YEET");
+        }
+
+        void HandleInventoryQueryEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You turn out your pockets. You have pocket lint, and a single Rhinu.");
+        }
+
+        void HandleJumpEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You give a little hop.");
+        }
+
+        void HandleListenEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You strain your ears. The world is silent, undeveloped and abandoned.");
+        }
+
+        void HandleNoEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You firmly shake your head no.");
+        }
+
+        void HandlePrayEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You offer a quick prayer to your god.");
+        }
+
+        void HandleSingEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("Five hundred bottles of beer on the wall, five hundred bottles of beer... take one down, pass it 'round, 499 bottles of beer on the wall...");
+        }
+
+        void HandleSleepEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You flop over onto the floor to catch up on your sleep.");
+        }
+
+        void HandleSorryEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You express deepest apologies for your transgressions.");
+        }
+
+        void HandleSwimEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("This undeveloped white box does not have any water to swim in.");
+        }
+
+        void HandleThinkEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You sit on the ground and ponder the universe for a while. What even is entropy?");
+        }
+
+        void HandleWakeUpEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You wake yourself up and stand.");
+        }
+
+        void HandleWaveEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You wave at the wall. Unsurprisingly, it does not wave back.");
+        }
+
+        void HandleYesEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You nod affirmatively.");
+        }
+
+        void HandleYeetEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("'YEET,' you yell. Your voice echoes in the empty room.");
+        }
+
+        /*
+         * End events
+         */ 
     }
 }

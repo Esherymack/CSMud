@@ -6,6 +6,31 @@ namespace CSMud
     {
         public Connection Connection { get; }
 
+        /*
+         * Events for commands.
+         */  
+        public event EventHandler RaiseLookEvent;
+        public event EventHandler RaiseHelpEvent;
+        public event EventHandler RaiseInventoryQueryEvent;
+        public event EventHandler RaiseJumpEvent;
+        public event EventHandler RaiseListenEvent;
+        public event EventHandler RaiseNoEvent;
+        public event EventHandler RaisePrayEvent;
+        public event EventHandler RaiseSingEvent;
+        public event EventHandler RaiseSleepEvent;
+        public event EventHandler RaiseSorryEvent;
+        public event EventHandler RaiseSwimEvent;
+        public event EventHandler RaiseThinkEvent;
+        public event EventHandler RaiseWakeUpEvent;
+        public event EventHandler RaiseWaveEvent;
+        public event EventHandler RaiseYesEvent;
+        public event EventHandler RaiseYeetEvent;
+
+        /*
+         * End Events
+         */
+
+
         // a connection has a world
         private World World
         { get; }
@@ -42,20 +67,176 @@ namespace CSMud
             {
                 // Get a message that's sent to the server
                 string line = Connection.ReadMessage();
-                // if the line is empty, or if the line says "quit," then break the loop
-                // TODO : Move the "quit" condition to a command rather than something that's checked here
-                if (line == null || line == "quit")
+
+                  if (line == null || line == "quit")
+                  {
+                      break;
+                  }
+
+                // Parse commands; default assumes no command was passed and outputs as a Say
+                switch (line)
                 {
-                    break;
-                }
-                // otherwise, we process the line
-                else
-                {
-                    string message = FormatMessage(line);
-                    this.World.Broadcast(message);
+                    case "look":
+                        OnRaiseLookEvent();
+                        break;
+                    case "help":
+                        OnRaiseHelpEvent();
+                        break;
+                    case "inventory":
+                    case "i":
+                        OnRaiseInventoryQueryEvent();
+                        break;
+                    case "jump":
+                        OnRaiseJumpEvent();
+                        break;
+                    case "listen":
+                        OnRaiseListenEvent();
+                        break;
+                    case "no":
+                    case "n":
+                        OnRaiseNoEvent();
+                        break;
+                    case "pray":
+                        OnRaisePrayEvent();
+                        break;
+                    case "sing":
+                        OnRaiseSingEvent();
+                        break;
+                    case "sleep":
+                        OnRaiseSleepEvent();
+                        break;
+                    case "sorry":
+                        OnRaiseSorryEvent();
+                        break;
+                    case "swim":
+                        OnRaiseSwimEvent();
+                        break;
+                    case "think":
+                        OnRaiseThinkEvent();
+                        break;
+                    case "wake up":
+                        OnRaiseWakeUpEvent();
+                        break;
+                    case "wave":
+                        OnRaiseWaveEvent();
+                        break;
+                    case "yes":
+                    case "y":
+                        OnRaiseYesEvent();
+                        break;
+                    case "this bitch empty":
+                        OnRaiseYeetEvent();
+                        break;
+                    default:
+                        string textMessage = FormatMessage(line);
+                        this.World.Broadcast(textMessage);
+                        break;
                 }
             }
         }
+
+        /*
+         * Protected virtual funcs for event raises.
+         */ 
+        protected virtual void OnRaiseLookEvent()
+        {
+            EventHandler handler = RaiseLookEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseHelpEvent()
+        {
+            EventHandler handler = RaiseHelpEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseInventoryQueryEvent()
+        {
+            EventHandler handler = RaiseInventoryQueryEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseJumpEvent()
+        {
+            EventHandler handler = RaiseJumpEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseListenEvent()
+        {
+            EventHandler handler = RaiseListenEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseNoEvent()
+        {
+            EventHandler handler = RaiseNoEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaisePrayEvent()
+        {
+            EventHandler handler = RaisePrayEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseSingEvent()
+        {
+            EventHandler handler = RaiseSingEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseSleepEvent()
+        {
+            EventHandler handler = RaiseSleepEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseSorryEvent()
+        {
+            EventHandler handler = RaiseSorryEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseSwimEvent()
+        {
+            EventHandler handler = RaiseSwimEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseThinkEvent()
+        {
+            EventHandler handler = RaiseThinkEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseWakeUpEvent()
+        {
+            EventHandler handler = RaiseWakeUpEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseWaveEvent()
+        {
+            EventHandler handler = RaiseWaveEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseYesEvent()
+        {
+            EventHandler handler = RaiseYesEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseYeetEvent()
+        {
+            EventHandler handler = RaiseYeetEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        /*
+         *  End events
+         */ 
 
         /*
 		 * ProcessLine handles organizing messages on the MUD server

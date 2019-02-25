@@ -6,404 +6,317 @@ using System.Threading.Tasks;
 
 namespace CSMud
 {
-    public class Commands
+    public static class Commands
     {
-        // commands allow interaction with the world
-
         // syntax: answer [text] to [user]
-        void Answer()
+        static void Answer()
         {
 
         }
 
         // syntax: ask [user] for [something]
-        void AskFor()
+        static void AskFor()
         {
 
         }
 
         // syntax: ask [user] about [something]
-        void AskAbout()
+        static void AskAbout()
         {
 
         }
 
         // syntax: attack [something/someone]
-        void Attack()
+        static void Attack()
         {
 
         }
 
         // syntax: blow [something held]
-        void BlowOn()
+        static void BlowOn()
         {
 
         }
 
         // syntax: burn [something]
-        void Burn()
+        static void Burn()
         {
 
         }
 
         // syntax: buy [something]
-        void Buy()
+        static void Buy()
         {
 
         }
 
         // syntax: climb [something]
-        void Climb()
+        static void Climb()
         {
 
         }
 
         // syntax: close [something]
-        void Close()
+        static void Close()
         {
 
         }
 
         // syntax: cut [something]
-        void Cut()
+        static void Cut()
         {
 
         }
 
         // syntax: dig [something]
-        void Dig()
+        static void Dig()
         {
 
         }
 
         // syntax: drink [something]
-        void Drink()
+        static void Drink()
         {
 
         }
 
         // syntax: drop [things held]
-        void Drop()
+        static void Drop()
         {
 
         }
 
         // syntax: eat [something held]
-        void Eat()
+        static void Eat()
         {
 
         }
 
         // syntax: enter [something]
-        void Enter()
+        static void Enter()
         {
 
         }
 
         // syntax: examine [something] or x [something]
-        void Examine()
+        static void Examine()
         {
 
         }
 
         // syntax: fill [something]
-        void Fill()
+        static void Fill()
         {
 
         }
 
         // syntax: get off [something]
-        void GetOff()
+        static void GetOff()
         {
 
         }
 
         // syntax: give [something] to [user]
-        void GiveTo()
-        {
-
-        }
-
-        // syntax: help
-        // displays help menu (lists these commands)
-        void Help()
-        {
-
-        }
-
-        // syntax: inventory or i
-        // lists user inventory
-        void Inventory()
-        {
-
-        }
-
-        // syntax: jump
-        void Jump()
+        static void GiveTo()
         {
 
         }
 
         // syntax: jump over [something]
-        void JumpOver()
+        static void JumpOver()
         {
 
         }
 
         // syntax: kiss [user]
-        void Kiss()
-        {
-
-        }
-
-        // syntax: listen
-        void Listen()
+        static void Kiss()
         {
 
         }
 
         // syntax: listen to [something]
-        void ListenTo()
+        static void ListenTo()
         {
 
         }
 
         // syntax: lock [something] with [something]
-        void LockWith()
+        static void LockWith()
         {
 
         }
 
-        // syntax: look
-        void Look()
-        {
-
-        }
 
         // syntax: look in [something]
-        void LookIn()
+        static void LookIn()
         {
 
         }
 
         // syntax: look under [something]
-        void LookUnder()
+        static void LookUnder()
         {
 
         }
 
         // syntax: look up [text] in [something]
-        void LookUp()
-        {
-
-        }
-
-        // syntax: no
-        void No()
+        static void LookUp()
         {
 
         }
 
         // syntax: open [something]
-        void Open()
+        static void Open()
         {
 
         }
 
         // syntax: pull [something]
-        void Pull()
+        static void Pull()
         {
 
         }
 
         // syntax: push [something]
-        void Push()
+        static void Push()
         {
 
         }
 
         // syntax: put [things] in [something]
-        void PutIn()
+        static void PutIn()
         {
 
         }
 
         // syntax: put [things] on [something]
-        void PutOn()
-        {
-
-        }
-
-        // syntax: pray
-        void Pray()
+        static void PutOn()
         {
 
         }
 
         // syntax: rub [something]
-        void Rub()
+        static void Rub()
         {
 
         }
 
+        // syntax: say [text]
+        static void Say()
+        {
+        }
+
         // syntax: search [something]
-        void Search()
+        static void Search()
         {
 
         }
 
         // syntax: set [something] to [something]
-        void SetTo()
+        static void SetTo()
         {
 
         }
 
         // syntax: show [something] to [user]
-        void ShowTo()
-        {
-
-        }
-
-        // syntax: sing
-        void Sing()
+        static void ShowTo()
         {
 
         }
 
         // syntax: sit on [something]
-        void SitOn()
-        {
-
-        }
-
-        // syntax: sleep
-        void Sleep()
+        static void SitOn()
         {
 
         }
 
         // syntax: smell [something]
-        void Smell()
-        {
-
-        }
-
-        // syntax: sorry
-        void Sorry()
+        static void Smell()
         {
 
         }
 
         // syntax: squeeze [something]
-        void Squeeze()
-        {
-
-        }
-
-        // syntax: swim
-        void Swim()
+        static void Squeeze()
         {
 
         }
 
         // syntax: swing [something]
-        void Swing()
+        static void Swing()
         {
 
         }
 
         // syntax: switch [something] [on/off]
-        void SwitchOnOff()
+        static void SwitchOnOff()
         {
 
         }
 
         // syntax: talk to [user]
-        void TalkTo()
+        static void TalkTo()
         {
 
         }
 
         // syntax: take [things]
-        void Take()
+        static void Take()
         {
 
         }
 
         // syntax: take off [something]
-        void TakeOff()
+        static void TakeOff()
         {
 
         }
 
         // syntax: taste [something]
-        void Taste()
+        static void Taste()
         {
 
         }
 
         // syntax: tell [user/npc] about [something]
-        void TellAbout()
-        {
-
-        }
-
-        // syntax: think
-        void Think()
+        static void TellAbout()
         {
 
         }
 
         // syntax: touch [something]
-        void Touch()
+        static void Touch()
         {
 
         }
 
         // syntax: turn [something]
-        void Turn()
+        static void Turn()
         {
 
         }
 
         // syntax: unlock [something] with [something]
-        void UnlockWith()
-        {
-
-        }
-
-        // syntax: wake up
-        void WakeUp()
+        static void UnlockWith()
         {
 
         }
 
         // syntax: wake [someone]
-        void Wake()
+        static void Wake()
         {
 
         }
 
-        // syntax: wave
-        void Wave()
-        {
-
-        }
 
         // syntax: wave [something held]
-        void WaveThing()
+        static void WaveThing()
         {
 
         }
 
         // syntax: wear [something held]
-        void Wear()
-        {
-
-        }
-
-        // syntax: yes
-        void Yes()
+        static void Wear()
         {
 
         }
