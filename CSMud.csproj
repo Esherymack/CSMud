@@ -43,9 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Combat.cs" />
-    <Compile Include="Commands.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Inventory.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Movement.cs" />

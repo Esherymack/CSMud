@@ -59,9 +59,8 @@ namespace CSMud
                     {
                         Users.Add(user);
                     }
-                    /*
-                     * Subscribe the user to events. 
-                     */ 
+
+                    #region Subscribe the user to events. 
                     user.RaiseLookEvent += this.HandleLookEvent;
                     user.RaiseHelpEvent += this.HandleHelpEvent;
                     user.RaiseInventoryQueryEvent += this.HandleInventoryQueryEvent;
@@ -78,10 +77,9 @@ namespace CSMud
                     user.RaiseWaveEvent += this.HandleWaveEvent;
                     user.RaiseYesEvent += this.HandleYesEvent;
                     user.RaiseYeetEvent += this.HandleYeetEvent;
+                    user.RaiseExamineEvent += this.HandleExamineEvent;
 
-                    /*
-                     * End subscriptions
-                     */ 
+                    #endregion
 
                     return user;
                 }
@@ -144,11 +142,11 @@ namespace CSMud
                     user.Connection.SendMessage(msg);
                 }
             }
-        } 
+        }
 
-        /*
-         * Handlers for events 
-         */ 
+
+        #region Handlers for events 
+
         void HandleLookEvent(object sender, EventArgs e)
         {
            (sender as User).Connection.SendMessage("You are in a room. It is very plain, white walls, featureless, doorless.");
@@ -245,8 +243,11 @@ namespace CSMud
             (sender as User).Connection.SendMessage("'YEET,' you yell. Your voice echoes in the empty room.");
         }
 
-        /*
-         * End events
-         */ 
+        void HandleExamineEvent(object sender, ExamineData e)
+        {
+            (sender as User).Connection.SendMessage($"You examine the {e.Command}");
+        }
+
+        #endregion
     }
 }
