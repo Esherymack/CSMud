@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace CSMud
 {
-    class Map
+    public class Map
     {
+        public List<Room> Rooms { get; }
     }
 }

@@ -17,6 +17,8 @@ namespace CSMud
         private Timer Beat
         { get; }
 
+        public Map WorldMap { get; }
+
         // constructor
         public World()
         {
@@ -76,9 +78,7 @@ namespace CSMud
                     user.RaiseWakeUpEvent += this.HandleWakeUpEvent;
                     user.RaiseWaveEvent += this.HandleWaveEvent;
                     user.RaiseYesEvent += this.HandleYesEvent;
-                    user.RaiseYeetEvent += this.HandleYeetEvent;
-                    user.RaiseExamineEvent += this.HandleExamineEvent;
-
+                    user.RaiseParameterizedEvent += this.HandleParameterizedEvent;
                     #endregion
 
                     return user;
@@ -243,9 +243,9 @@ namespace CSMud
             (sender as User).Connection.SendMessage("'YEET,' you yell. Your voice echoes in the empty room.");
         }
 
-        void HandleExamineEvent(object sender, ExamineData e)
+        void HandleParameterizedEvent(object sender, ParameterizedEvent e)
         {
-            (sender as User).Connection.SendMessage($"You examine the {e.Command}");
+            (sender as User).Connection.SendMessage("You've hit ParamaterizedEvent handle");
         }
 
         #endregion

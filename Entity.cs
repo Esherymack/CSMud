@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CSMud
 {
-    class Entity
+    public class Entity
     {
     }
 }
