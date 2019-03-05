@@ -169,8 +169,7 @@ namespace CSMud
 'think' : Ponder.
 'wake up' : Wake yourself up.
 'wave' : Wave.
-'yes' or 'y' : Agree.
-'this bitch empty' : YEET");
+'yes' or 'y' : Agree.");
         }
 
         void HandleInventoryQueryEvent(object sender, EventArgs e)
@@ -238,14 +237,16 @@ namespace CSMud
             (sender as User).Connection.SendMessage("You nod affirmatively.");
         }
 
-        void HandleYeetEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("'YEET,' you yell. Your voice echoes in the empty room.");
-        }
-
         void HandleParameterizedEvent(object sender, ParameterizedEvent e)
         {
-            (sender as User).Connection.SendMessage("You've hit ParamaterizedEvent handle");
+            /*(sender as User).Connection.SendMessage(e.Command);
+            if (e.Action != null)
+            {
+                 (sender as User).Connection.SendMessage(e.Action);
+            }*/
+
+
+
         }
 
         #endregion

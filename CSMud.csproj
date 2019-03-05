@@ -49,12 +49,11 @@
     <Compile Include="Main.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Movement.cs" />
-    <Compile Include="Objects.cs" />
+    <Compile Include="Thing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User.cs" />
     <Compile Include="World.cs" />
     <Compile Include="Room.cs" />
-    <Compile Include="Doors.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

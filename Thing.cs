@@ -6,19 +6,26 @@ using System.Threading.Tasks;
 
 namespace CSMud
 {
-    public class Entity
+    public class Thing : IDisposable
     {
         private List<string> Commands { get; set; }
         private string Id { get; set; }
         private string Name { get; set; }
         private string Description { get; set; }
 
-        public Entity(List<string> commands, string name, string description, string id)
+        public Thing(List<string> commands, string name, string description, string id)
         {
             this.Commands = commands;
             this.Name = name;
             this.Description = description;
             this.Id = id;
         }
+
+        ~Thing()
+        {
+            this.Dispose();
+        }
+
+        public void Dispose() { }
     }
 }

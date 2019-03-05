@@ -14,7 +14,7 @@ namespace CSMud
         // This data comes from a resource file
 
         // define params
-        public Objects Objects { get; }
+        public List<Object> Objects { get; }
 
         // Constructor
         public Inventory()

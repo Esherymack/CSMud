@@ -6,6 +6,7 @@ namespace CSMud
     public class ParameterizedEvent : EventArgs
     {
         public string Command { get; set; }
+        public string Action { get; set; }
     }
 
     public class User : IDisposable
@@ -81,65 +82,71 @@ Send 'help' for help.");
                 {
                     break;
                 }
-                else
+                switch (line)
                 {
-                    switch (line)
-                    {
-                        case "look":
-                            OnRaiseLookEvent();
+                    case "look":
+                        OnRaiseLookEvent();
+                        break;
+                    case "help":
+                        OnRaiseHelpEvent();
+                        break;
+                    case "inventory":
+                    case "i":
+                        OnRaiseInventoryQueryEvent();
+                        break;
+                    case "jump":
+                        OnRaiseJumpEvent();
+                        break;
+                    case "listen":
+                        OnRaiseListenEvent();
+                        break;
+                    case "no":
+                    case "n":
+                        OnRaiseNoEvent();
+                        break;
+                    case "pray":
+                        OnRaisePrayEvent();
+                        break;
+                    case "sing":
+                        OnRaiseSingEvent();
+                        break;
+                    case "sleep":
+                        OnRaiseSleepEvent();
+                        break;
+                    case "sorry":
+                        OnRaiseSorryEvent();
+                        break;
+                    case "swim":
+                        OnRaiseSwimEvent();
+                        break;
+                    case "think":
+                        OnRaiseThinkEvent();
+                        break;
+                    case "wake up":
+                        OnRaiseWakeUpEvent();
+                        break;
+                    case "wave":
+                        OnRaiseWaveEvent();
+                        break;
+                    case "yes":
+                    case "y":
+                        OnRaiseYesEvent();
+                        break;
+                    default:
+                        // string textMessage = FormatMessage(line);
+                        // this.World.Broadcast(textMessage);
+                        try
+                        {
+                            string[] splitLine = line.Split(new char[] { ' ' }, 2);
+                            OnParameterizedEvent(new ParameterizedEvent { Command = splitLine[0], Action = splitLine[1] });
                             break;
-                        case "help":
-                            OnRaiseHelpEvent();
+                        }
+                        catch (Exception)
+                        {
+                            OnParameterizedEvent(new ParameterizedEvent { Command = "You cannot do that", Action = null });
                             break;
-                        case "inventory":
-                        case "i":
-                            OnRaiseInventoryQueryEvent();
-                            break;
-                        case "jump":
-                            OnRaiseJumpEvent();
-                            break;
-                        case "listen":
-                            OnRaiseListenEvent();
-                            break;
-                        case "no":
-                        case "n":
-                            OnRaiseNoEvent();
-                            break;
-                        case "pray":
-                            OnRaisePrayEvent();
-                            break;
-                        case "sing":
-                            OnRaiseSingEvent();
-                            break;
-                        case "sleep":
-                            OnRaiseSleepEvent();
-                            break;
-                        case "sorry":
-                            OnRaiseSorryEvent();
-                            break;
-                        case "swim":
-                            OnRaiseSwimEvent();
-                            break;
-                        case "think":
-                            OnRaiseThinkEvent();
-                            break;
-                        case "wake up":
-                            OnRaiseWakeUpEvent();
-                            break;
-                        case "wave":
-                            OnRaiseWaveEvent();
-                            break;
-                        case "yes":
-                        case "y":
-                            OnRaiseYesEvent();
-                            break;
-                        default:
-                            // string textMessage = FormatMessage(line);
-                            // this.World.Broadcast(textMessage);
-                            OnParameterizedEvent(new ParameterizedEvent { Command = line });
-                            break;
-                    }       
-                }          
+                        }
+                }               
             }
         }
 
