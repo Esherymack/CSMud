@@ -3,8 +3,8 @@ using System.Xml.Serialization;
 
 namespace CSMud
 {
-    [XmlRoot("Entities")]
-    public class Entity
+    [XmlRoot("Things")]
+    public class Thing
     {
         [XmlElement]
         public List<string> Commands { get; set; }
@@ -15,7 +15,7 @@ namespace CSMud
         [XmlElement]
         public string Description { get; set; }
 
-        public Entity()
+        public Thing()
         {
             Commands = null;
             Id = 0;
