@@ -1,0 +1,8 @@
+<Rooms>
+  <Room id = "0001">
+    <Doors></Doors>
+    <Id>0001</Id>
+    <Name>The Test Room</Name>
+    <Description>A vast room, with white floors. There are no visible doors. A few objects lay in front of you.</Description>
+  </Room>
+</Rooms>
