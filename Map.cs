@@ -6,9 +6,10 @@ namespace CSMud
     {
         public List<Room> Rooms { get; }
 
-        public Map(List<Room> rooms)
+        public Map()
         {
-            this.Rooms = rooms;
+            MapBuild mapbuilder = new MapBuild();
+            mapbuilder.GenerateMap();
         }
     }
 }

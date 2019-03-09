@@ -31,6 +31,8 @@ namespace CSMud
                 Enabled = true
             };
             this.Beat.Elapsed += OnTimedEvent;
+
+            this.WorldMap = new Map();
         }
 
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.

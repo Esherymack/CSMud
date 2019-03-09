@@ -3,15 +3,16 @@ using System.Xml.Serialization;
 
 namespace CSMud
 {
+    [XmlRoot("Things")]
     public class Thing
     {
-        [XmlAttribute]
+        [XmlElement]
         public List<string> Commands { get; set; }
-        [XmlAttribute]
+        [XmlElement]
         public int Id { get; set; }
-        [XmlAttribute]
+        [XmlElement]
         public string Name { get; set; }
-        [XmlAttribute]
+        [XmlElement]
         public string Description { get; set; }
 
         public Thing()
