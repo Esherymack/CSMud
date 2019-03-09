@@ -1,31 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace CSMud
 {
-    public class Thing : IDisposable
+    public class Thing
     {
-        private List<string> Commands { get; set; }
-        private int Id { get; set; }
-        private string Name { get; set; }
-        private string Description { get; set; }
+        [XmlAttribute]
+        public List<string> Commands { get; set; }
+        [XmlAttribute]
+        public int Id { get; set; }
+        [XmlAttribute]
+        public string Name { get; set; }
+        [XmlAttribute]
+        public string Description { get; set; }
 
-        public Thing(List<string> commands, string name, string description, int id)
+        public Thing()
         {
-            this.Commands = commands;
-            this.Name = name;
-            this.Description = description;
-            this.Id = id;
+            Commands = null;
+            Id = 0;
+            Name = "";
+            Description = "";
         }
-
-        ~Thing()
-        {
-            this.Dispose();
-        }
-
-        public void Dispose() { }
     }
 }

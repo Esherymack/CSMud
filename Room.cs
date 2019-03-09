@@ -1,26 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
+
 namespace CSMud
 {
     public class Room
     {
         public List<Thing> Things { get; }
         public List<Entity> Entities { get; }
+        [XmlAttribute]
         public List<char> Doors { get; set; }
 
-        private string Id { get; set; }
+        [XmlAttribute]
+        private int Id { get; set; }
+        [XmlAttribute]
         private string Name { get; set; }
+        [XmlAttribute]
         private string Description { get; set; }
 
-        public Room(string name, string description, string id, List<char> directions, List<Thing> things, List<Entity> entities)
+        public Room()
         {
-            this.Doors = directions;
-            this.Things = things;
-            this.Entities = entities;
+            Things = null;
+            Entities = null;
+            Doors = null;
 
-            this.Name = name;
-            this.Id = id;
-            this.Description = description;
+            Id = 0;
+            Name = "";
+            Description = "";
         }
     }
 }

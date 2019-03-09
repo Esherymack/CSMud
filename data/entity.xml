@@ -1,0 +1,17 @@
+<Entities>
+  <Entity id = "0001">
+    <Name>Jane Doe</Name>
+    <Id>0001</Id>
+    <Description>Jane Doe is a friendly entity.</Description>
+    <Commands>examine</Commands>
+    <Commands>talk to</Commands>
+    <Commands>listen to</Commands>
+  </Entity>
+  <Entity id = "0002">
+    <Name>An Ork</Name>
+    <Id>0002</Id>
+    <Description>An angry green fungus. He's not very friendly.</Description>
+    <Commands>examine</Commands>
+    <Commands>attack</Commands>
+  </Entity>
+</Entities>

@@ -1,24 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace CSMud
 {
     public class Entity
     {
+        [XmlAttribute]
         private List<string> Commands { get; set; }
+        [XmlAttribute]
         private int Id { get; set; }
+        [XmlAttribute]
         private string Name { get; set; }
+        [XmlAttribute]
         private string Description { get; set; }
 
-        public Entity(List<string> commands, string name, string description, int id)
+        public Entity()
         {
-            this.Commands = commands;
-            this.Name = name;
-            this.Description = description;
-            this.Id = id;
+            Commands = null;
+            Id = 0;
+            Name = "";
+            Description = "";
         }
     }
 }
