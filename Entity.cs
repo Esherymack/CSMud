@@ -9,11 +9,11 @@ namespace CSMud
     public class Entity
     {
         private List<string> Commands { get; set; }
-        private string Id { get; set; }
+        private int Id { get; set; }
         private string Name { get; set; }
         private string Description { get; set; }
 
-        public Entity(List<string> commands, string name, string description, string id)
+        public Entity(List<string> commands, string name, string description, int id)
         {
             this.Commands = commands;
             this.Name = name;

@@ -14,12 +14,12 @@ namespace CSMud
         // This data comes from a resource file
 
         // define params
-        public List<Object> Objects { get; }
+        public List<Thing> Things { get; }
 
         // Constructor
-        public Inventory()
+        public Inventory(List<Thing> things)
         {
-
+            this.Things = things;
         }
 
         public void addToInventory()
