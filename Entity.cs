@@ -3,16 +3,17 @@ using System.Xml.Serialization;
 
 namespace CSMud
 {
+    [XmlRoot("Entities")]
     public class Entity
     {
-        [XmlAttribute]
-        private List<string> Commands { get; set; }
-        [XmlAttribute]
-        private int Id { get; set; }
-        [XmlAttribute]
-        private string Name { get; set; }
-        [XmlAttribute]
-        private string Description { get; set; }
+        [XmlElement]
+        public List<string> Commands { get; set; }
+        [XmlElement]
+        public int Id { get; set; }
+        [XmlElement]
+        public string Name { get; set; }
+        [XmlElement]
+        public string Description { get; set; }
 
         public Entity()
         {

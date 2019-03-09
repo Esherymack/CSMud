@@ -3,19 +3,22 @@ using System.Xml.Serialization;
 
 namespace CSMud
 {
+    [XmlRoot("Rooms")]
     public class Room
     {
+        [XmlIgnore]
         public List<Thing> Things { get; }
+        [XmlIgnore]
         public List<Entity> Entities { get; }
-        [XmlAttribute]
-        public List<char> Doors { get; set; }
+        [XmlElement]
+        public List<string> Doors { get; set; }
 
-        [XmlAttribute]
-        private int Id { get; set; }
-        [XmlAttribute]
-        private string Name { get; set; }
-        [XmlAttribute]
-        private string Description { get; set; }
+        [XmlElement]
+        public int Id { get; set; }
+        [XmlElement]
+        public string Name { get; set; }
+        [XmlElement]
+        public string Description { get; set; }
 
         public Room()
         {
