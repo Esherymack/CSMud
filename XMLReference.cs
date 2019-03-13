@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+/* A foray into generics
+ * Basically tried to smarten up the deserializer to function more like a 
+ * SQL "INNER JOIN" between the Thing, Entity, and Room objects.
+ */
 namespace CSMud
 {
     public interface Identifiable
@@ -12,6 +16,8 @@ namespace CSMud
         public T Actual { get; set; }
         public int Id { get; set; }
 
+        /* Link is the function that actually performs the 'join'
+         */      
         public static void Link(List<XMLReference<T>> refs, List<T> actuals)
         {
             var ActualById = actuals.ToDictionary(t => t.Id, t => t);

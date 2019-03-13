@@ -32,6 +32,7 @@ namespace CSMud
             };
             this.Beat.Elapsed += OnTimedEvent;
 
+            // Generate the map last
             this.WorldMap = new Map();
         }
 

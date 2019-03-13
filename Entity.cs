@@ -2,6 +2,12 @@
 using System.Linq;
 using System.Xml.Serialization;
 
+/* Entity class for CSMud
+ * An entity is any NPC
+ * Entities can be friendly or enemies
+ * Entities have specific sets of commands, unique ID Numbers, a name, and a description.
+ */
+
 namespace CSMud
 {
     [XmlRoot("Entities")]

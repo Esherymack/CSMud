@@ -13,7 +13,8 @@ namespace CSMud
     {
         public Connection Connection { get; }
 
-        #region Events for commands.  
+        #region Events for commands.
+        // These are static events  
         public event EventHandler RaiseLookEvent;
         public event EventHandler RaiseHelpEvent;
         public event EventHandler RaiseInventoryQueryEvent;
@@ -30,6 +31,7 @@ namespace CSMud
         public event EventHandler RaiseWaveEvent;
         public event EventHandler RaiseYesEvent;
 
+        // This is a parameterized event that affects a Thing or Entity
         public event EventHandler<ParameterizedEvent> RaiseParameterizedEvent;
 
         #endregion

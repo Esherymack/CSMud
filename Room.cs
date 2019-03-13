@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
+/* A 'Room' object is a collection of Things, Entities, and Doors as well as a name 
+ * and a description.
+ */
+
 namespace CSMud
 {
     [XmlRoot("Rooms")]
