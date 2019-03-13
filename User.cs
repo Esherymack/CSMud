@@ -14,21 +14,12 @@ namespace CSMud
         public Connection Connection { get; }
 
         #region Events for commands.
-        // These are static events  
+        // These are static events - they always do the same thing.
         public event EventHandler RaiseLookEvent;
         public event EventHandler RaiseHelpEvent;
         public event EventHandler RaiseInventoryQueryEvent;
-        public event EventHandler RaiseJumpEvent;
         public event EventHandler RaiseListenEvent;
         public event EventHandler RaiseNoEvent;
-        public event EventHandler RaisePrayEvent;
-        public event EventHandler RaiseSingEvent;
-        public event EventHandler RaiseSleepEvent;
-        public event EventHandler RaiseSorryEvent;
-        public event EventHandler RaiseSwimEvent;
-        public event EventHandler RaiseThinkEvent;
-        public event EventHandler RaiseWakeUpEvent;
-        public event EventHandler RaiseWaveEvent;
         public event EventHandler RaiseYesEvent;
 
         // This is a parameterized event that affects a Thing or Entity
@@ -51,6 +42,7 @@ namespace CSMud
             this.Connection = conn;
             this.World = world;
             this.Name = name;
+            Inventory = new Inventory();
         }
 
         // OnConnect handles the welcome messages and tells the server client that someone has connected.
@@ -96,39 +88,12 @@ Send 'help' for help.");
                     case "i":
                         OnRaiseInventoryQueryEvent();
                         break;
-                    case "jump":
-                        OnRaiseJumpEvent();
-                        break;
                     case "listen":
                         OnRaiseListenEvent();
                         break;
                     case "no":
                     case "n":
                         OnRaiseNoEvent();
-                        break;
-                    case "pray":
-                        OnRaisePrayEvent();
-                        break;
-                    case "sing":
-                        OnRaiseSingEvent();
-                        break;
-                    case "sleep":
-                        OnRaiseSleepEvent();
-                        break;
-                    case "sorry":
-                        OnRaiseSorryEvent();
-                        break;
-                    case "swim":
-                        OnRaiseSwimEvent();
-                        break;
-                    case "think":
-                        OnRaiseThinkEvent();
-                        break;
-                    case "wake up":
-                        OnRaiseWakeUpEvent();
-                        break;
-                    case "wave":
-                        OnRaiseWaveEvent();
                         break;
                     case "yes":
                     case "y":
@@ -171,12 +136,6 @@ Send 'help' for help.");
             handler?.Invoke(this, EventArgs.Empty);
         }
 
-        protected virtual void OnRaiseJumpEvent()
-        {
-            EventHandler handler = RaiseJumpEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
         protected virtual void OnRaiseListenEvent()
         {
             EventHandler handler = RaiseListenEvent;
@@ -186,54 +145,6 @@ Send 'help' for help.");
         protected virtual void OnRaiseNoEvent()
         {
             EventHandler handler = RaiseNoEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaisePrayEvent()
-        {
-            EventHandler handler = RaisePrayEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseSingEvent()
-        {
-            EventHandler handler = RaiseSingEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseSleepEvent()
-        {
-            EventHandler handler = RaiseSleepEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseSorryEvent()
-        {
-            EventHandler handler = RaiseSorryEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseSwimEvent()
-        {
-            EventHandler handler = RaiseSwimEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseThinkEvent()
-        {
-            EventHandler handler = RaiseThinkEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseWakeUpEvent()
-        {
-            EventHandler handler = RaiseWakeUpEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseWaveEvent()
-        {
-            EventHandler handler = RaiseWaveEvent;
             handler?.Invoke(this, EventArgs.Empty);
         }
 
