@@ -7,16 +7,27 @@
     <Things>
 	      <Id>0002</Id>
     </Things>
-    <Things>
-        <Id>0003</Id>
-    </Things>
-    <Things>
-	      <Id>0004</Id>
-    </Things>
     <Doors>N</Doors>
-    <Doors>E</Doors>
     <Id>0001</Id>
     <Name>The Test Room</Name>
-    <Description>A vast room, with white floors. There is a door to the North and to the East. A few objects lay on the floor in front of you: </Description>
+    <Description>A vast room, with white floors. There is a door to the North. A few objects lay on the floor in front of you: </Description>
+  </Room>
+  <Room>
+    <Things>
+      <Id>0003</Id>
+    </Things>
+    <Things>
+      <Id>0004</Id>
+    </Things>
+    <Entities>
+      <Id>0001</Id>
+    </Entities>
+    <Entities>
+      <Id>0002</Id>
+    </Entities>
+    <Doors>S</Doors>
+    <Id>0002</Id>
+    <Name>The Second Room</Name>
+    <Description>This is the second room. There is a door to the South. A few new objects are here, as well as some entities: </Description>
   </Room>
 </Rooms>

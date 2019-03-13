@@ -43,11 +43,22 @@ namespace CSMud
         {
             List<Room> Rooms = new List<Room>();
             XmlSerializer serializer = new XmlSerializer(typeof(List<Room>), new XmlRootAttribute("Rooms"));
-            XmlReader reader = XmlReader.Create(@"..\..\data\room.xml");
-            Rooms = (List<Room>)serializer.Deserialize(reader);
-            Rooms.ForEach(i => XMLReference<Thing>.Link(i.Thing, things));
-            Rooms.ForEach(i => Console.Write($"{i.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{i.Name}\t{i.Description}\n{i.Thing}\n"));
-            reader.Close();        
+            using (XmlReader reader = XmlReader.Create(@"..\..\data\room.xml"))
+            {
+                Rooms = (List<Room>)serializer.Deserialize(reader);
+                Rooms.ForEach(i => XMLReference<Thing>.Link(i.Things, things));
+                Rooms.ForEach(i => XMLReference<Entity>.Link(i.Entities, entities));
+                Rooms.ForEach(r => printRoomDescription(r));
+            }
+        }
+
+        void printRoomDescription(Room room)
+        {
+            Console.WriteLine($"{room.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{room.Name}\t{room.Description}");
+            var roomthings = room.Things.Select(t => t.Actual);
+            var roomentities = room.Entities.Select(t => t.Actual);
+            Console.WriteLine(string.Join(", ", roomthings));
+            Console.WriteLine(string.Join(", ", roomentities));
         }
     }
 }

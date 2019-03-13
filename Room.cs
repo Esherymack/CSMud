@@ -6,13 +6,12 @@ namespace CSMud
     [XmlRoot("Rooms")]
     public class Room
     { 
-        [XmlIgnore]
-        public List<Entity> Entities { get; set; }
         [XmlElement]
-        public List<XMLReference<Thing>> Thing { get; set; }
+        public List<XMLReference<Thing>> Things { get; set; }
+        [XmlElement]
+        public List<XMLReference<Entity>> Entities { get; set; }
         [XmlElement]
         public List<string> Doors { get; set; }
-
 
         [XmlElement]
         public string Name { get; set; }
@@ -23,7 +22,7 @@ namespace CSMud
         {
             Entities = null;
             Doors = null;
-            Thing = null;
+            Things = null;
 
             Name = "";
             Description = "";
