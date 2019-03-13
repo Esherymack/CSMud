@@ -31,7 +31,7 @@ namespace CSMud
         { get; }
 
         // a user has a unique inventory
-        private Inventory Inventory
+        public Inventory Inventory
         { get; set; }
 
         // a user is set in a specific room
@@ -46,6 +46,7 @@ namespace CSMud
             this.World = world;
             this.Name = name;
             Inventory = new Inventory();
+
             this.CurrRoomId = 0001;
         }
 
@@ -153,6 +154,11 @@ Send 'help' for help.");
         public static string FormatMessage(string line, string name)
         {
             return $"{name} says, '{line.Trim()}'";
+        }
+
+        public static string GetUserInventory(Inventory inventory)
+        {
+            return string.Join(", ", inventory.Things);
         }
 
         public void Dispose()

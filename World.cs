@@ -17,7 +17,7 @@ namespace CSMud
         private Timer Beat
         { get; }
 
-        public Map WorldMap { get; }
+        public MapBuild WorldMap { get; set; }
 
         // constructor
         public World()
@@ -33,7 +33,7 @@ namespace CSMud
             this.Beat.Elapsed += OnTimedEvent;
 
             // Generate the map last
-            this.WorldMap = new Map();
+            this.WorldMap = new MapBuild();
         }
 
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
@@ -151,7 +151,8 @@ namespace CSMud
 
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
-            (sender as User).Connection.SendMessage("Your inventory consists of: ");
+            (sender as User).Connection.SendMessage($"Your inventory consists of:\n {User.GetUserInventory((sender as User).Inventory)}");
+
         }
 
         void HandleNoEvent(object sender, EventArgs e)

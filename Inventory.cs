@@ -11,7 +11,10 @@ using System.Threading.Tasks;
 
 namespace CSMud
 { 
-public class Inventory
+    public class Inventory
     {
+        public List<Thing> Things { get; set; }
+
+
     }
 }
