@@ -66,10 +66,8 @@ namespace CSMud
                     }
 
                     #region Subscribe the user to events. 
-                    user.RaiseLookEvent += this.HandleLookEvent;
                     user.RaiseHelpEvent += this.HandleHelpEvent;
                     user.RaiseInventoryQueryEvent += this.HandleInventoryQueryEvent;
-                    user.RaiseListenEvent += this.HandleListenEvent;
                     user.RaiseNoEvent += this.HandleNoEvent;
                     user.RaiseYesEvent += this.HandleYesEvent;
                     user.RaiseParameterizedEvent += this.HandleParameterizedEvent;
@@ -140,31 +138,20 @@ namespace CSMud
 
 
         #region Handlers for events 
-
-        void HandleLookEvent(object sender, EventArgs e)
-        {
-           (sender as User).Connection.SendMessage("You are in a room. It is very plain, white walls, featureless, doorless.");
-        }
-
         void HandleHelpEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage(@"Help:
 'help' : Display this message
 'quit' : Exit the game
 'inventory' or 'i' : Display inventory.
-'listen' : Take in the ambient sounds.
 'no' or 'n' : Decline.
-'yes' or 'y' : Agree.");
+'yes' or 'y' : Agree.
+'say <message>' : Broadcast a message");
         }
 
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage("Your inventory consists of: ");
-        }
-
-        void HandleListenEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("");
         }
 
         void HandleNoEvent(object sender, EventArgs e)
@@ -179,14 +166,23 @@ namespace CSMud
 
         void HandleParameterizedEvent(object sender, ParameterizedEvent e)
         {
+            switch(e.Command)
+            {
+                case "look":
+                    (sender as User).Connection.SendMessage("You look around.");
+                    break;
+                case "say":
+                    Broadcast($"{User.FormatMessage(e.Action, (sender as User).Name)}");
+                    break;
+                default:
+                    (sender as User).Connection.SendMessage("You cannot do that.");
+                    break;
+            }
             /*(sender as User).Connection.SendMessage(e.Command);
             if (e.Action != null)
             {
                  (sender as User).Connection.SendMessage(e.Action);
             }*/
-
-
-
         }
 
         #endregion

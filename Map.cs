@@ -16,5 +16,10 @@ namespace CSMud
             MapBuild mapbuilder = new MapBuild();
             mapbuilder.GenerateMap();
         }
+
+        public static string GetCurrentRoomDescription(int i)
+        {
+            return $"";
+        }
     }
 }

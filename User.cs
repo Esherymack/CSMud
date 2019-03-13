@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace CSMud
 {
+    // Class for parameterized events - included it here because it's very tiny.
     public class ParameterizedEvent : EventArgs
     {
         public string Command { get; set; }
@@ -15,10 +16,8 @@ namespace CSMud
 
         #region Events for commands.
         // These are static events - they always do the same thing.
-        public event EventHandler RaiseLookEvent;
         public event EventHandler RaiseHelpEvent;
         public event EventHandler RaiseInventoryQueryEvent;
-        public event EventHandler RaiseListenEvent;
         public event EventHandler RaiseNoEvent;
         public event EventHandler RaiseYesEvent;
 
@@ -35,6 +34,10 @@ namespace CSMud
         private Inventory Inventory
         { get; set; }
 
+        // a user is set in a specific room
+        public int CurrRoomId { get; set; }
+
+        // a user has a name
         public string Name { get; }
 
         public User(Connection conn, World world, string name)
@@ -43,6 +46,7 @@ namespace CSMud
             this.World = world;
             this.Name = name;
             Inventory = new Inventory();
+            this.CurrRoomId = 0001;
         }
 
         // OnConnect handles the welcome messages and tells the server client that someone has connected.
@@ -78,18 +82,12 @@ Send 'help' for help.");
                 }
                 switch (line)
                 {
-                    case "look":
-                        OnRaiseLookEvent();
-                        break;
                     case "help":
                         OnRaiseHelpEvent();
                         break;
                     case "inventory":
                     case "i":
                         OnRaiseInventoryQueryEvent();
-                        break;
-                    case "listen":
-                        OnRaiseListenEvent();
                         break;
                     case "no":
                     case "n":
@@ -100,8 +98,6 @@ Send 'help' for help.");
                         OnRaiseYesEvent();
                         break;
                     default:
-                        // string textMessage = FormatMessage(line);
-                        // this.World.Broadcast(textMessage);
                         try
                         {
                             string[] splitLine = line.Split(new char[] { ' ' }, 2);
@@ -110,7 +106,7 @@ Send 'help' for help.");
                         }
                         catch (Exception)
                         {
-                            OnParameterizedEvent(new ParameterizedEvent { Command = "You cannot do that", Action = null });
+                            OnParameterizedEvent(new ParameterizedEvent { Command = null, Action = null });
                             break;
                         }
                 }               
@@ -118,12 +114,6 @@ Send 'help' for help.");
         }
 
         #region Protected virtual funcs for event raises.
-        protected virtual void OnRaiseLookEvent()
-        {
-            EventHandler handler = RaiseLookEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
         protected virtual void OnRaiseHelpEvent()
         {
             EventHandler handler = RaiseHelpEvent;
@@ -133,12 +123,6 @@ Send 'help' for help.");
         protected virtual void OnRaiseInventoryQueryEvent()
         {
             EventHandler handler = RaiseInventoryQueryEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseListenEvent()
-        {
-            EventHandler handler = RaiseListenEvent;
             handler?.Invoke(this, EventArgs.Empty);
         }
 
@@ -166,9 +150,9 @@ Send 'help' for help.");
 		 * ProcessLine handles organizing messages on the MUD server
 		 * as of right now it just trims and sends the message to SendMessasge
 		 */
-        string FormatMessage(string line)
+        public static string FormatMessage(string line, string name)
         {
-            return $"{this.Name} says, '{line.Trim()}'";
+            return $"{name} says, '{line.Trim()}'";
         }
 
         public void Dispose()
