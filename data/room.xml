@@ -1,17 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Rooms>
   <Room>
-    <Thing>
-	<Id>0001</Id>
-    </Thing>
-    <Thing>
-	<Id>0002</Id>
-    </Thing>
-    <Thing>
+    <Things>
+	      <Id>0001</Id>
+    </Things>
+    <Things>
+	      <Id>0002</Id>
+    </Things>
+    <Things>
         <Id>0003</Id>
-    </Thing>
-    <Thing>
-	<Id>0004</Id>
-    </Thing>
+    </Things>
+    <Things>
+	      <Id>0004</Id>
+    </Things>
     <Doors>N</Doors>
     <Doors>E</Doors>
     <Id>0001</Id>

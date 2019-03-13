@@ -45,18 +45,9 @@ namespace CSMud
             XmlSerializer serializer = new XmlSerializer(typeof(List<Room>), new XmlRootAttribute("Rooms"));
             XmlReader reader = XmlReader.Create(@"..\..\data\room.xml");
             Rooms = (List<Room>)serializer.Deserialize(reader);
-            Rooms.ForEach(i => Console.Write($"{i.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{i.Name}\t{i.Description}\n"));
-
-
-            reader.Close();
-            
-        }
-
-        void Link<T>(List<XMLReference<T>> refs, List<T> actuals)
-        {
-            var ActualById = actuals.ToDictionary(t => t.Id, t => t);
-
-            refs.ForEach(r => r.Actual = ActualById[r.Id]);
+            Rooms.ForEach(i => XMLReference<Thing>.Link(i.Thing, things));
+            Rooms.ForEach(i => Console.Write($"{i.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{i.Name}\t{i.Description}\n{i.Thing}\n"));
+            reader.Close();        
         }
     }
 }

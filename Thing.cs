@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 namespace CSMud
 {
     [XmlRoot("Things")]
-    public class Thing
+    public class Thing : Identifiable
     {
         [XmlElement]
         public List<string> Commands { get; set; }
