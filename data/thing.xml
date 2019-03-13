@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Things>
-  <Thing id = "0001">
+  <Thing>
     <Name>Apple</Name>
     <Description>It's an apple. It's red. You eat it.</Description>
     <Id>0001</Id>
@@ -10,7 +10,7 @@
     <Commands>drop</Commands>
     <Commands>hold</Commands>
   </Thing>
-  <Thing id = "0002">
+  <Thing>
     <Name>Cheese Hat</Name>
     <Description>A hat made of cheese. You can eat it or wear it.</Description>
     <Id>0002</Id>
@@ -22,7 +22,7 @@
     <Commands>drop</Commands>
     <Commands>hold</Commands>
   </Thing>
-  <Thing id = "0003">
+  <Thing>
     <Name>Sword</Name>
     <Description>A sword. It's a little rusty from sitting on the floor for who-knows-how-long.</Description>
     <Id>0003</Id>
@@ -31,7 +31,7 @@
     <Commands>examine</Commands>
     <Commands>drop</Commands>
   </Thing>
-  <Thing id = "0004">
+  <Thing>
     <Name>White T-Shirt</Name>
     <Description>A plain white t-shirt, luckily exactly your size.</Description>
     <Id>0004</Id>

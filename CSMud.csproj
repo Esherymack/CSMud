@@ -55,6 +55,7 @@
     <Compile Include="World.cs" />
     <Compile Include="Room.cs" />
     <Compile Include="MapBuild.cs" />
+    <Compile Include="XMLReference.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

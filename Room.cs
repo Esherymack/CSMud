@@ -7,14 +7,14 @@ namespace CSMud
     public class Room
     {
         [XmlIgnore]
-        public List<Thing> Things { get; }
+        public List<Thing> Things { get; set; }
         [XmlIgnore]
-        public List<Entity> Entities { get; }
+        public List<Entity> Entities { get; set; }
         [XmlElement]
         public List<string> Doors { get; set; }
 
         [XmlElement]
-        public int Id { get; set; }
+        public XMLReference<Thing> Thing { get; set; }
         [XmlElement]
         public string Name { get; set; }
         [XmlElement]
@@ -26,7 +26,7 @@ namespace CSMud
             Entities = null;
             Doors = null;
 
-            Id = 0;
+            Thing = null;
             Name = "";
             Description = "";
         }

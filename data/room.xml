@@ -1,8 +1,21 @@
 <Rooms>
-  <Room id = "0001">
-    <Doors></Doors>
+  <Room>
+    <Thing>
+	<Id>0001</Id>
+    </Thing>
+    <Thing>
+	<Id>0002</Id>
+    </Thing>
+    <Thing>
+        <Id>0003</Id>
+    </Thing>
+    <Thing>
+	<Id>0004</Id>
+    </Thing>
+    <Doors>N</Doors>
+    <Doors>E</Doors>
     <Id>0001</Id>
     <Name>The Test Room</Name>
-    <Description>A vast room, with white floors. There are no visible doors. A few objects lay in front of you.</Description>
+    <Description>A vast room, with white floors. There is a door to the North and to the East. A few objects lay on the floor in front of you: </Description>
   </Room>
 </Rooms>
