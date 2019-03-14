@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Timers;
@@ -17,7 +18,7 @@ namespace CSMud
         private Timer Beat
         { get; }
 
-        public Map WorldMap { get; }
+        public MapBuild WorldMap { get; set; }
 
         // constructor
         public World()
@@ -32,7 +33,8 @@ namespace CSMud
             };
             this.Beat.Elapsed += OnTimedEvent;
 
-            this.WorldMap = new Map();
+            // Generate the map last
+            this.WorldMap = new MapBuild();
         }
 
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
@@ -65,20 +67,10 @@ namespace CSMud
                     }
 
                     #region Subscribe the user to events. 
-                    user.RaiseLookEvent += this.HandleLookEvent;
                     user.RaiseHelpEvent += this.HandleHelpEvent;
+                    user.RaiseLookEvent += this.HandleLookEvent;
                     user.RaiseInventoryQueryEvent += this.HandleInventoryQueryEvent;
-                    user.RaiseJumpEvent += this.HandleJumpEvent;
-                    user.RaiseListenEvent += this.HandleListenEvent;
                     user.RaiseNoEvent += this.HandleNoEvent;
-                    user.RaisePrayEvent += this.HandlePrayEvent;
-                    user.RaiseSingEvent += this.HandleSingEvent;
-                    user.RaiseSleepEvent += this.HandleSleepEvent;
-                    user.RaiseSorryEvent += this.HandleSorryEvent;
-                    user.RaiseSwimEvent += this.HandleSwimEvent;
-                    user.RaiseThinkEvent += this.HandleThinkEvent;
-                    user.RaiseWakeUpEvent += this.HandleWakeUpEvent;
-                    user.RaiseWaveEvent += this.HandleWaveEvent;
                     user.RaiseYesEvent += this.HandleYesEvent;
                     user.RaiseParameterizedEvent += this.HandleParameterizedEvent;
                     #endregion
@@ -148,90 +140,45 @@ namespace CSMud
 
 
         #region Handlers for events 
-
-        void HandleLookEvent(object sender, EventArgs e)
-        {
-           (sender as User).Connection.SendMessage("You are in a room. It is very plain, white walls, featureless, doorless.");
-        }
-
         void HandleHelpEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage(@"Help:
-'help' : Display this message
-'quit' : Exit the game
+'help' : Display this message.
+'quit' : Exit the game.
+'look' : Look at the room you are in.
 'inventory' or 'i' : Display inventory.
-'jump' : Jump in place.
-'listen' : Take in the ambient sounds.
 'no' or 'n' : Decline.
-'pray' : Offer a prayer to your deity.
-'sing' : Sing a little tune.
-'sleep' : Take a nap.
-'sorry' : Apologize.
-'swim' : Take a dip.
-'think' : Ponder.
-'wake up' : Wake yourself up.
-'wave' : Wave.
-'yes' or 'y' : Agree.");
+'yes' or 'y' : Agree.
+'say <message>' : Broadcast a message");
+        }
+
+        int getCurrentRoomId(object sender)
+        {
+            return WorldMap.Rooms.FindIndex(a => a.Id == (sender as User).CurrRoomId);
+        }
+
+        void HandleLookEvent(object sender, EventArgs e)
+        {
+            int index = getCurrentRoomId(sender);
+            (sender as User).Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}");
+            (sender as User).Connection.SendMessage($"{string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}");
         }
 
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
-            (sender as User).Connection.SendMessage("You turn out your pockets. You have pocket lint, and a single Rhinu.");
-        }
-
-        void HandleJumpEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("You give a little hop.");
-        }
-
-        void HandleListenEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("You strain your ears. The world is silent, undeveloped and abandoned.");
+            try
+            {
+                (sender as User).Connection.SendMessage($"Your inventory consists of:\n {(sender as User).Inventory.ToString()}");
+            }
+            catch (Exception)
+            {
+                (sender as User).Connection.SendMessage($"You turn out your pockets. You have nothing.");
+            }
         }
 
         void HandleNoEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage("You firmly shake your head no.");
-        }
-
-        void HandlePrayEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("You offer a quick prayer to your god.");
-        }
-
-        void HandleSingEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("Five hundred bottles of beer on the wall, five hundred bottles of beer... take one down, pass it 'round, 499 bottles of beer on the wall...");
-        }
-
-        void HandleSleepEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("You flop over onto the floor to catch up on your sleep.");
-        }
-
-        void HandleSorryEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("You express deepest apologies for your transgressions.");
-        }
-
-        void HandleSwimEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("This undeveloped white box does not have any water to swim in.");
-        }
-
-        void HandleThinkEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("You sit on the ground and ponder the universe for a while. What even is entropy?");
-        }
-
-        void HandleWakeUpEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("You wake yourself up and stand.");
-        }
-
-        void HandleWaveEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage("You wave at the wall. Unsurprisingly, it does not wave back.");
         }
 
         void HandleYesEvent(object sender, EventArgs e)
@@ -241,14 +188,29 @@ namespace CSMud
 
         void HandleParameterizedEvent(object sender, ParameterizedEvent e)
         {
-            /*(sender as User).Connection.SendMessage(e.Command);
-            if (e.Action != null)
+            switch (e.Command)
             {
-                 (sender as User).Connection.SendMessage(e.Action);
-            }*/
+                case "say":
+                    Broadcast($"{User.FormatMessage(e.Action, (sender as User).Name)}");
+                    break;
+                case "take":
+                    HandleTake(sender, e);
+                    break;
+                default:
+                    (sender as User).Connection.SendMessage("You cannot do that.");
+                    break;
+            }
+        }
 
-
-
+        void HandleTake(object sender, ParameterizedEvent e)
+        {
+            int roomId = getCurrentRoomId(sender);
+            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => t.Actual.Name == e.Action);
+            if (target == null)
+            {
+                (sender as User).Connection.SendMessage("No such object exists.");
+            }
+            (sender as User).Inventory.AddToInventory(target.Actual);
         }
 
         #endregion

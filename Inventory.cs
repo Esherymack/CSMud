@@ -4,37 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/* Inventory class for CSMud
+ * Every User has a unique Inventory
+ * An Inventory is a collection of Things 
+ */
+
 namespace CSMud
-{
+{ 
     public class Inventory
     {
-        // An inventory is a dictionary of ints and strings
-        // The integer is the object number
-        // The string is the object name + description
-        // This data comes from a resource file
+        public List<Thing> Things { get; set; }
 
-        // define params
-        public List<Thing> Things { get; }
-
-        // Constructor
-        public Inventory(List<Thing> things)
+        public void AddToInventory(Thing thing)
         {
-            this.Things = things;
+            Things.Add(thing);
         }
 
-        public void addToInventory()
+        public void RemoveFromInventory(Thing thing)
         {
-
+            Things.Remove(thing);
         }
 
-        public void removeFromInventory()
+        public override string ToString()
         {
-
-        }
-
-        public void listInventory()
-        {
-
+            return $"{string.Join(", ", Things)}";
         }
     }
 }

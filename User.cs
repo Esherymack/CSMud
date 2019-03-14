@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace CSMud
 {
+    // Class for parameterized events - included it here because it's very tiny.
     public class ParameterizedEvent : EventArgs
     {
         public string Command { get; set; }
@@ -13,23 +14,15 @@ namespace CSMud
     {
         public Connection Connection { get; }
 
-        #region Events for commands.  
-        public event EventHandler RaiseLookEvent;
+        #region Events for commands.
+        // These are static events - they always do the same thing.
         public event EventHandler RaiseHelpEvent;
+        public event EventHandler RaiseLookEvent;
         public event EventHandler RaiseInventoryQueryEvent;
-        public event EventHandler RaiseJumpEvent;
-        public event EventHandler RaiseListenEvent;
         public event EventHandler RaiseNoEvent;
-        public event EventHandler RaisePrayEvent;
-        public event EventHandler RaiseSingEvent;
-        public event EventHandler RaiseSleepEvent;
-        public event EventHandler RaiseSorryEvent;
-        public event EventHandler RaiseSwimEvent;
-        public event EventHandler RaiseThinkEvent;
-        public event EventHandler RaiseWakeUpEvent;
-        public event EventHandler RaiseWaveEvent;
         public event EventHandler RaiseYesEvent;
 
+        // This is a parameterized event that affects a Thing or Entity
         public event EventHandler<ParameterizedEvent> RaiseParameterizedEvent;
 
         #endregion
@@ -39,9 +32,13 @@ namespace CSMud
         { get; }
 
         // a user has a unique inventory
-        private Inventory Inventory
+        public Inventory Inventory
         { get; set; }
 
+        // a user is set in a specific room
+        public int CurrRoomId { get; set; }
+
+        // a user has a name
         public string Name { get; }
 
         public User(Connection conn, World world, string name)
@@ -49,6 +46,9 @@ namespace CSMud
             this.Connection = conn;
             this.World = world;
             this.Name = name;
+            Inventory = new Inventory();
+
+            this.CurrRoomId = 1;
         }
 
         // OnConnect handles the welcome messages and tells the server client that someone has connected.
@@ -84,9 +84,6 @@ Send 'help' for help.");
                 }
                 switch (line)
                 {
-                    case "look":
-                        OnRaiseLookEvent();
-                        break;
                     case "help":
                         OnRaiseHelpEvent();
                         break;
@@ -94,47 +91,18 @@ Send 'help' for help.");
                     case "i":
                         OnRaiseInventoryQueryEvent();
                         break;
-                    case "jump":
-                        OnRaiseJumpEvent();
-                        break;
-                    case "listen":
-                        OnRaiseListenEvent();
-                        break;
                     case "no":
                     case "n":
                         OnRaiseNoEvent();
-                        break;
-                    case "pray":
-                        OnRaisePrayEvent();
-                        break;
-                    case "sing":
-                        OnRaiseSingEvent();
-                        break;
-                    case "sleep":
-                        OnRaiseSleepEvent();
-                        break;
-                    case "sorry":
-                        OnRaiseSorryEvent();
-                        break;
-                    case "swim":
-                        OnRaiseSwimEvent();
-                        break;
-                    case "think":
-                        OnRaiseThinkEvent();
-                        break;
-                    case "wake up":
-                        OnRaiseWakeUpEvent();
-                        break;
-                    case "wave":
-                        OnRaiseWaveEvent();
                         break;
                     case "yes":
                     case "y":
                         OnRaiseYesEvent();
                         break;
+                    case "look":
+                        OnRaiseLookEvent();
+                        break;
                     default:
-                        // string textMessage = FormatMessage(line);
-                        // this.World.Broadcast(textMessage);
                         try
                         {
                             string[] splitLine = line.Split(new char[] { ' ' }, 2);
@@ -143,7 +111,7 @@ Send 'help' for help.");
                         }
                         catch (Exception)
                         {
-                            OnParameterizedEvent(new ParameterizedEvent { Command = "You cannot do that", Action = null });
+                            OnParameterizedEvent(new ParameterizedEvent { Command = null, Action = null });
                             break;
                         }
                 }               
@@ -151,15 +119,15 @@ Send 'help' for help.");
         }
 
         #region Protected virtual funcs for event raises.
-        protected virtual void OnRaiseLookEvent()
-        {
-            EventHandler handler = RaiseLookEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
         protected virtual void OnRaiseHelpEvent()
         {
             EventHandler handler = RaiseHelpEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseLookEvent()
+        {
+            EventHandler handler = RaiseLookEvent;
             handler?.Invoke(this, EventArgs.Empty);
         }
 
@@ -169,69 +137,9 @@ Send 'help' for help.");
             handler?.Invoke(this, EventArgs.Empty);
         }
 
-        protected virtual void OnRaiseJumpEvent()
-        {
-            EventHandler handler = RaiseJumpEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseListenEvent()
-        {
-            EventHandler handler = RaiseListenEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
         protected virtual void OnRaiseNoEvent()
         {
             EventHandler handler = RaiseNoEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaisePrayEvent()
-        {
-            EventHandler handler = RaisePrayEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseSingEvent()
-        {
-            EventHandler handler = RaiseSingEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseSleepEvent()
-        {
-            EventHandler handler = RaiseSleepEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseSorryEvent()
-        {
-            EventHandler handler = RaiseSorryEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseSwimEvent()
-        {
-            EventHandler handler = RaiseSwimEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseThinkEvent()
-        {
-            EventHandler handler = RaiseThinkEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseWakeUpEvent()
-        {
-            EventHandler handler = RaiseWakeUpEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseWaveEvent()
-        {
-            EventHandler handler = RaiseWaveEvent;
             handler?.Invoke(this, EventArgs.Empty);
         }
 
@@ -253,9 +161,9 @@ Send 'help' for help.");
 		 * ProcessLine handles organizing messages on the MUD server
 		 * as of right now it just trims and sends the message to SendMessasge
 		 */
-        string FormatMessage(string line)
+        public static string FormatMessage(string line, string name)
         {
-            return $"{this.Name} says, '{line.Trim()}'";
+            return $"{name} says, '{line.Trim()}'";
         }
 
         public void Dispose()

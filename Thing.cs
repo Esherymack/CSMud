@@ -2,6 +2,9 @@
 using System.Linq;
 using System.Xml.Serialization;
 
+/* A 'Thing' object is a collection of commands, an Id, a Name, and a Description
+ */
+
 namespace CSMud
 {
     [XmlRoot("Things")]
@@ -26,7 +29,7 @@ namespace CSMud
 
         public override string ToString()
         {
-            return $"{Name}\t{Description}\t{Commands.Aggregate((a, b) => $"{a}, {b}")}\n";
+            return $"{Name}";
         }
     }
 }
