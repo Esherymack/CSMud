@@ -254,10 +254,24 @@ namespace CSMud
 
         void HandleExamine(object sender, ParameterizedEvent e)
         {
+            int roomId = getCurrentRoomId(sender);
             var target = e.Action;
             if (target == null)
             {
-
+                (sender as User).Connection.SendMessage("Examine what?");
+            }
+            else
+            {
+                if (string.Equals(target, "self", StringComparison.OrdinalIgnoreCase))
+                {
+                    (sender as User).Connection.SendMessage("You look down at yourself. Not much new.");
+                }
+                else
+                {
+                    (sender as User).Connection.SendMessage($"You examine the {target}.");
+                    XMLReference<Thing> thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => string.Equals(t.Actual.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+                    (sender as User).Connection.SendMessage($"{thing.Actual.Description}");
+                }
             }
         }
 

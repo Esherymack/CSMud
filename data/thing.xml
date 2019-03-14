@@ -11,7 +11,7 @@
     <Commands>hold</Commands>
   </Thing>
   <Thing>
-    <Name>Cheese Hat</Name>
+    <Name>Quesombrero</Name>
     <Description>A hat made of cheese. You can eat it or wear it.</Description>
     <Id>0002</Id>
     <Commands>eat</Commands>
