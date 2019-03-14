@@ -2,11 +2,14 @@
 <Rooms>
   <Room>
     <Things>
-	      <Id>0001</Id>
+	    <Id>0001</Id>
     </Things>
     <Things>
-	      <Id>0002</Id>
+	    <Id>0002</Id>
     </Things>
+    <Entities>
+        <Id>0003</Id>
+    </Entities>
     <Doors>
       <Id>0001</Id>
     </Doors>

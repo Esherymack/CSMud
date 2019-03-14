@@ -8,6 +8,7 @@ using System.Timers;
 namespace CSMud
 {
     // A World holds connections and handles broadcasting messages from those connections
+    // The world also handles taking care of all of the commands, both parameterized and unparameterized.
     public class World
     {
         // a world has connections
@@ -40,7 +41,7 @@ namespace CSMud
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
         void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            Broadcast("The world is dark and silent.");
+            Broadcast("Something scurries around in the distance.");
         }
 
         // add new Connections to the world
@@ -213,8 +214,41 @@ namespace CSMud
             }
             if (hasEntities(sender))
             {
-                (sender as User).Connection.SendMessage($"You can see some friendlies: {string.Join(", ", WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Where(t => t.Actual.IsFriendly).Select(v => v.Actual.Name))}");
-                (sender as User).Connection.SendMessage($"You can see some enemies: {string.Join(", ", WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Where(t => !t.Actual.IsFriendly).Select(v => v.Actual.Name))}");
+                List<Entity> friendlies = new List<Entity>();
+                List<Entity> meanies = new List<Entity>();
+                List<Entity> sneakies = new List<Entity>();
+                foreach(var i in WorldMap.Rooms[getCurrentRoomId(sender)].Entities)
+                {
+                    // (sender as User).Connection.SendMessage($"{i}");
+                    // each i is a reference to an entity
+                    if(i.Actual.IsFriendly)
+                    {
+                        friendlies.Add(i.Actual);
+                    }
+                    else
+                    {
+                        if(i.Actual.IsHidden)
+                        {
+                            sneakies.Add(i.Actual);
+                        }
+                        else
+                        {
+                            meanies.Add(i.Actual);
+                        }
+                    }
+                }
+                if(friendlies.Count > 0)
+                {
+                    (sender as User).Connection.SendMessage($"You can see some friendlies: {string.Join(", ", friendlies.Select(t => t.Name))}");
+                }
+                if(meanies.Count > 0)
+                {
+                    (sender as User).Connection.SendMessage($"You can see some enemies: {string.Join(", ", meanies.Select(t => t.Name))}");
+                }
+                if(sneakies.Count > 0)
+                {
+                    (sender as User).Connection.SendMessage("You don't see anyone new, but you sense a strange presence.");
+                }
                 if (currentUsers.Count > 0 && currentUsers.Count < 1)
                 {
                     (sender as User).Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
@@ -428,10 +462,15 @@ namespace CSMud
             {
                 (sender as User).Connection.SendMessage("You must have the object in your inventory.");
             }
-            else
+            else if(target.Commands.Contains("equip"))
             {
                 (sender as User).Inventory.RemoveFromInventory(target);
-                (sender as User).Player.Equip(target);      
+                (sender as User).Player.Equip(target);
+
+            }
+            else
+            {
+                 (sender as User).Connection.SendMessage("You cannot wear that.");
             }
         }
 

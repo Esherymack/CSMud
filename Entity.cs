@@ -23,6 +23,8 @@ namespace CSMud
         public string Description { get; set; }
         [XmlElement]
         public bool IsFriendly { get; set; }
+        [XmlElement]
+        public bool IsHidden { get; set; }
 
         public Entity()
         {
@@ -31,6 +33,7 @@ namespace CSMud
             Name = "";
             Description = "";
             IsFriendly = true;
+            IsHidden = false;
         }
 
         public override string ToString()

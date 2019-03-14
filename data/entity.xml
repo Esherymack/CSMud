@@ -8,6 +8,7 @@
     <Commands>talk to</Commands>
     <Commands>listen to</Commands>
     <IsFriendly>true</IsFriendly>
+    <IsHidden>false</IsHidden>
   </Entity>
   <Entity>
     <Name>An Ork</Name>
@@ -16,5 +17,15 @@
     <Commands>examine</Commands>
     <Commands>attack</Commands>
     <IsFriendly>false</IsFriendly>
+    <IsHidden>false</IsHidden>
+  </Entity>
+  <Entity>
+    <Name>A Purple Ork</Name>
+    <Id>0003</Id>
+    <Description>An angry green fungus, this time wearing purple, to be sneaky.</Description>
+    <Commands>examine</Commands>
+    <Commands>attack</Commands>
+    <IsFriendly>false</IsFriendly>
+    <IsHidden>true</IsHidden>
   </Entity>
 </Entities>
