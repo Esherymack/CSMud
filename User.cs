@@ -77,44 +77,40 @@ Send 'help' for help.");
             {
                 // Get a message that's sent to the server
                 string line = Connection.ReadMessage();
+                string[] splitLine = line.Split(new char[] { ' ' }, 2);
 
-                if (line == null || line == "quit")
+                if (splitLine == null || splitLine[0] == "quit")
                 {
                     break;
                 }
-                switch (line)
+                else if (splitLine.Length == 1)
                 {
-                    case "help":
-                        OnRaiseHelpEvent();
-                        break;
-                    case "inventory":
-                    case "i":
-                        OnRaiseInventoryQueryEvent();
-                        break;
-                    case "no":
-                    case "n":
-                        OnRaiseNoEvent();
-                        break;
-                    case "yes":
-                    case "y":
-                        OnRaiseYesEvent();
-                        break;
-                    case "look":
-                        OnRaiseLookEvent();
-                        break;
-                    default:
-                        try
-                        {
-                            string[] splitLine = line.Split(new char[] { ' ' }, 2);
-                            OnParameterizedEvent(new ParameterizedEvent { Command = splitLine[0], Action = splitLine[1] });
+                    switch (splitLine[0])
+                    {
+                        case "help":
+                            OnRaiseHelpEvent();
                             break;
-                        }
-                        catch (Exception)
-                        {
-                            OnParameterizedEvent(new ParameterizedEvent { Command = null, Action = null });
+                        case "inventory":
+                        case "i":
+                            OnRaiseInventoryQueryEvent();
                             break;
-                        }
-                }               
+                        case "no":
+                        case "n":
+                            OnRaiseNoEvent();
+                            break;
+                        case "yes":
+                        case "y":
+                            OnRaiseYesEvent();
+                            break;
+                        case "look":
+                            OnRaiseLookEvent();
+                            break;
+                    }
+                }
+                else
+                {
+                    OnParameterizedEvent(new ParameterizedEvent { Command = splitLine[0], Action = splitLine[1] });
+                }             
             }
         }
 

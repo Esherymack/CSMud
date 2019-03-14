@@ -166,13 +166,13 @@ namespace CSMud
 
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
-            try
-            {
-                (sender as User).Connection.SendMessage($"Your inventory consists of:\n {(sender as User).Inventory.ToString()}");
-            }
-            catch (Exception)
+            if ((sender as User).Inventory.Empty)
             {
                 (sender as User).Connection.SendMessage($"You turn out your pockets. You have nothing.");
+            }
+            else
+            {
+                (sender as User).Connection.SendMessage($"Your inventory consists of:\n {(sender as User).Inventory.ToString()}");
             }
         }
 
@@ -205,12 +205,15 @@ namespace CSMud
         void HandleTake(object sender, ParameterizedEvent e)
         {
             int roomId = getCurrentRoomId(sender);
-            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => t.Actual.Name == e.Action);
+            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => string.Equals(t.Actual.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
             if (target == null)
             {
                 (sender as User).Connection.SendMessage("No such object exists.");
             }
-            (sender as User).Inventory.AddToInventory(target.Actual);
+            else
+            {
+                (sender as User).Inventory.AddToInventory(target.Actual);
+            }
         }
 
         #endregion

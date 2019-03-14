@@ -13,7 +13,13 @@ namespace CSMud
 { 
     public class Inventory
     {
-        public List<Thing> Things { get; set; }
+        public List<Thing> Things { get; }
+        public bool Empty => Things.Count == 0;
+        
+        public Inventory()
+        {
+            Things = new List<Thing>();
+        }
 
         public void AddToInventory(Thing thing)
         {
