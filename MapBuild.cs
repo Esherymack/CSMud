@@ -12,7 +12,7 @@ using System.Xml.Serialization;
 namespace CSMud
 {
     public class MapBuild
-    { 
+    {
         public List<Thing> Things { get; set; }
         public List<Entity> Entities { get; set; }
         public List<Room> Rooms { get; set; }
@@ -33,10 +33,10 @@ namespace CSMud
         }
 
         /* The process with all of these functions is basically the same.
-         */      
+         */
         public List<Thing> CreateThing()
         {
-            // Define a new serializer object 
+            // Define a new serializer object
             XmlSerializer serializer = new XmlSerializer(typeof(List<Thing>), new XmlRootAttribute("Things"));
             // Read the data
             using (XmlReader reader = XmlReader.Create(@"..\..\data\thing.xml"))
@@ -60,9 +60,9 @@ namespace CSMud
         /* CreateRoom is a little different in that it calls upon an XMLReference object
          * kudos to my friend Matthew Hatch for coming up with that idea
          * basically he suggested that I "smarten" C#'s deserializer in this regard
-         * I approached these XML files thinking about it like a SQL database, 
+         * I approached these XML files thinking about it like a SQL database,
          * XMLReference objects basically act as INNER JOIN
-         */       
+         */
         public void CreateRoom()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(List<Room>), new XmlRootAttribute("Rooms"));
@@ -85,13 +85,8 @@ namespace CSMud
             // Console.WriteLine($"{room.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{room.Name}\t{room.Description}\t{room.Id}");
             var roomthings = room.Things.Select(t => t.Actual);
             var roomentities = room.Entities.Select(t => t.Actual);
-<<<<<<< HEAD
-            Console.Write(string.Join(", ", roomthings));
-            Console.Write(string.Join(", ", roomentities));
-=======
             // Console.WriteLine(string.Join("", roomthings));
             // Console.WriteLine(string.Join("", roomentities));
->>>>>>> 3f0caa844a3884d727b8f12af83087e68b59be66
         }
     }
 }
