@@ -26,9 +26,9 @@ namespace CSMud
 
         public Room()
         {
-            Entities = null;
-            Doors = null;
-            Things = null;
+            Entities = new List<XMLReference<Entity>>();
+            Doors = new List<XMLReference<Door>>();
+            Things = new List<XMLReference<Thing>>();
 
             Name = "";
             Id = 0;

@@ -79,7 +79,7 @@ namespace CSMud
                     return user;
                 }
             }
-            
+
             Task.Run(() =>
             {
                 using (Connection conn = new Connection(clientSock))
@@ -147,7 +147,7 @@ namespace CSMud
             {
                 foreach (User user in Users)
                 {
-                    if(user.CurrRoomId == (sender as User).CurrRoomId)
+                    if (user.CurrRoomId == (sender as User).CurrRoomId)
                     {
                         user.Connection.SendMessage(msg);
                     }
@@ -186,11 +186,11 @@ namespace CSMud
         {
             int index = getCurrentRoomId(sender);
             (sender as User).Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}");
-            if(hasThings(sender))
+            if (hasThings(sender))
             {
                 (sender as User).Connection.SendMessage($"You see some interesting things: {string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}.");
             }
-            if(hasDoors(sender))
+            if (hasDoors(sender))
             {
                 (sender as User).Connection.SendMessage($"You see doors to: {string.Join(", ", WorldMap.Rooms[index].Doors.Select(t => t.Actual))}.");
             }
@@ -237,7 +237,7 @@ namespace CSMud
         // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
         bool hasEntities(object sender)
         {
-            if(WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Count != 0)
+            if (WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Count != 0)
             {
                 return true;
             }
@@ -246,7 +246,7 @@ namespace CSMud
         // Utility func for finding if a room has Things
         bool hasThings(object sender)
         {
-            if(WorldMap.Rooms[getCurrentRoomId(sender)].Things.Count != 0)
+            if (WorldMap.Rooms[getCurrentRoomId(sender)].Things.Count != 0)
             {
                 return true;
             }
@@ -254,7 +254,7 @@ namespace CSMud
         }
         bool hasDoors(object sender)
         {
-            if(WorldMap.Rooms[getCurrentRoomId(sender)].Doors.Count != 0)
+            if (WorldMap.Rooms[getCurrentRoomId(sender)].Doors.Count != 0)
             {
                 return true;
             }
@@ -306,6 +306,15 @@ namespace CSMud
                 case "go":
                     HandleGo(sender, e);
                     break;
+                case "equip":
+                    HandleEquip(sender, e);
+                    break;
+                case "remove":
+                    HandleRemove(sender, e);
+                    break;
+                case "hold":
+                    HandleHold(sender, e);
+                    break;
                 default:
                     (sender as User).Connection.SendMessage("You cannot do that.");
                     break;
@@ -315,7 +324,7 @@ namespace CSMud
         /* HandleTake and HandleDrop are relatively similar functions that just perform the inverses of each other
          * HandleTake checks if the item a user wants to take exists in the context of the room they are in.
          * if item exists, remove it from the room's list of references and add it to the player's inventory list instead       
-         */      
+         */
         void HandleTake(object sender, ParameterizedEvent e)
         {
             int roomId = getCurrentRoomId(sender);
@@ -344,7 +353,7 @@ namespace CSMud
         /* Like Handletake, HandleDrop checks for an item's existence, but in this case it has to be in the 
          * requesting user's inventory.
          * if item exists, remove it from the user inventory's list of refs and add to the room's Things instead
-         */      
+         */
         void HandleDrop(object sender, ParameterizedEvent e)
         {
             int roomId = getCurrentRoomId(sender);
@@ -365,7 +374,7 @@ namespace CSMud
          * 'examine self' returns a description of the user's player entity, including what they're wearing and appearance.
          * 'examine <item>' returns the description of the item. The item can be either in the room or in the user's inventory.
          * If the item is in neither, there is no description.       
-         */      
+         */
         void HandleExamine(object sender, ParameterizedEvent e)
         {
             int roomId = getCurrentRoomId(sender);
@@ -378,20 +387,28 @@ namespace CSMud
             {
                 if (string.Equals(target, "self", StringComparison.OrdinalIgnoreCase))
                 {
-                    (sender as User).Connection.SendMessage("You look down at yourself. Not much new.");
+                    (sender as User).Connection.SendMessage("You look yourself over.");
+                    if((sender as User).Player.Equipped.Count > 0)
+                    {
+                        (sender as User).Connection.SendMessage($"Equipped: {string.Join(", ", (sender as User).Player.Equipped)}");
+                    }
+                    if((sender as User).Player.Held.Count > 0)
+                    {
+                        (sender as User).Connection.SendMessage($"Held: {string.Join(", ", (sender as User).Player.Held)}");
+                    }
                 }
                 else
                 {
                     (sender as User).Connection.SendMessage($"You examine the {target}.");
                     XMLReference<Thing> thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => string.Equals(t.Actual.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
-                    if(thing != null)
+                    if (thing != null)
                     {
                         (sender as User).Connection.SendMessage($"{thing.Actual.Description}");
                     }
-                    else 
+                    else
                     {
                         Thing theThing = (sender as User).Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
-                        if(theThing != null)
+                        if (theThing != null)
                         {
                             (sender as User).Connection.SendMessage($"{theThing.Description}");
                         }
@@ -404,11 +421,53 @@ namespace CSMud
             }
         }
 
+        void HandleEquip(object sender, ParameterizedEvent e)
+        {
+            var target = (sender as User).Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (target == null)
+            {
+                (sender as User).Connection.SendMessage("You must have the object in your inventory.");
+            }
+            else
+            {
+                (sender as User).Inventory.RemoveFromInventory(target);
+                (sender as User).Player.Equip(target);      
+            }
+        }
+
+        void HandleRemove(object sender, ParameterizedEvent e)
+        {
+            var target = (sender as User).Player.Equipped.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (target == null)
+            {
+                (sender as User).Connection.SendMessage("You are not wearing that.");
+            }
+            else
+            {
+                (sender as User).Player.Unequip(target);
+                (sender as User).Inventory.AddToInventory(target);
+            }
+        }
+
+        void HandleHold(object sender, ParameterizedEvent e)
+        {
+            var target = (sender as User).Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+            if(target == null)
+            {
+                (sender as User).Connection.SendMessage("You must have the object in your inventory.");
+            }
+            else
+            {
+                (sender as User).Inventory.RemoveFromInventory(target);
+                (sender as User).Player.Hold(target);
+            }
+        }
+
         /* HandleGo handles moving between rooms.
          * TODO: Find a better way to handle the RoomsIConnect list - currently, in the XML, rooms must be 
          * placed in the order of CURRENT ROOM in index 0 and CONNECTING ROOM in index 1    
          * there's probably a better way to handle this situation.
-         */      
+         */
         void HandleGo(object sender, ParameterizedEvent e)
         {
             int currentRoomId = getCurrentRoomId(sender);

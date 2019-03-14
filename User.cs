@@ -28,27 +28,29 @@ namespace CSMud
         #endregion
 
         // a user belongs to a world
-        private World World
-        { get; }
+        private World World { get; }
 
         // a user has a unique inventory
-        public Inventory Inventory
-        { get; set; }
+        public Inventory Inventory { get; set; }
 
         // a user is set in a specific room
         public int CurrRoomId { get; set; }
+
+        // a user has a player object holding their "profile"
+        public Player Player { get; set; }
 
         // a user has a name
         public string Name { get; }
 
         public User(Connection conn, World world, string name)
         {
-            this.Connection = conn;
-            this.World = world;
-            this.Name = name;
+            Connection = conn;
+            World = world;
+            Name = name;
+            Player = new Player(name);
             Inventory = new Inventory();
 
-            this.CurrRoomId = 1;
+            CurrRoomId = 1;
         }
 
         // OnConnect handles the welcome messages and tells the server client that someone has connected.
@@ -63,9 +65,9 @@ Send 'help' for help.");
         // OnDisconnect handles removing the terminated connections and tells the sever client that someone has disconnected.
         private void OnDisconnect()
         {
-            this.World.EndConnection(this);
-            this.World.Broadcast($"{this.Name} has disconnected.");
-            Console.WriteLine($"{this.Name} has disconnected.");
+            World.EndConnection(this);
+            World.Broadcast($"{Name} has disconnected.");
+            Console.WriteLine($"{Name} has disconnected.");
         }
 
         public void Start()

@@ -26,7 +26,7 @@ namespace CSMud
 
         public Entity()
         {
-            Commands = null;
+            Commands = new List<string>();
             Id = 0;
             Name = "";
             Description = "";
