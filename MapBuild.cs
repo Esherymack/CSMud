@@ -15,6 +15,7 @@ namespace CSMud
     {
         public List<Thing> Things { get; set; }
         public List<Entity> Entities { get; set; }
+        public List<Door> Doors { get; set; }  
         public List<Room> Rooms { get; set; }
         public Dictionary<int, Thing> AllThings { get; set; }
 
@@ -28,6 +29,7 @@ namespace CSMud
             Console.WriteLine("Generating map...");
             Things = CreateThing();
             Entities = CreateEntity();
+            Doors = CreateDoor();
             CreateRoom();
             Console.WriteLine("Map generated!");
         }
@@ -57,6 +59,16 @@ namespace CSMud
             }
         }
 
+        public List<Door> CreateDoor()
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Door>), new XmlRootAttribute("Doors"));
+            using (XmlReader reader = XmlReader.Create(@"..\..\data\door.xml"))
+            {
+                Doors = (List<Door>)serializer.Deserialize(reader);
+                return Doors;
+            }
+        }
+
         /* CreateRoom is a little different in that it calls upon an XMLReference object
          * kudos to my friend Matthew Hatch for coming up with that idea
          * basically he suggested that I "smarten" C#'s deserializer in this regard
@@ -73,6 +85,7 @@ namespace CSMud
                 // We can parse through them with XMLReference lists.
                 Rooms.ForEach(i => XMLReference<Thing>.Link(i.Things, Things));
                 Rooms.ForEach(i => XMLReference<Entity>.Link(i.Entities, Entities));
+                Rooms.ForEach(i => XMLReference<Door>.Link(i.Doors, Doors));
                 // Printing is just for testing purposes, presently
                 // Rooms.ForEach(r => PrintRoomDescription(r));
             }

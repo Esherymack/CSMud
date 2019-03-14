@@ -150,6 +150,7 @@ namespace CSMud
 'take <object>' : Take an item.
 'drop <object>' : Drop an item in your inventory.
 'examine <object>' : Examine an item.
+'examine self' : Look at yourself.
 'no' or 'n' : Decline.
 'yes' or 'y' : Agree.
 'say <message>' : Broadcast a message");
@@ -204,6 +205,9 @@ namespace CSMud
                     break;
                 case "examine":
                     HandleExamine(sender, e);
+                    break;
+                case "go":
+                    HandleGo(sender, e);
                     break;
                 default:
                     (sender as User).Connection.SendMessage("You cannot do that.");
@@ -272,6 +276,22 @@ namespace CSMud
                     XMLReference<Thing> thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => string.Equals(t.Actual.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
                     (sender as User).Connection.SendMessage($"{thing.Actual.Description}");
                 }
+            }
+        }
+
+        void HandleGo(object sender, ParameterizedEvent e)
+        {
+            int currentRoomId = getCurrentRoomId(sender);
+            int numDoors = WorldMap.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
+            if(numDoors == 0)
+            {
+                (sender as User).Connection.SendMessage("There are no doors here. You cannot go anywhere.");
+            }
+            else
+            {
+                var directionGoing = e.Action;
+                var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => string.Equals(t.Actual.Direction, directionGoing.Trim(), StringComparison.OrdinalIgnoreCase));
+                (sender as User).CurrRoomId = directionGone.Actual.RoomsIConnect[1];
             }
         }
 

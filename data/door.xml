@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Doors>
+  <Door>
+    <RoomsIConnect>0001</RoomsIConnect>
+    <RoomsIConnect>0002</RoomsIConnect>
+    <Locked>false</Locked>
+    <HasKey>false</HasKey>
+    <Id>0001</Id>
+    <Direction>N</Direction>
+  </Door>
+  <Door>
+    <RoomsIConnect>0002</RoomsIConnect>
+    <RoomsIConnect>0001</RoomsIConnect>
+    <Locked>false</Locked>
+    <Locked>false</Locked>
+    <Id>0002</Id>
+    <Direction>S</Direction>
+  </Door>
+</Doors>

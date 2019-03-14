@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Combat.cs" />
     <Compile Include="Connection.cs" />
+    <Compile Include="Door.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="Main.cs" />

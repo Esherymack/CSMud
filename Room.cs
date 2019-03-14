@@ -8,14 +8,14 @@ using System.Xml.Serialization;
 namespace CSMud
 {
     [XmlRoot("Rooms")]
-    public class Room
+    public class Room 
     { 
         [XmlElement]
         public List<XMLReference<Thing>> Things { get; set; }
         [XmlElement]
         public List<XMLReference<Entity>> Entities { get; set; }
         [XmlElement]
-        public List<string> Doors { get; set; }
+        public List<XMLReference<Door>> Doors { get; set; }
 
         [XmlElement]
         public string Name { get; set; }
