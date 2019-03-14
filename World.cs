@@ -69,6 +69,7 @@ namespace CSMud
                     #region Subscribe the user to events. 
                     user.RaiseHelpEvent += this.HandleHelpEvent;
                     user.RaiseLookEvent += this.HandleLookEvent;
+                    user.RaiseWhoEvent += this.HandleWhoEvent;
                     user.RaiseInventoryQueryEvent += this.HandleInventoryQueryEvent;
                     user.RaiseNoEvent += this.HandleNoEvent;
                     user.RaiseYesEvent += this.HandleYesEvent;
@@ -138,6 +139,22 @@ namespace CSMud
             }
         }
 
+        // RoomSay handles sending a message to all Users within a Room 
+        // Semantically this is the same as Broadcast, but with the exception that it only sends to players whose CurrRoomId's match the speaker's.
+        public void RoomSay(string msg, object sender)
+        {
+            lock (Users)
+            {
+                foreach (User user in Users)
+                {
+                    if(user.CurrRoomId == (sender as User).CurrRoomId)
+                    {
+                        user.Connection.SendMessage(msg);
+                    }
+                }
+            }
+        }
+
 
         #region Handlers for events 
         void HandleHelpEvent(object sender, EventArgs e)
@@ -146,28 +163,104 @@ namespace CSMud
 'help' : Display this message.
 'quit' : Exit the game.
 'look' : Look at the room you are in.
+'who' : Look at the players in your current room.
 'inventory' or 'i' : Display inventory.
 'take <object>' : Take an item.
 'drop <object>' : Drop an item in your inventory.
 'examine <object>' : Examine an item.
 'examine self' : Look at yourself.
+'go <direction>' : Move between rooms through valid doors.
 'no' or 'n' : Decline.
 'yes' or 'y' : Agree.
 'say <message>' : Broadcast a message");
         }
 
+        // Utility func for getting the user's current room ID
         int getCurrentRoomId(object sender)
         {
             return WorldMap.Rooms.FindIndex(a => a.Id == (sender as User).CurrRoomId);
         }
 
+        // Look gets the description of a room.
         void HandleLookEvent(object sender, EventArgs e)
         {
             int index = getCurrentRoomId(sender);
-            (sender as User).Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}");
-            (sender as User).Connection.SendMessage($"{string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}");
+            (sender as User).Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}:");
+            if(hasThings(sender))
+            {
+                (sender as User).Connection.SendMessage($"You see some interesting things: {string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}");
+            }
+            if(hasDoors(sender))
+            {
+                (sender as User).Connection.SendMessage($"You see doors to: {string.Join(", ", WorldMap.Rooms[index].Doors.Select(t => t.Actual))}.");
+            }
         }
 
+        // Who gets a list of players currently in the sender's room.
+        void HandleWhoEvent(object sender, EventArgs e)
+        {
+            List<User> currentUsers = new List<User>();
+            lock (Users)
+            {
+                foreach (User user in Users)
+                {
+                    if (user.CurrRoomId == (sender as User).CurrRoomId)
+                    {
+                        currentUsers.Add(user);
+                    }
+                }
+                currentUsers.Remove((sender as User));
+            }
+            if (hasEntities(sender))
+            {
+                (sender as User).Connection.SendMessage($"{string.Join(", ", WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Select(t => t.Actual))}");
+                if (currentUsers.Count > 0 && currentUsers.Count < 1)
+                {
+                    (sender as User).Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
+                }
+                else if (currentUsers.Count > 1)
+                {
+                    (sender as User).Connection.SendMessage($"You see your allies, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
+                }
+                else
+                {
+                    (sender as User).Connection.SendMessage("You have no allies nearby.");
+                }
+            }
+            else
+            {
+                (sender as User).Connection.SendMessage("You are alone.");
+            }
+        }
+
+        // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
+        bool hasEntities(object sender)
+        {
+            if(WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Count != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        // Utility func for finding if a room has Things
+        bool hasThings(object sender)
+        {
+            if(WorldMap.Rooms[getCurrentRoomId(sender)].Things.Count != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        bool hasDoors(object sender)
+        {
+            if(WorldMap.Rooms[getCurrentRoomId(sender)].Doors.Count != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // Inventory gets the user's inventory.
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
             if ((sender as User).Inventory.Empty)
@@ -180,22 +273,25 @@ namespace CSMud
             }
         }
 
+        // No says no.
         void HandleNoEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage("You firmly shake your head no.");
         }
 
+        // Yes says yes.
         void HandleYesEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage("You nod affirmatively.");
         }
 
+        // Switch statement for handling events with params
         void HandleParameterizedEvent(object sender, ParameterizedEvent e)
         {
             switch (e.Command)
             {
                 case "say":
-                    Broadcast($"{User.FormatMessage(e.Action, (sender as User).Name)}");
+                    RoomSay($"{User.FormatMessage(e.Action, (sender as User).Name)}", sender);
                     break;
                 case "take":
                     HandleTake(sender, e);
@@ -215,6 +311,10 @@ namespace CSMud
             }
         }
 
+        /* HandleTake and HandleDrop are relatively similar functions that just perform the inverses of each other
+         * HandleTake checks if the item a user wants to take exists in the context of the room they are in.
+         * if item exists, remove it from the room's list of references and add it to the player's inventory list instead       
+         */      
         void HandleTake(object sender, ParameterizedEvent e)
         {
             int roomId = getCurrentRoomId(sender);
@@ -225,6 +325,7 @@ namespace CSMud
             }
             else
             {
+                // Prevent the chance that two users try to take the same item at the same time.
                 lock (WorldMap.Rooms[roomId].Things)
                 {
                     if (WorldMap.Rooms[roomId].Things.Remove(target))
@@ -239,6 +340,10 @@ namespace CSMud
             }
         }
 
+        /* Like Handletake, HandleDrop checks for an item's existence, but in this case it has to be in the 
+         * requesting user's inventory.
+         * if item exists, remove it from the user inventory's list of refs and add to the room's Things instead
+         */      
         void HandleDrop(object sender, ParameterizedEvent e)
         {
             int roomId = getCurrentRoomId(sender);
@@ -249,13 +354,17 @@ namespace CSMud
             }
             else
             {
-                XMLReference<Thing> thing = new XMLReference<Thing>();
-                thing.Actual = target;
+                XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
                 (sender as User).Inventory.RemoveFromInventory(target);
                 WorldMap.Rooms[roomId].Things.Add(thing);
             }
         }
 
+        /* HandleExamine allows a user to examine an object or themselves
+         * 'examine self' returns a description of the user's player entity, including what they're wearing and appearance.
+         * 'examine <item>' returns the description of the item. The item can be either in the room or in the user's inventory.
+         * If the item is in neither, there is no description.       
+         */      
         void HandleExamine(object sender, ParameterizedEvent e)
         {
             int roomId = getCurrentRoomId(sender);
@@ -274,11 +383,31 @@ namespace CSMud
                 {
                     (sender as User).Connection.SendMessage($"You examine the {target}.");
                     XMLReference<Thing> thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => string.Equals(t.Actual.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
-                    (sender as User).Connection.SendMessage($"{thing.Actual.Description}");
+                    if(thing != null)
+                    {
+                        (sender as User).Connection.SendMessage($"{thing.Actual.Description}");
+                    }
+                    else 
+                    {
+                        Thing theThing = (sender as User).Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+                        if(theThing != null)
+                        {
+                            (sender as User).Connection.SendMessage($"{theThing.Description}");
+                        }
+                        else
+                        {
+                            (sender as User).Connection.SendMessage("No such item exists.");
+                        }
+                    }
                 }
             }
         }
 
+        /* HandleGo handles moving between rooms.
+         * TODO: Find a better way to handle the RoomsIConnect list - currently, in the XML, rooms must be 
+         * placed in the order of CURRENT ROOM in index 0 and CONNECTING ROOM in index 1    
+         * there's probably a better way to handle this situation.
+         */      
         void HandleGo(object sender, ParameterizedEvent e)
         {
             int currentRoomId = getCurrentRoomId(sender);

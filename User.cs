@@ -14,9 +14,10 @@ namespace CSMud
         public Connection Connection { get; }
 
         #region Events for commands.
-        // These are static events - they always do the same thing.
+        // These are unparameterized events - they are just called and always do the same thing.
         public event EventHandler RaiseHelpEvent;
         public event EventHandler RaiseLookEvent;
+        public event EventHandler RaiseWhoEvent;
         public event EventHandler RaiseInventoryQueryEvent;
         public event EventHandler RaiseNoEvent;
         public event EventHandler RaiseYesEvent;
@@ -104,6 +105,9 @@ Send 'help' for help.");
                         case "look":
                             OnRaiseLookEvent();
                             break;
+                        case "who":
+                            OnRaiseWhoEvent();
+                            break;
                     }
                 }
                 else
@@ -123,6 +127,12 @@ Send 'help' for help.");
         protected virtual void OnRaiseLookEvent()
         {
             EventHandler handler = RaiseLookEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseWhoEvent()
+        {
+            EventHandler handler = RaiseWhoEvent;
             handler?.Invoke(this, EventArgs.Empty);
         }
 
