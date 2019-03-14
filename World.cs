@@ -185,7 +185,7 @@ namespace CSMud
         void HandleLookEvent(object sender, EventArgs e)
         {
             int index = getCurrentRoomId(sender);
-            (sender as User).Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}:");
+            (sender as User).Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}");
             if(hasThings(sender))
             {
                 (sender as User).Connection.SendMessage($"You see some interesting things: {string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}.");
@@ -213,7 +213,8 @@ namespace CSMud
             }
             if (hasEntities(sender))
             {
-                (sender as User).Connection.SendMessage($"{string.Join(", ", WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Select(t => t.Actual))}");
+                (sender as User).Connection.SendMessage($"You can see some friendlies: {string.Join(", ", WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Where(t => t.Actual.IsFriendly).Select(v => v.Actual.Name))}");
+                (sender as User).Connection.SendMessage($"You can see some enemies: {string.Join(", ", WorldMap.Rooms[getCurrentRoomId(sender)].Entities.Where(t => !t.Actual.IsFriendly).Select(v => v.Actual.Name))}");
                 if (currentUsers.Count > 0 && currentUsers.Count < 1)
                 {
                     (sender as User).Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");

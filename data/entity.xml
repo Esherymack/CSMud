@@ -7,6 +7,7 @@
     <Commands>examine</Commands>
     <Commands>talk to</Commands>
     <Commands>listen to</Commands>
+    <IsFriendly>true</IsFriendly>
   </Entity>
   <Entity>
     <Name>An Ork</Name>
@@ -14,5 +15,6 @@
     <Description>An angry green fungus. He's not very friendly.</Description>
     <Commands>examine</Commands>
     <Commands>attack</Commands>
+    <IsFriendly>false</IsFriendly>
   </Entity>
 </Entities>
