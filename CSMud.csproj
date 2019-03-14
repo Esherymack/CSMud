@@ -56,6 +56,8 @@
     <Compile Include="Room.cs" />
     <Compile Include="MapBuild.cs" />
     <Compile Include="XMLReference.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="Stats.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
