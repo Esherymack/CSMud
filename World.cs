@@ -147,6 +147,9 @@ namespace CSMud
 'quit' : Exit the game.
 'look' : Look at the room you are in.
 'inventory' or 'i' : Display inventory.
+'take <object>' : Take an item.
+'drop <object>' : Drop an item in your inventory.
+'examoine <object>' : Examine an item.
 'no' or 'n' : Decline.
 'yes' or 'y' : Agree.
 'say <message>' : Broadcast a message");
@@ -196,6 +199,12 @@ namespace CSMud
                 case "take":
                     HandleTake(sender, e);
                     break;
+                case "drop":
+                    HandleDrop(sender, e);
+                    break;
+                case "examine":
+                    HandleExamine(sender, e);
+                    break;
                 default:
                     (sender as User).Connection.SendMessage("You cannot do that.");
                     break;
@@ -212,8 +221,40 @@ namespace CSMud
             }
             else
             {
-                (sender as User).Inventory.AddToInventory(target.Actual);
+                lock (WorldMap.Rooms[roomId].Things)
+                {
+                    if (WorldMap.Rooms[roomId].Things.Remove(target))
+                    {
+                        (sender as User).Inventory.AddToInventory(target.Actual);
+                    }
+                    else
+                    {
+                        (sender as User).Connection.SendMessage("That item is no longer there.");
+                    }
+                }
             }
+        }
+
+        void HandleDrop(object sender, ParameterizedEvent e)
+        {
+            int roomId = getCurrentRoomId(sender);
+            var target = (sender as User).Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (target == null)
+            {
+                (sender as User).Connection.SendMessage("No such object exists.");
+            }
+            else
+            {
+                XMLReference<Thing> thing = new XMLReference<Thing>();
+                thing.Actual = target;
+                (sender as User).Inventory.RemoveFromInventory(target);
+                WorldMap.Rooms[roomId].Things.Add(thing);
+            }
+        }
+
+        void HandleExamine(object sender, ParameterizedEvent e)
+        {
+
         }
 
         #endregion
