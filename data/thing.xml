@@ -15,8 +15,8 @@
     <Description>A hat made of cheese. You can eat it or wear it.</Description>
     <Id>0002</Id>
     <Commands>eat</Commands>
-    <Commands>wear</Commands>
-    <Commands>take off</Commands>
+    <Commands>equip</Commands>
+    <Commands>remove</Commands>
     <Commands>examine</Commands>
     <Commands>take</Commands>
     <Commands>drop</Commands>
@@ -39,8 +39,8 @@
     <Commands>hold</Commands>
     <Commands>examine</Commands>
     <Commands>drop</Commands>
-    <Commands>wear</Commands>
-    <Commands>take off</Commands>
+    <Commands>equip</Commands>
+    <Commands>remove</Commands>
   </Thing>
   <Thing>
         <Name>Gold Coin</Name>

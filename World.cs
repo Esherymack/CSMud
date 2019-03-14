@@ -466,7 +466,6 @@ namespace CSMud
             {
                 (sender as User).Inventory.RemoveFromInventory(target);
                 (sender as User).Player.Equip(target);
-
             }
             else
             {
