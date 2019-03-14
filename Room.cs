@@ -20,6 +20,8 @@ namespace CSMud
         [XmlElement]
         public string Name { get; set; }
         [XmlElement]
+        public int Id { get; set; }
+        [XmlElement]
         public string Description { get; set; }
 
         public Room()
@@ -29,6 +31,7 @@ namespace CSMud
             Things = null;
 
             Name = "";
+            Id = 0;
             Description = "";
         }
     }

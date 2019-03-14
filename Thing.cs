@@ -29,7 +29,7 @@ namespace CSMud
 
         public override string ToString()
         {
-            return $"{Name}\t{Description}\t{Commands.Aggregate((a, b) => $"{a}, {b}")}\n";
+            return $"{Name}";
         }
     }
 }

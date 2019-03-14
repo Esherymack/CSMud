@@ -17,6 +17,7 @@ namespace CSMud
         #region Events for commands.
         // These are static events - they always do the same thing.
         public event EventHandler RaiseHelpEvent;
+        public event EventHandler RaiseLookEvent;
         public event EventHandler RaiseInventoryQueryEvent;
         public event EventHandler RaiseNoEvent;
         public event EventHandler RaiseYesEvent;
@@ -47,7 +48,7 @@ namespace CSMud
             this.Name = name;
             Inventory = new Inventory();
 
-            this.CurrRoomId = 0001;
+            this.CurrRoomId = 1;
         }
 
         // OnConnect handles the welcome messages and tells the server client that someone has connected.
@@ -98,6 +99,9 @@ Send 'help' for help.");
                     case "y":
                         OnRaiseYesEvent();
                         break;
+                    case "look":
+                        OnRaiseLookEvent();
+                        break;
                     default:
                         try
                         {
@@ -118,6 +122,12 @@ Send 'help' for help.");
         protected virtual void OnRaiseHelpEvent()
         {
             EventHandler handler = RaiseHelpEvent;
+            handler?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnRaiseLookEvent()
+        {
+            EventHandler handler = RaiseLookEvent;
             handler?.Invoke(this, EventArgs.Empty);
         }
 
@@ -154,11 +164,6 @@ Send 'help' for help.");
         public static string FormatMessage(string line, string name)
         {
             return $"{name} says, '{line.Trim()}'";
-        }
-
-        public static string GetUserInventory(Inventory inventory)
-        {
-            return string.Join(", ", inventory.Things);
         }
 
         public void Dispose()

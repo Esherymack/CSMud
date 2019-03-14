@@ -28,6 +28,6 @@
     <Doors>S</Doors>
     <Id>0002</Id>
     <Name>The Second Room</Name>
-    <Description>This is the second room. There is a door to the South. A few new objects are here, as well as some entities: </Description>
+    <Description>This is the second room. There is a door to the South. A few new objects are here, as well as some entities.</Description>
   </Room>
 </Rooms>

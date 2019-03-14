@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Timers;
@@ -67,6 +68,7 @@ namespace CSMud
 
                     #region Subscribe the user to events. 
                     user.RaiseHelpEvent += this.HandleHelpEvent;
+                    user.RaiseLookEvent += this.HandleLookEvent;
                     user.RaiseInventoryQueryEvent += this.HandleInventoryQueryEvent;
                     user.RaiseNoEvent += this.HandleNoEvent;
                     user.RaiseYesEvent += this.HandleYesEvent;
@@ -141,18 +143,37 @@ namespace CSMud
         void HandleHelpEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage(@"Help:
-'help' : Display this message
-'quit' : Exit the game
+'help' : Display this message.
+'quit' : Exit the game.
+'look' : Look at the room you are in.
 'inventory' or 'i' : Display inventory.
 'no' or 'n' : Decline.
 'yes' or 'y' : Agree.
 'say <message>' : Broadcast a message");
         }
 
+        int getCurrentRoomId(object sender)
+        {
+            return WorldMap.Rooms.FindIndex(a => a.Id == (sender as User).CurrRoomId);
+        }
+
+        void HandleLookEvent(object sender, EventArgs e)
+        {
+            int index = getCurrentRoomId(sender);
+            (sender as User).Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}");
+            (sender as User).Connection.SendMessage($"{string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}");
+        }
+
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
-            (sender as User).Connection.SendMessage($"Your inventory consists of:\n {User.GetUserInventory((sender as User).Inventory)}");
-
+            try
+            {
+                (sender as User).Connection.SendMessage($"Your inventory consists of:\n {(sender as User).Inventory.ToString()}");
+            }
+            catch (Exception)
+            {
+                (sender as User).Connection.SendMessage($"You turn out your pockets. You have nothing.");
+            }
         }
 
         void HandleNoEvent(object sender, EventArgs e)
@@ -167,23 +188,29 @@ namespace CSMud
 
         void HandleParameterizedEvent(object sender, ParameterizedEvent e)
         {
-            switch(e.Command)
+            switch (e.Command)
             {
-                case "look":
-                    (sender as User).Connection.SendMessage("You look around.");
-                    break;
                 case "say":
                     Broadcast($"{User.FormatMessage(e.Action, (sender as User).Name)}");
+                    break;
+                case "take":
+                    HandleTake(sender, e);
                     break;
                 default:
                     (sender as User).Connection.SendMessage("You cannot do that.");
                     break;
             }
-            /*(sender as User).Connection.SendMessage(e.Command);
-            if (e.Action != null)
+        }
+
+        void HandleTake(object sender, ParameterizedEvent e)
+        {
+            int roomId = getCurrentRoomId(sender);
+            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => t.Actual.Name == e.Action);
+            if (target == null)
             {
-                 (sender as User).Connection.SendMessage(e.Action);
-            }*/
+                (sender as User).Connection.SendMessage("No such object exists.");
+            }
+            (sender as User).Inventory.AddToInventory(target.Actual);
         }
 
         #endregion

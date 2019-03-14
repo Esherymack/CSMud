@@ -15,6 +15,19 @@ namespace CSMud
     {
         public List<Thing> Things { get; set; }
 
+        public void AddToInventory(Thing thing)
+        {
+            Things.Add(thing);
+        }
 
+        public void RemoveFromInventory(Thing thing)
+        {
+            Things.Remove(thing);
+        }
+
+        public override string ToString()
+        {
+            return $"{string.Join(", ", Things)}";
+        }
     }
 }

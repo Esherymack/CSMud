@@ -16,7 +16,7 @@ namespace CSMud
         public List<Thing> Things { get; set; }
         public List<Entity> Entities { get; set; }
         public List<Room> Rooms { get; set; }
-        public Dictionary<int, Thing> AllThings { get; }
+        public Dictionary<int, Thing> AllThings { get; set; }
 
         public MapBuild()
         {
@@ -26,11 +26,9 @@ namespace CSMud
         public void GenerateMap()
         {
             Console.WriteLine("Generating map...");
-            Console.WriteLine("\n");
-            Things = CreateThing(); 
+            Things = CreateThing();
             Entities = CreateEntity();
             CreateRoom();
-            Console.WriteLine("\n");
             Console.WriteLine("Map generated!");
         }
 
@@ -76,25 +74,19 @@ namespace CSMud
                 Rooms.ForEach(i => XMLReference<Thing>.Link(i.Things, Things));
                 Rooms.ForEach(i => XMLReference<Entity>.Link(i.Entities, Entities));
                 // Printing is just for testing purposes, presently
-                Rooms.ForEach(r => PrintRoomDescription(r));
+                // Rooms.ForEach(r => PrintRoomDescription(r));
             }
-        }
-
-        public static Dictionary<int, Thing> SetAllThings(List<Thing> things)
-        {
-            Dictionary<int, Thing> AllThings = things.ToDictionary(t => t.Id, t => t);
-            return AllThings;
         }
 
         /* Just for testing purposes
          */
-        void PrintRoomDescription(Room room)
+        public static void PrintRoomDescription(Room room)
         {
-            Console.WriteLine($"{room.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{room.Name}\t{room.Description}");
+            // Console.WriteLine($"{room.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{room.Name}\t{room.Description}\t{room.Id}");
             var roomthings = room.Things.Select(t => t.Actual);
             var roomentities = room.Entities.Select(t => t.Actual);
-            Console.WriteLine(string.Join("", roomthings));
-            Console.WriteLine(string.Join("", roomentities));
+            // Console.WriteLine(string.Join("", roomthings));
+            // Console.WriteLine(string.Join("", roomentities));
         }
     }
 }
