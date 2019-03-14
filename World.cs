@@ -188,7 +188,7 @@ namespace CSMud
             (sender as User).Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}:");
             if(hasThings(sender))
             {
-                (sender as User).Connection.SendMessage($"You see some interesting things: {string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}");
+                (sender as User).Connection.SendMessage($"You see some interesting things: {string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}.");
             }
             if(hasDoors(sender))
             {
@@ -269,7 +269,7 @@ namespace CSMud
             }
             else
             {
-                (sender as User).Connection.SendMessage($"Your inventory consists of:\n {(sender as User).Inventory.ToString()}");
+                (sender as User).Connection.SendMessage($"Your inventory consists of:\n{(sender as User).Inventory.ToString()}");
             }
         }
 
@@ -420,7 +420,14 @@ namespace CSMud
             {
                 var directionGoing = e.Action;
                 var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => string.Equals(t.Actual.Direction, directionGoing.Trim(), StringComparison.OrdinalIgnoreCase));
-                (sender as User).CurrRoomId = directionGone.Actual.RoomsIConnect[1];
+                if(directionGone != null)
+                {
+                    (sender as User).CurrRoomId = directionGone.Actual.RoomsIConnect[1];
+                }
+                else
+                {
+                    (sender as User).Connection.SendMessage("There is no door there.");
+                }
             }
         }
 
