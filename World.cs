@@ -149,7 +149,7 @@ namespace CSMud
 'inventory' or 'i' : Display inventory.
 'take <object>' : Take an item.
 'drop <object>' : Drop an item in your inventory.
-'examoine <object>' : Examine an item.
+'examine <object>' : Examine an item.
 'no' or 'n' : Decline.
 'yes' or 'y' : Agree.
 'say <message>' : Broadcast a message");
@@ -254,7 +254,11 @@ namespace CSMud
 
         void HandleExamine(object sender, ParameterizedEvent e)
         {
+            var target = e.Action;
+            if (target == null)
+            {
 
+            }
         }
 
         #endregion
