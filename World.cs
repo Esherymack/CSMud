@@ -398,7 +398,11 @@ namespace CSMud
             var target = (sender as User).Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
             if (target == null)
             {
-                (sender as User).Connection.SendMessage("No such object exists.");
+                target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+                if (target == null)
+                {
+                    (sender as User).Connection.SendMessage("No such object exists.");
+                }
             }
             else if (!target.Commands.Contains("drop"))
             {
