@@ -249,7 +249,7 @@ namespace CSMud
                 {
                     (sender as User).Connection.SendMessage("You don't see anyone new, but you sense a strange presence.");
                 }
-                if (currentUsers.Count > 0 && currentUsers.Count < 1)
+                if (currentUsers.Count == 1)
                 {
                     (sender as User).Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
                 }
