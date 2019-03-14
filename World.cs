@@ -399,7 +399,6 @@ namespace CSMud
             if (target == null)
             {
                 target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
-                Console.WriteLine(target);
                 if (target == null)
                 {
                     (sender as User).Connection.SendMessage("No such object exists.");
@@ -413,6 +412,7 @@ namespace CSMud
             {
                 XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
                 (sender as User).Inventory.RemoveFromInventory(target);
+                (sender as User).Player.Drop(target);
                 WorldMap.Rooms[roomId].Things.Add(thing);
             }
         }

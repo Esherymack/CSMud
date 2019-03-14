@@ -35,5 +35,10 @@ namespace CSMud
         {
             Held.Add(thing);
         }
+
+        public void Drop(Thing thing)
+        {
+            Held.Remove(thing);
+        }
     }
 }
