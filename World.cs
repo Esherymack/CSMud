@@ -398,11 +398,7 @@ namespace CSMud
             var target = (sender as User).Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
             if (target == null)
             {
-                target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (target == null)
-                {
-                    (sender as User).Connection.SendMessage("No such object exists.");
-                }
+                HandleHoldDrop(sender, e);
             }
             else if (!target.Commands.Contains("drop"))
             {
@@ -412,8 +408,26 @@ namespace CSMud
             {
                 XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
                 (sender as User).Inventory.RemoveFromInventory(target);
-                (sender as User).Player.Drop(target);
                 WorldMap.Rooms[roomId].Things.Add(thing);
+            }
+        }
+
+        void HandleHoldDrop(object sender, ParameterizedEvent e)
+        {
+            int roomID = getCurrentRoomId(sender);
+            var target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (target == null)
+            {
+                (sender as User).Connection.SendMessage("You are not holding that.");
+            }
+            else if (!target.Commands.Contains("drop"))
+            {
+                (sender as User).Connection.SendMessage("You cannot drop that.");
+            }
+            else
+            {
+                (sender as User).Player.Drop(target);
+                (sender as User).Inventory.AddToInventory(target);
             }
         }
 
