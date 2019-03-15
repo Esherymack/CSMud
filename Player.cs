@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 namespace CSMud
 {
-    /* The Player object houses the current User's statistics and currently equipped and held Things
-     */   
+    /* The Player object houses the current User's statistics and currently equipped and held Things */   
     public class Player
     {
         public List<Thing> Equipped { get; }
