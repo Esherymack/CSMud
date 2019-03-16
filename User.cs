@@ -37,6 +37,7 @@ namespace CSMud
         public int CurrRoomId { get; set; }
 
         // a user has a player object holding their "profile"
+        // this consists of things they are wearing, things they are holding, and their stats
         public Player Player { get; set; }
 
         // a user has a name
@@ -77,6 +78,7 @@ Send 'help' for help.");
 
             while (true)
             {
+                Connection.SendMessage("~> ");
                 // Get a message that's sent to the server
                 string line = Connection.ReadMessage();
                 string[] splitLine = line.Split(new char[] { ' ' }, 2);

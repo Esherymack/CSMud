@@ -12,12 +12,10 @@ namespace CSMud
     public class World
     {
         // a world has connections
-        public List<User> Users
-        { get; }
+        public List<User> Users { get; }
 
         // a beat is a periodic message sent over the server
-        private Timer Beat
-        { get; }
+        private Timer Beat { get; }
 
         public MapBuild WorldMap { get; set; }
 
@@ -128,7 +126,7 @@ namespace CSMud
             }
         }
 
-        // Broadcast handles sending a message over the server - y'know, broadcasting it.
+        // Broadcast handles sending a message over the entire server (all players can see it regardless of their room)
         public void Broadcast(string msg)
         {
             lock (Users)
@@ -156,8 +154,7 @@ namespace CSMud
             }
         }
 
-
-        #region Handlers for events 
+        #region Handlers for events / If/Else Hell(TM)
         void HandleHelpEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage(@"Help:
@@ -167,13 +164,14 @@ namespace CSMud
 'who' : Look at the players in your current room.
 'inventory' or 'i' : Display inventory.
 'take <object>' : Take an item.
-'drop <object>' : Drop an item in your inventory.
+'hold <object>' : Hold an item in your inventory.
+'drop <object>' : Drop a held or taken item.
 'examine <object>' : Examine an item.
 'examine self' : Look at yourself.
 'go <direction>' : Move between rooms through valid doors.
 'no' or 'n' : Decline.
 'yes' or 'y' : Agree.
-'say <message>' : Broadcast a message");
+'say <message>' : Talk to the players in your room.");
         }
 
         // Utility func for getting the user's current room ID
@@ -247,24 +245,24 @@ namespace CSMud
                 }
                 if (sneakies.Count > 0)
                 {
+                    // TODO: If user can percieve above certain value, they can see and interact with hidden enemies (after implementing Stats.cs)
                     (sender as User).Connection.SendMessage("You don't see anyone new, but you sense a strange presence.");
                 }
-                if (currentUsers.Count == 1)
-                {
-                    (sender as User).Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
-                }
-                else if (currentUsers.Count > 1)
-                {
-                    (sender as User).Connection.SendMessage($"You see your allies, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
-                }
-                else
-                {
-                    (sender as User).Connection.SendMessage("You have no allies nearby.");
-                }
             }
+            // if there is one player
+            if (currentUsers.Count == 1)
+            {
+                (sender as User).Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
+            }
+            // if there are multiple players
+            else if (currentUsers.Count > 1)
+            {
+                (sender as User).Connection.SendMessage($"You see your allies, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
+            }
+            // if there are no other players
             else
             {
-                (sender as User).Connection.SendMessage("You are alone.");
+                (sender as User).Connection.SendMessage("You have no allies nearby.");
             }
         }
 
@@ -399,6 +397,7 @@ namespace CSMud
             var heldTarget = target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
             if (target == null)
             {
+<<<<<<< HEAD
                 if (heldTarget == null)
                 {
                     (sender as User).Connection.SendMessage("No such object exists.");
@@ -408,6 +407,9 @@ namespace CSMud
                     Console.WriteLine()
                     (sender as User).Player.Drop(target);
                 }
+=======
+                HandleHoldDrop(sender, e);
+>>>>>>> 0c43a542becab2d7f004029a870650b47197962e
             }
             else if (!target.Commands.Contains("drop"))
             {
@@ -418,6 +420,25 @@ namespace CSMud
                 XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
                 (sender as User).Inventory.RemoveFromInventory(target);
                 WorldMap.Rooms[roomId].Things.Add(thing);
+            }
+        }
+
+        void HandleHoldDrop(object sender, ParameterizedEvent e)
+        {
+            int roomID = getCurrentRoomId(sender);
+            var target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (target == null)
+            {
+                (sender as User).Connection.SendMessage("You are not holding that.");
+            }
+            else if (!target.Commands.Contains("drop"))
+            {
+                (sender as User).Connection.SendMessage("You cannot drop that.");
+            }
+            else
+            {
+                (sender as User).Player.Drop(target);
+                (sender as User).Inventory.AddToInventory(target);
             }
         }
 
