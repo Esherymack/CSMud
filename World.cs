@@ -396,12 +396,17 @@ namespace CSMud
         {
             int roomId = getCurrentRoomId(sender);
             var target = (sender as User).Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
+            var heldTarget = target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
             if (target == null)
             {
-                target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (target == null)
+                if (heldTarget == null)
                 {
                     (sender as User).Connection.SendMessage("No such object exists.");
+                }
+                else
+                {
+                    Console.WriteLine()
+                    (sender as User).Player.Drop(target);
                 }
             }
             else if (!target.Commands.Contains("drop"))
@@ -412,7 +417,6 @@ namespace CSMud
             {
                 XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
                 (sender as User).Inventory.RemoveFromInventory(target);
-                (sender as User).Player.Drop(target);
                 WorldMap.Rooms[roomId].Things.Add(thing);
             }
         }

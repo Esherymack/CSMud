@@ -36,9 +36,9 @@ namespace CSMud
             Held.Add(thing);
         }
 
-        public void Drop(Thing thing)
+        public bool Drop(Thing thing)
         {
-            Held.Remove(thing);
+            return Held.Remove(thing);
         }
     }
 }
