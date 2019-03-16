@@ -91,8 +91,7 @@ namespace CSMud
             }
         }
 
-        /* Just for testing purposes
-         */
+        /* Just for testing purposes - prints various Thing pools so that I can determine what's where */
         public static void PrintRoomDescription(Room room)
         {
             // Console.WriteLine($"{room.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{room.Name}\t{room.Description}\t{room.Id}");

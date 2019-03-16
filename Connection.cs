@@ -24,7 +24,7 @@ namespace CSMud
             this.SockStream = new NetworkStream(socket, true);
         }
 
-        // SendMessage handles sending speech messages on the MUD server
+        // SendMessage handles sending messages on the MUD server
         public void SendMessage(string line)
         {
             lock (streamWrite)
@@ -36,7 +36,7 @@ namespace CSMud
             }
         }
 
-        // SendMessage handles sending speech messages on the MUD server
+        // ReadMessage handles reading speech messages on the MUD server
         public string ReadMessage()
         {
             lock (streamRead)

@@ -20,7 +20,7 @@ namespace CSMud
 
         public Thing()
         {
-            Commands = null;
+            Commands = new List<string>();
             Id = 0;
             Name = "";
             Description = "";

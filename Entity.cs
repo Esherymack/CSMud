@@ -23,14 +23,17 @@ namespace CSMud
         public string Description { get; set; }
         [XmlElement]
         public bool IsFriendly { get; set; }
+        [XmlElement]
+        public bool IsHidden { get; set; }
 
         public Entity()
         {
-            Commands = null;
+            Commands = new List<string>();
             Id = 0;
             Name = "";
             Description = "";
             IsFriendly = true;
+            IsHidden = false;
         }
 
         public override string ToString()
