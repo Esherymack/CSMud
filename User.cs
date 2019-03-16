@@ -78,7 +78,6 @@ Send 'help' for help.");
 
             while (true)
             {
-                Connection.SendMessage("~> ");
                 // Get a message that's sent to the server
                 string line = Connection.ReadMessage();
                 string[] splitLine = line.Split(new char[] { ' ' }, 2);

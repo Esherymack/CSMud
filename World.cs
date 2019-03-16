@@ -397,19 +397,7 @@ namespace CSMud
             var heldTarget = target = (sender as User).Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Action.Trim(), StringComparison.OrdinalIgnoreCase));
             if (target == null)
             {
-<<<<<<< HEAD
-                if (heldTarget == null)
-                {
-                    (sender as User).Connection.SendMessage("No such object exists.");
-                }
-                else
-                {
-                    Console.WriteLine()
-                    (sender as User).Player.Drop(target);
-                }
-=======
                 HandleHoldDrop(sender, e);
->>>>>>> 0c43a542becab2d7f004029a870650b47197962e
             }
             else if (!target.Commands.Contains("drop"))
             {
@@ -418,6 +406,7 @@ namespace CSMud
             else
             {
                 XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
+                (sender as User).Player.Drop(target);
                 (sender as User).Inventory.RemoveFromInventory(target);
                 WorldMap.Rooms[roomId].Things.Add(thing);
             }
