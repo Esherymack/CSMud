@@ -10,16 +10,21 @@ namespace CSMud
     public class Door : Identifiable
     {
         // A RoomsIConnect list is typically only of length 2
-        // The int in [0] is the CURRENT ROOM
-        // the int in [1] is the CONNECTING ROOM
+        // The int in [0] is the CURRENT ROOM.
+        // The int in [1] is the CONNECTING ROOM.
+        // With some randomization, something could be rigged up that a door will send the player to a random room.
         [XmlElement]
         public List<int> RoomsIConnect { get; set; }
+        // Determines if a door is 'locked' or 'unlocked'
         [XmlElement]
         public bool Locked { get; set;  }
+        // If a door is 'locked,' it must have a key.
         [XmlElement]
         public bool HasKey { get; set; }
+        // A door has an ID number
         [XmlElement]
         public int Id { get; set; }
+        // A door goes in a direction
         [XmlElement]
         public string Direction { get; set; }
 

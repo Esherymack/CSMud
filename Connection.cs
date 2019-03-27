@@ -21,7 +21,7 @@ namespace CSMud
         // Constructor
         public Connection(Socket socket)
         {
-            this.SockStream = new NetworkStream(socket, true);
+            SockStream = new NetworkStream(socket, true);
         }
 
         // SendMessage handles sending messages on the MUD server
@@ -29,7 +29,7 @@ namespace CSMud
         {
             lock (streamWrite)
             {
-                using (StreamWriter writer = this.Writer)
+                using (StreamWriter writer = Writer)
                 {
                     writer.WriteLine(line);
                 }
@@ -41,7 +41,7 @@ namespace CSMud
         {
             lock (streamRead)
             {
-                using (StreamReader reader = this.Reader)
+                using (StreamReader reader = Reader)
                 {
                     return reader.ReadLine();
                 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Serialization;
 
 /* Entity class for CSMud
@@ -13,16 +12,22 @@ namespace CSMud
     [XmlRoot("Entities")]
     public class Entity : Identifiable
     {
+        // Valid commands for a given entity
         [XmlElement]
         public List<string> Commands { get; set; }
+        // ID number of an entity
         [XmlElement]
         public int Id { get; set; }
+        // The entity's name
         [XmlElement]
         public string Name { get; set; }
+        // The entity's 'examine' description
         [XmlElement]
         public string Description { get; set; }
+        // Whether or not the entity is friendly
         [XmlElement]
         public bool IsFriendly { get; set; }
+        // Whether or not the entity is hidden
         [XmlElement]
         public bool IsHidden { get; set; }
 

@@ -16,24 +16,42 @@ namespace CSMud
         {
             Equipped = new List<Thing>();
             Held = new List<Thing>();
-            Stats = new Stats();
+            Stats = new Stats(100, 25, 15, 15, 15);
             Name = name;
         }
 
+        // Equip a wearable item
+        // TODO: figure out what to do here and in Hold when the list of items is full
         public void Equip(Thing thing)
         {
-            Equipped.Add(thing);
+            if (Equipped.Count == 6)
+            {}
+            // TODO: check type of thing to wear - if already worn, do not equip immediately, but ask to flip
+            else
+            {
+                Equipped.Add(thing);
+            }
         }
+
+        // Unequip a worn item
         public void Unequip(Thing thing)
         {
             Equipped.Remove(thing);
         }
 
+        // Hold an item in your hand
+        // TODO: see TODO on line 23
         public void Hold(Thing thing)
         {
-            Held.Add(thing);
+            if (Held.Count == 2)
+            {}
+            else
+            {
+                Held.Add(thing);
+            }
         }
 
+        // Drop a held item.
         public void Drop(Thing thing)
         {
             Held.Remove(thing);

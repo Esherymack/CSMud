@@ -22,7 +22,7 @@ namespace CSMud
         public event EventHandler RaiseNoEvent;
         public event EventHandler RaiseYesEvent;
 
-        // This is a parameterized event that affects a Thing or Entity
+        // This is a parameterized event that affects a Thing, Player, or Entity
         public event EventHandler<ParameterizedEvent> RaiseParameterizedEvent;
 
         #endregion
