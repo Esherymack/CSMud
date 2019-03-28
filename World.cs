@@ -38,7 +38,7 @@ namespace CSMud
         }
 
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
-        void OnTimedEvent(Object source, ElapsedEventArgs e)
+        void OnTimedEvent(object source, ElapsedEventArgs e)
         {
             Broadcast("Something scurries around in the distance.");
         }
@@ -67,13 +67,13 @@ namespace CSMud
                     }
 
                     #region Subscribe the user to events. 
-                    user.RaiseHelpEvent += this.HandleHelpEvent;
-                    user.RaiseLookEvent += this.HandleLookEvent;
-                    user.RaiseWhoEvent += this.HandleWhoEvent;
-                    user.RaiseInventoryQueryEvent += this.HandleInventoryQueryEvent;
-                    user.RaiseNoEvent += this.HandleNoEvent;
-                    user.RaiseYesEvent += this.HandleYesEvent;
-                    user.RaiseParameterizedEvent += this.HandleParameterizedEvent;
+                    user.RaiseHelpEvent += HandleHelpEvent;
+                    user.RaiseLookEvent += HandleLookEvent;
+                    user.RaiseWhoEvent += HandleWhoEvent;
+                    user.RaiseInventoryQueryEvent += HandleInventoryQueryEvent;
+                    user.RaiseNoEvent += HandleNoEvent;
+                    user.RaiseYesEvent += HandleYesEvent;
+                    user.RaiseParameterizedEvent += HandleParameterizedEvent;
                     #endregion
 
                     return user;
@@ -110,8 +110,8 @@ namespace CSMud
                     }
                     finally
                     {
-                        this.EndConnection(user);
-                        this.Broadcast($"{user.Name} has disconnected.");
+                        EndConnection(user);
+                        Broadcast($"{user.Name} has disconnected.");
                         Console.WriteLine($"{user.Name} has disconnected.");
                     }
                 }
@@ -184,29 +184,17 @@ namespace CSMud
         // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
         bool hasEntities(User sender)
         {
-            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Count != 0)
-            {
-                return true;
-            }
-            return false;
+            return WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Count != 0;
         }
         // Utility func for finding if a room has Things
         bool hasThings(User sender)
         {
-            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Count != 0)
-            {
-                return true;
-            }
-            return false;
+            return WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Count != 0;
         }
         // Utility func for finding if a room has Doors
         bool hasDoors(User sender)
         {
-            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Count != 0)
-            {
-                return true;
-            }
-            return false;
+            return WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Count != 0;
         }
         // Utility function for string matching
         bool fuzzyEquals(string a, string b)
@@ -252,6 +240,7 @@ namespace CSMud
                 List<Entity> friendlies = new List<Entity>();
                 List<Entity> meanies = new List<Entity>();
                 List<Entity> sneakies = new List<Entity>();
+                List<Entity> detectedSneakies = new List<Entity>();
                 foreach (var i in WorldMap.Rooms[GetCurrentRoomId(s)].Entities)
                 {
                     // each i is a reference to an entity
@@ -281,8 +270,21 @@ namespace CSMud
                 }
                 if (sneakies.Count > 0)
                 {
-                    // TODO: If user can percieve above certain value, they can see and interact with hidden enemies (after implementing Stats.cs)
+                    // sender.Player.Stats.Dexterity >= directionGone.Actual.minDexterity
+                    foreach(Entity entity in sneakies)
+                    {
+                        if (s.Player.Stats.Perception >= entity.minPerception)
+                        {
+                            detectedSneakies.Add(entity);
+                        }
+                    }
+                    if(detectedSneakies.Count > 0)
+                    {
+                        s.Connection.SendMessage($"Although they are trying to be stealthy, you can see some other enemies lurking in the shadows: {string.Join(", ", detectedSneakies.Select(t => t.Name))}");
+                        return;
+                    }
                     s.Connection.SendMessage("You don't see anyone new, but you sense a strange presence.");
+                    return;
                 }
             }
             // if there is one player
@@ -374,11 +376,6 @@ namespace CSMud
             int roomId = GetCurrentRoomId(sender);
             var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e));
             
-            void add()
-            {
-                sender.Inventory.AddToInventory(target.Actual);
-            }
-            
             if (target == null)
             {
                 sender.Connection.SendMessage("No such object exists.");
@@ -396,7 +393,7 @@ namespace CSMud
             {
                 if (WorldMap.Rooms[roomId].Things.Remove(target))
                 {
-                    add();
+                    sender.Inventory.AddToInventory(target.Actual);
                 }
                 else
                 {
@@ -414,14 +411,6 @@ namespace CSMud
             int roomId = GetCurrentRoomId(sender);
             Thing target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
 
-            void drop()
-            {
-                XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
-                sender.Player.Drop(target);
-                sender.Inventory.RemoveFromInventory(target);
-                WorldMap.Rooms[roomId].Things.Add(thing);
-            }
-
             if (target == null)
             {
                 HandleHoldDrop(sender, e);
@@ -433,19 +422,17 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot drop that.");
                 return;
             }
-            drop();
+
+             XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
+             sender.Player.Drop(target);
+             sender.Inventory.RemoveFromInventory(target);
+             WorldMap.Rooms[roomId].Things.Add(thing);
         }
 
         void HandleHoldDrop(User sender, string e)
         {
             int roomID = GetCurrentRoomId(sender);
             var target = sender.Player.Held.FirstOrDefault(t => fuzzyEquals(t.Name, e));
-
-            void drop()
-            {
-                sender.Player.Drop(target);
-                sender.Inventory.AddToInventory(target);
-            }
 
             if (target == null)
             {
@@ -458,7 +445,8 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot drop that.");
                 return;
             }
-            drop();
+            sender.Player.Drop(target);
+            sender.Inventory.AddToInventory(target);
         }
 
         /* HandleExamine allows a user to examine an object or themselves
@@ -468,15 +456,12 @@ namespace CSMud
          */
         void HandleExamine(User sender, string e)
         {
-            int roomId = GetCurrentRoomId(sender);
-            XMLReference<Thing> thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e));
-            Thing theThing = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
-
             if (e == null)
             {
                 sender.Connection.SendMessage("Examine what?");
                 return;
             }
+
             if (fuzzyEquals(e, "self"))
             {
                 sender.Connection.SendMessage("You look yourself over.");
@@ -491,29 +476,22 @@ namespace CSMud
                 return;
             }
 
-            if (thing != null)
+            int roomId = GetCurrentRoomId(sender);
+            Thing thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e))?.Actual ??
+            sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            if(thing == null)
             {
-                if (thing.Actual.Commands.Contains("examine"))
-                {
-                    sender.Connection.SendMessage($"You examine the {e}.");
-                    sender.Connection.SendMessage($"{thing.Actual.Description}");
-                    return;
-                }
+                sender.Connection.SendMessage("That does not exist here.");
+                return;
+            }
+            if(!thing.Commands.Contains("examine"))
+            {
                 sender.Connection.SendMessage("You cannot examine that.");
                 return;
             }
 
-            if (theThing != null)
-            {
-                if (thing.Actual.Commands.Contains("examine"))
-                {
-                    sender.Connection.SendMessage($"You examine the {e}.");
-                    sender.Connection.SendMessage($"{theThing.Description}");
-                    return;
-                }
-                sender.Connection.SendMessage("You cannot examine that.");
-                return;
-            }
+            sender.Connection.SendMessage($"You examine the {e}.");
+            sender.Connection.SendMessage($"{thing.Description}");
         }
 
         void HandleEquip(User sender, string e)
@@ -521,10 +499,10 @@ namespace CSMud
             var target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
             bool isWearing = false;
 
-            void equip()
+            if(!target.IsWearable)
             {
-                sender.Inventory.RemoveFromInventory(target);
-                sender.Player.Equip(target);
+                sender.Connection.SendMessage("You cannot wear that.");
+                return;
             }
 
             if (target == null)
@@ -554,12 +532,10 @@ namespace CSMud
 
                 if (!isWearing)
                 {
-                    equip();
+                    sender.Inventory.RemoveFromInventory(target);
+                    sender.Player.Equip(target);
                     return;
                 }
-
-                sender.Connection.SendMessage("You cannot wear that.");
-                return;
             }
         }       
 
@@ -586,12 +562,6 @@ namespace CSMud
        {
             var target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
 
-            void hold()
-            {
-                sender.Inventory.RemoveFromInventory(target);
-                sender.Player.Hold(target);
-            }
-
             if (target == null)
             {
                 sender.Connection.SendMessage("You must have the object in your inventory.");
@@ -606,7 +576,8 @@ namespace CSMud
                     return;
                 }
 
-                hold();
+                sender.Inventory.RemoveFromInventory(target);
+                sender.Player.Hold(target);
                 return;
             }
             
@@ -622,47 +593,46 @@ namespace CSMud
         {
             int currentRoomId = GetCurrentRoomId(sender);
             int numDoors = WorldMap.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
+            var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => fuzzyEquals(t.Actual.Direction, e));
             if (numDoors == 0)
             {
                 sender.Connection.SendMessage("There are no doors here. You cannot go anywhere.");
+                return;
+            }
+                
+            if(directionGone == null)
+            {
+                sender.Connection.SendMessage("There is no door there.");
+                return;
+            }
+                
+            void proceed()
+            {
+                sender.CurrRoomId = directionGone.Actual.RoomsIConnect[1];
+            }
+            
+            if(!directionGone.Actual.Locked)
+            {
+                proceed();
+                return;
+            }
+              
+            if(sender.Player.Stats.Dexterity >= directionGone.Actual.minDexterity)
+            {
+                sender.Connection.SendMessage("Although the door is locked, you are deft enough to pick your way in.");
+                proceed();
+                return;
+            }
+                
+            if(directionGone.Actual.HasKey)
+            {
+                sender.Connection.SendMessage("This door is locked and has a key. Look around!");
             }
             else
             {
-                var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => fuzzyEquals(t.Actual.Direction, e));
-                if(directionGone == null)
-                {
-                    sender.Connection.SendMessage("There is no door there.");
-                    return;
-                }
-                
-                void proceed()
-                {
-                    sender.CurrRoomId = directionGone.Actual.RoomsIConnect[1];
-                }
-                
-                if(!directionGone.Actual.Locked)
-                {
-                    proceed();
-                    return;
-                }
-                
-                if(sender.Player.Stats.Dexterity >= directionGone.Actual.minDexterity)
-                {
-                    sender.Connection.SendMessage("Although the door is locked, you are deft enough to pick your way in.");
-                    proceed();
-                    return;
-                }
-                
-                if(directionGone.Actual.HasKey)
-                {
-                    sender.Connection.SendMessage("This door is locked and has a key. Look around!");
-                }
-                else
-                {
-                    sender.Connection.SendMessage("You are unable to open the door.");
-                }
+                sender.Connection.SendMessage("You are unable to open the door.");
             }
         }
-        #endregion
+       #endregion
     }
 }
