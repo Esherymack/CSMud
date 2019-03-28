@@ -308,6 +308,7 @@ namespace CSMud
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
             User s = sender as User;
+            s.Connection.SendMessage($"Your current carry capacity is {s.Inventory.CurrentCapacity}/{s.Inventory.CarryCapacity}");
             if (s.Inventory.Empty)
             {
                 s.Connection.SendMessage($"You turn out your pockets. You have nothing.");
@@ -393,7 +394,13 @@ namespace CSMud
             {
                 if (WorldMap.Rooms[roomId].Things.Remove(target))
                 {
-                    sender.Inventory.AddToInventory(target.Actual);
+                    sender.Inventory.setCurrentRaisedCapacity(target.Actual.Weight);
+                    if(sender.Inventory.CurrentCapacity <= sender.Inventory.CarryCapacity)
+                    {
+                        sender.Inventory.AddToInventory(target.Actual);
+                        return;
+                    }
+                    sender.Connection.SendMessage("You're carrying too much to take that.");
                 }
                 else
                 {
@@ -425,6 +432,7 @@ namespace CSMud
 
              XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
              sender.Player.Drop(target);
+             sender.Inventory.setCurrentLoweredCapacity(target.Weight);
              sender.Inventory.RemoveFromInventory(target);
              WorldMap.Rooms[roomId].Things.Add(thing);
         }
@@ -446,6 +454,7 @@ namespace CSMud
                 return;
             }
             sender.Player.Drop(target);
+            sender.Inventory.setCurrentRaisedCapacity(target.Weight);
             sender.Inventory.AddToInventory(target);
         }
 
@@ -477,8 +486,7 @@ namespace CSMud
             }
 
             int roomId = GetCurrentRoomId(sender);
-            Thing thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e))?.Actual ??
-            sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            Thing thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
             if(thing == null)
             {
                 sender.Connection.SendMessage("That does not exist here.");
@@ -534,6 +542,7 @@ namespace CSMud
                 {
                     sender.Inventory.RemoveFromInventory(target);
                     sender.Player.Equip(target);
+                    sender.Inventory.setCurrentLoweredCapacity(target.Weight);
                     return;
                 }
             }
@@ -551,6 +560,7 @@ namespace CSMud
             if(target.Commands.Contains("remove"))
             {
                 sender.Player.Unequip(target);
+                sender.Inventory.setCurrentRaisedCapacity(target.Weight);
                 sender.Inventory.AddToInventory(target);
                 return;
             }
@@ -577,6 +587,7 @@ namespace CSMud
                 }
 
                 sender.Inventory.RemoveFromInventory(target);
+                sender.Inventory.setCurrentLoweredCapacity(target.Weight);
                 sender.Player.Hold(target);
                 return;
             }
@@ -593,7 +604,7 @@ namespace CSMud
         {
             int currentRoomId = GetCurrentRoomId(sender);
             int numDoors = WorldMap.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
-            var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => fuzzyEquals(t.Actual.Direction, e));
+            var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => fuzzyEquals(t.Actual.Direction, e))?.Actual;
             if (numDoors == 0)
             {
                 sender.Connection.SendMessage("There are no doors here. You cannot go anywhere.");
@@ -608,23 +619,23 @@ namespace CSMud
                 
             void proceed()
             {
-                sender.CurrRoomId = directionGone.Actual.RoomsIConnect[1];
+                sender.CurrRoomId = directionGone.RoomsIConnect[1];
             }
             
-            if(!directionGone.Actual.Locked)
+            if(!directionGone.Locked)
             {
                 proceed();
                 return;
             }
               
-            if(sender.Player.Stats.Dexterity >= directionGone.Actual.minDexterity)
+            if(sender.Player.Stats.Dexterity >= directionGone.minDexterity)
             {
                 sender.Connection.SendMessage("Although the door is locked, you are deft enough to pick your way in.");
                 proceed();
                 return;
             }
                 
-            if(directionGone.Actual.HasKey)
+            if(directionGone.HasKey)
             {
                 sender.Connection.SendMessage("This door is locked and has a key. Look around!");
             }

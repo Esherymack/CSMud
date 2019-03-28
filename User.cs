@@ -50,7 +50,7 @@ namespace CSMud
             Name = name;
             Player = new Player(name);
             Inventory = new Inventory();
-
+            Inventory.setCarryCapacity(Player.Stats.Strength);
             CurrRoomId = 1;
         }
 
