@@ -9,6 +9,7 @@ namespace CSMud
 {
     // A World holds connections and handles broadcasting messages from those connections
     // The world also handles taking care of all of the commands, both parameterized and unparameterized.
+    // TODO: Reduce obscene amount of if/else/if statements
     public class World
     {
         // a world has connections
@@ -23,17 +24,17 @@ namespace CSMud
         public World()
         {
             // create a list object of connections
-            this.Users = new List<User>();
+            Users = new List<User>();
             // Create a beat on the server
-            this.Beat = new Timer(45000)
+            Beat = new Timer(45000)
             {
                 AutoReset = true,
                 Enabled = true
             };
-            this.Beat.Elapsed += OnTimedEvent;
+            Beat.Elapsed += OnTimedEvent;
 
             // Generate the map last
-            this.WorldMap = new MapBuild();
+            WorldMap = new MapBuild();
         }
 
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
@@ -55,7 +56,7 @@ namespace CSMud
                     {
                         continue;
                     }
-                    else if (username == "")
+                    if (username == "")
                     {
                         username = "Someone";
                     }
@@ -174,11 +175,45 @@ namespace CSMud
 'say <message>' : Talk to the players in your room.");
         }
 
+        #region Utility funcs for event handlers 
         // Utility func for getting the user's current room ID
         int GetCurrentRoomId(User sender)
         {
             return WorldMap.Rooms.FindIndex(a => a.Id == sender.CurrRoomId);
         }
+        // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
+        bool hasEntities(User sender)
+        {
+            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Count != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        // Utility func for finding if a room has Things
+        bool hasThings(User sender)
+        {
+            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Count != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        // Utility func for finding if a room has Doors
+        bool hasDoors(User sender)
+        {
+            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Count != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        // Utility function for string matching
+        bool fuzzyEquals(string a, string b)
+        {
+            return string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
+        }
+        #endregion
 
         // Look gets the description of a room.
         void HandleLookEvent(object sender, EventArgs e)
@@ -267,33 +302,6 @@ namespace CSMud
             }
         }
 
-        // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
-        bool hasEntities(User sender)
-        {
-            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Count != 0)
-            {
-                return true;
-            }
-            return false;
-        }
-        // Utility func for finding if a room has Things
-        bool hasThings(User sender)
-        {
-            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Count != 0)
-            {
-                return true;
-            }
-            return false;
-        }
-        bool hasDoors(User sender)
-        {
-            if (WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Count != 0)
-            {
-                return true;
-            }
-            return false;
-        }
-
         // Inventory gets the user's inventory.
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
@@ -364,28 +372,35 @@ namespace CSMud
         void HandleTake(User sender, string e)
         {
             int roomId = GetCurrentRoomId(sender);
-            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => string.Equals(t.Actual.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
+            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e));
+            
+            void add()
+            {
+                sender.Inventory.AddToInventory(target.Actual);
+            }
+            
             if (target == null)
             {
                 sender.Connection.SendMessage("No such object exists.");
+                return;
             }
-            else if (!target.Actual.Commands.Contains("take"))
+            
+            if (!target.Actual.Commands.Contains("take"))
             {
                 sender.Connection.SendMessage("You cannot take that.");
+                return;
             }
-            else
+            
+            // Prevent the chance that two users try to take the same item at the same time.
+            lock (WorldMap.Rooms[roomId].Things)
             {
-                // Prevent the chance that two users try to take the same item at the same time.
-                lock (WorldMap.Rooms[roomId].Things)
+                if (WorldMap.Rooms[roomId].Things.Remove(target))
                 {
-                    if (WorldMap.Rooms[roomId].Things.Remove(target))
-                    {
-                        sender.Inventory.AddToInventory(target.Actual);
-                    }
-                    else
-                    {
-                        sender.Connection.SendMessage("That item is no longer there.");
-                    }
+                    add();
+                }
+                else
+                {
+                    sender.Connection.SendMessage("That item is no longer there.");
                 }
             }
         }
@@ -397,42 +412,53 @@ namespace CSMud
         void HandleDrop(User sender, string e)
         {
             int roomId = GetCurrentRoomId(sender);
-            var target = sender.Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
-            var heldTarget = target = sender.Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
-            if (target == null)
-            {
-                HandleHoldDrop(sender, e);
-            }
-            else if (!target.Commands.Contains("drop"))
-            {
-                sender.Connection.SendMessage("You cannot drop that.");
-            }
-            else
+            Thing target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+
+            void drop()
             {
                 XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
                 sender.Player.Drop(target);
                 sender.Inventory.RemoveFromInventory(target);
                 WorldMap.Rooms[roomId].Things.Add(thing);
             }
+
+            if (target == null)
+            {
+                HandleHoldDrop(sender, e);
+                return;
+            }
+            
+            if (!target.Commands.Contains("drop"))
+            {
+                sender.Connection.SendMessage("You cannot drop that.");
+                return;
+            }
+            drop();
         }
 
         void HandleHoldDrop(User sender, string e)
         {
             int roomID = GetCurrentRoomId(sender);
-            var target = sender.Player.Held.FirstOrDefault(t => string.Equals(t.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
-            if (target == null)
-            {
-                sender.Connection.SendMessage("You are not holding that.");
-            }
-            else if (!target.Commands.Contains("drop"))
-            {
-                sender.Connection.SendMessage("You cannot drop that.");
-            }
-            else
+            var target = sender.Player.Held.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+
+            void drop()
             {
                 sender.Player.Drop(target);
                 sender.Inventory.AddToInventory(target);
             }
+
+            if (target == null)
+            {
+                sender.Connection.SendMessage("You are not holding that.");
+                return;
+            }
+            
+            if (!target.Commands.Contains("drop"))
+            {
+                sender.Connection.SendMessage("You cannot drop that.");
+                return;
+            }
+            drop();
         }
 
         /* HandleExamine allows a user to examine an object or themselves
@@ -443,167 +469,200 @@ namespace CSMud
         void HandleExamine(User sender, string e)
         {
             int roomId = GetCurrentRoomId(sender);
+            XMLReference<Thing> thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e));
+            Thing theThing = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+
             if (e == null)
             {
                 sender.Connection.SendMessage("Examine what?");
+                return;
             }
-            else
+            if (fuzzyEquals(e, "self"))
             {
-                if (string.Equals(e, "self", StringComparison.OrdinalIgnoreCase))
+                sender.Connection.SendMessage("You look yourself over.");
+                if (sender.Player.Equipped.Count > 0)
                 {
-                    sender.Connection.SendMessage("You look yourself over.");
-                    if (sender.Player.Equipped.Count > 0)
-                    {
-                        sender.Connection.SendMessage($"Equipped: {string.Join(", ", sender.Player.Equipped)}");
-                    }
-                    if (sender.Player.Held.Count > 0)
-                    {
-                        sender.Connection.SendMessage($"Held: {string.Join(", ", sender.Player.Held)}");
-                    }
+                    sender.Connection.SendMessage($"Equipped: {string.Join(", ", sender.Player.Equipped)}");
                 }
-                else
+                if (sender.Player.Held.Count > 0)
                 {
-                    XMLReference<Thing> thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => string.Equals(t.Actual.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
-                    if (thing != null)
-                    {
-                        if (thing.Actual.Commands.Contains("examine"))
-                        {
-                            sender.Connection.SendMessage($"You examine the {e}.");
-                            sender.Connection.SendMessage($"{thing.Actual.Description}");
-                        }
-                        else
-                        {
-                            sender.Connection.SendMessage("You cannot examine that.");
-                        }
-                    }
-                    else
-                    {
-                        Thing theThing = sender.Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
-                        if (theThing != null)
-                        {
-                            if (thing.Actual.Commands.Contains("examine"))
-                            {
-                                sender.Connection.SendMessage($"You examine the {e}.");
-                                sender.Connection.SendMessage($"{theThing.Description}");
-                            }
-                            else
-                            {
-                                sender.Connection.SendMessage("You cannot examine that.");
-                            }
-                        }
-                    }
+                    sender.Connection.SendMessage($"Held: {string.Join(", ", sender.Player.Held)}");
                 }
+                return;
+            }
+
+            if (thing != null)
+            {
+                if (thing.Actual.Commands.Contains("examine"))
+                {
+                    sender.Connection.SendMessage($"You examine the {e}.");
+                    sender.Connection.SendMessage($"{thing.Actual.Description}");
+                    return;
+                }
+                sender.Connection.SendMessage("You cannot examine that.");
+                return;
+            }
+
+            if (theThing != null)
+            {
+                if (thing.Actual.Commands.Contains("examine"))
+                {
+                    sender.Connection.SendMessage($"You examine the {e}.");
+                    sender.Connection.SendMessage($"{theThing.Description}");
+                    return;
+                }
+                sender.Connection.SendMessage("You cannot examine that.");
+                return;
             }
         }
 
         void HandleEquip(User sender, string e)
         {
-            var target = sender.Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
+            var target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            bool isWearing = false;
+
+            void equip()
+            {
+                sender.Inventory.RemoveFromInventory(target);
+                sender.Player.Equip(target);
+            }
+
             if (target == null)
             {
                 sender.Connection.SendMessage("You must have the object in your inventory.");
+                return;
             }
-            else if (target.IsWearable)
+
+            if (target.IsWearable)
             {
-                if(sender.Player.Equipped.Count == 6)
+
+                if (sender.Player.Equipped.Count == 6)
                 {
                     sender.Connection.SendMessage("You have no other room to wear that.");
+                    return;
                 }
-                else
+
+                foreach (Thing thing in sender.Player.Equipped)
                 {
-                    bool isWearing = false;
-                    foreach (Thing thing in sender.Player.Equipped)
+                    if (target.Slot == thing.Slot)
                     {
-                        if (target.Slot == thing.Slot)
-                        {
-                            sender.Connection.SendMessage($"You are already wearing a {target.Slot} item.");
-                            isWearing = true;
-                            break;
-                        }
-                    }
-                    if(!isWearing)
-                    {
-                        sender.Inventory.RemoveFromInventory(target);
-                        sender.Player.Equip(target);
+                        sender.Connection.SendMessage($"You are already wearing a {target.Slot} item.");
+                        isWearing = true;
+                        break;
                     }
                 }
+
+                if (!isWearing)
+                {
+                    equip();
+                    return;
+                }
+
+                sender.Connection.SendMessage("You cannot wear that.");
+                return;
+            }
+        }       
+
+        void HandleRemove(User sender, string e)
+        {
+            var target = sender.Player.Equipped.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            if (target == null)
+            {
+                sender.Connection.SendMessage("You are not wearing that.");
+                return;
+            }
+            
+            if(target.Commands.Contains("remove"))
+            {
+                sender.Player.Unequip(target);
+                sender.Inventory.AddToInventory(target);
+                return;
+            }
+           
+            sender.Connection.SendMessage("You cannot remove that.");
+        }
+
+       void HandleHold(User sender, string e)
+       {
+            var target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+
+            void hold()
+            {
+                sender.Inventory.RemoveFromInventory(target);
+                sender.Player.Hold(target);
+            }
+
+            if (target == null)
+            {
+                sender.Connection.SendMessage("You must have the object in your inventory.");
+                return;
+            }
+
+            if (target.Commands.Contains("hold"))
+            {
+                if(sender.Player.Held.Count == 2)
+                {
+                    sender.Connection.SendMessage("You have no free hands.");
+                    return;
+                }
+
+                hold();
+                return;
+            }
+            
+            sender.Connection.SendMessage("You cannot hold that.");
+        }
+
+        /* HandleGo handles moving between rooms.
+         * TODO: Find a better way to handle the RoomsIConnect list - currently, in the XML, rooms must be 
+         * placed in the order of CURRENT ROOM in index 0 and CONNECTING ROOM in index 1    
+         * there's probably a better way to handle this situation.
+         */
+        void HandleGo(User sender, string e)
+        {
+            int currentRoomId = GetCurrentRoomId(sender);
+            int numDoors = WorldMap.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
+            if (numDoors == 0)
+            {
+                sender.Connection.SendMessage("There are no doors here. You cannot go anywhere.");
             }
             else
             {
-                sender.Connection.SendMessage("You cannot wear that.");
+                var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => fuzzyEquals(t.Actual.Direction, e));
+                if(directionGone == null)
+                {
+                    sender.Connection.SendMessage("There is no door there.");
+                    return;
+                }
+                
+                void proceed()
+                {
+                    sender.CurrRoomId = directionGone.Actual.RoomsIConnect[1];
+                }
+                
+                if(!directionGone.Actual.Locked)
+                {
+                    proceed();
+                    return;
+                }
+                
+                if(sender.Player.Stats.Dexterity >= directionGone.Actual.minDexterity)
+                {
+                    sender.Connection.SendMessage("Although the door is locked, you are deft enough to pick your way in.");
+                    proceed();
+                    return;
+                }
+                
+                if(directionGone.Actual.HasKey)
+                {
+                    sender.Connection.SendMessage("This door is locked and has a key. Look around!");
+                }
+                else
+                {
+                    sender.Connection.SendMessage("You are unable to open the door.");
+                }
             }
         }
-
-            void HandleRemove(User sender, string e)
-            {
-                var target = sender.Player.Equipped.FirstOrDefault(t => string.Equals(t.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (target == null)
-                {
-                    sender.Connection.SendMessage("You are not wearing that.");
-                }
-                else if(target.Commands.Contains("remove"))
-                {
-                    sender.Player.Unequip(target);
-                    sender.Inventory.AddToInventory(target);
-                }
-                else
-                {
-                    sender.Connection.SendMessage("You cannot remove that.");
-                }
-            }
-
-            void HandleHold(User sender, string e)
-            {
-                var target = sender.Inventory.Things.FirstOrDefault(t => string.Equals(t.Name, e.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (target == null)
-                {
-                    sender.Connection.SendMessage("You must have the object in your inventory.");
-                }
-                else if (target.Commands.Contains("hold"))
-                {
-                    if(sender.Player.Held.Count == 2)
-                    {
-                        sender.Connection.SendMessage("You have no free hands.");
-                    }
-                    else
-                    {
-                        sender.Inventory.RemoveFromInventory(target);
-                        sender.Player.Hold(target);
-                    }
-                }
-                else
-                {
-                    sender.Connection.SendMessage("You cannot hold that.");
-                }
-            }
-
-            /* HandleGo handles moving between rooms.
-             * TODO: Find a better way to handle the RoomsIConnect list - currently, in the XML, rooms must be 
-             * placed in the order of CURRENT ROOM in index 0 and CONNECTING ROOM in index 1    
-             * there's probably a better way to handle this situation.
-             */
-            void HandleGo(User sender, string e)
-            {
-                int currentRoomId = GetCurrentRoomId(sender);
-                int numDoors = WorldMap.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
-                if (numDoors == 0)
-                {
-                    sender.Connection.SendMessage("There are no doors here. You cannot go anywhere.");
-                }
-                else
-                {
-                    var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => string.Equals(t.Actual.Direction, e.Trim(), StringComparison.OrdinalIgnoreCase));
-                    if (directionGone != null)
-                    {
-                        sender.CurrRoomId = directionGone.Actual.RoomsIConnect[1];
-                    }
-                    else
-                    {
-                        sender.Connection.SendMessage("There is no door there.");
-                    }
-                }
-            }
-
-            #endregion
-        }
+        #endregion
     }
+}

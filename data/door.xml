@@ -13,6 +13,7 @@
     <RoomsIConnect>0003</RoomsIConnect>
     <Locked>true</Locked>
     <HasKey>false</HasKey>
+    <minDexterity>13</minDexterity>
     <Id>0003</Id>
     <Direction>W</Direction>
   </Door>
@@ -29,7 +30,6 @@
     <RoomsIConnect>0001</RoomsIConnect>
     <Locked>false</Locked>
     <HasKey>false</HasKey>
-    <minDexterity>13</minDexterity>
     <Id>0004</Id>
     <Direction>E</Direction>
   </Door>
