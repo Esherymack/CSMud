@@ -42,6 +42,7 @@ namespace CSMud
         // Whether or not the entity is hidden
         [XmlElement]
         public bool IsHidden { get; set; }
+        // If an entity is hidden, their minimum perception rating determines if the player can see them.
         [XmlElement]
         public int minPerception { get; set; }
 

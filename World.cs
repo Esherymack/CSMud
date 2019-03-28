@@ -503,10 +503,30 @@ namespace CSMud
                 {
                     sender.Connection.SendMessage("You must have the object in your inventory.");
                 }
-                else if (target.Commands.Contains("equip"))
+                else if (target.IsWearable)
                 {
-                    sender.Inventory.RemoveFromInventory(target);
-                    sender.Player.Equip(target);
+                    if(sender.Inventory.Things.Count == 6)
+                    {
+                        sender.Connection.SendMessage("You have no other room to wear that.");
+                    }
+                    else
+                    {
+                        bool isWearing = false;
+                        foreach (Thing thing in sender.Player.Equipped)
+                        {
+                            if (target.Slot == thing.Slot)
+                            {
+                                sender.Connection.SendMessage($"You are already wearing a {target.Slot} item.");
+                                isWearing = true;
+                                break;
+                            }
+                        }
+                        if(!isWearing)
+                        {
+                            sender.Inventory.RemoveFromInventory(target);
+                            sender.Player.Equip(target);
+                        }
+                    }
                 }
                 else
                 {

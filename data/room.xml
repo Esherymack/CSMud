@@ -7,6 +7,9 @@
     <Things>
 	    <Id>0002</Id>
     </Things>
+    <Things>
+      <Id>0006</Id>
+    </Things>
     <Entities>
         <Id>0003</Id>
     </Entities>
@@ -20,7 +23,7 @@
     <Name>The Test Room</Name>
     <Description>A vast room, with white floors.</Description>
   </Room>
-  
+
   <Room>
     <Things>
       <Id>0003</Id>
@@ -41,7 +44,7 @@
     <Name>The Second Room</Name>
     <Description>This is the second room.</Description>
   </Room>
-  
+
   <Room>
     <Doors>
       <Id>0004</Id>

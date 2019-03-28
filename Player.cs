@@ -21,16 +21,9 @@ namespace CSMud
         }
 
         // Equip a wearable item
-        // TODO: figure out what to do here and in Hold when the list of items is full
         public void Equip(Thing thing)
         {
-            if (Equipped.Count == 6)
-            {}
-            // TODO: check type of thing to wear - if already worn, do not equip immediately, but ask to flip
-            else
-            {
-                Equipped.Add(thing);
-            }
+            Equipped.Add(thing);
         }
 
         // Unequip a worn item
@@ -43,12 +36,7 @@ namespace CSMud
         // TODO: see TODO on line 23
         public void Hold(Thing thing)
         {
-            if (Held.Count == 2)
-            {}
-            else
-            {
-                Held.Add(thing);
-            }
+            Held.Add(thing);
         }
 
         // Drop a held item.

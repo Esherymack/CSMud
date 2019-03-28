@@ -72,4 +72,20 @@
     <IsWeapon>false</IsWeapon>
     <Weight>0</Weight>
   </Thing>
+  <Thing>
+    <Name>Gaudy Hat</Name>
+    <Description>The most hideous hat you've ever seen.</Description>
+    <Id>0006</Id>
+    <Commands>take</Commands>
+    <Commands>hold</Commands>
+    <Commands>examine</Commands>
+    <Commands>drop</Commands>
+    <Commands>equip</Commands>
+    <Commands>remove</Commands>
+    <IsWearable>true</IsWearable>
+    <Slot>head</Slot>
+    <StatIncrease>defense, 20</StatIncrease>
+    <IsWeapon>false</IsWeapon>
+    <Weight>1</Weight>
+  </Thing>
 </Things>
