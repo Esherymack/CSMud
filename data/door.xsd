@@ -3,12 +3,13 @@
   <xs:element name="Doors">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Door">
+        <xs:element maxOccurs="unbounded" name="Door">
           <xs:complexType>
             <xs:sequence>
               <xs:element maxOccurs="unbounded" name="RoomsIConnect" type="xs:unsignedByte" />
-              <xs:element name="Locked" type="xs:boolean" />
-              <xs:element name="HasKey" type="xs:boolean" />
+              <xs:element name="Locked" type="xs:string" />
+              <xs:element name="HasKey" type="xs:string" />
+              <xs:element minOccurs="0" name="minDexterity" type="xs:unsignedByte" />
               <xs:element name="Id" type="xs:unsignedByte" />
               <xs:element name="Direction" type="xs:string" />
             </xs:sequence>

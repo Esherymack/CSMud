@@ -27,6 +27,9 @@ namespace CSMud
         // A door goes in a direction
         [XmlElement]
         public string Direction { get; set; }
+        // Minimum dextieriy required to pick a locked door's lock
+        [XmlElement]
+        public int minDexterity { get; set; }
 
         public Door()
         {
@@ -34,6 +37,7 @@ namespace CSMud
             Locked = false;
             HasKey = false;
             Id = 0;
+            minDexterity = 0;
         }
 
         public override string ToString()

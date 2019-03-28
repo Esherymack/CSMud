@@ -58,7 +58,6 @@
     <Compile Include="XMLReference.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Stats.cs" />
-    <Compile Include="EntityStats.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

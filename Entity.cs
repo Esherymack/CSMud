@@ -12,6 +12,9 @@ namespace CSMud
     [XmlRoot("Entities")]
     public class Entity : Identifiable
     {
+
+        // TODO: figure out way to add an inventory ("drop inventory" for enemies, "shop inventory" for npcs)
+
         // Valid commands for a given entity
         [XmlElement]
         public List<string> Commands { get; set; }
@@ -24,12 +27,23 @@ namespace CSMud
         // The entity's 'examine' description
         [XmlElement]
         public string Description { get; set; }
+        // Entity's health level
+        [XmlElement]
+        public int Health { get; set; }
+        // Entity's defense level
+        [XmlElement]
+        public int Defense { get; set; }
+        // Entities deal implicit damage regardless of disposition to the player
+        [XmlElement]
+        public int Damage { get; set; }
         // Whether or not the entity is friendly
         [XmlElement]
         public bool IsFriendly { get; set; }
         // Whether or not the entity is hidden
         [XmlElement]
         public bool IsHidden { get; set; }
+        [XmlElement]
+        public int minPerception { get; set; }
 
         public Entity()
         {
@@ -37,8 +51,12 @@ namespace CSMud
             Id = 0;
             Name = "";
             Description = "";
+            Health = 100;
+            Defense = 100;
+            Damage = 10;
             IsFriendly = true;
             IsHidden = false;
+            minPerception = 0;
         }
 
         public override string ToString()

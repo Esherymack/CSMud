@@ -13,10 +13,14 @@
     <Doors>
       <Id>0001</Id>
     </Doors>
+    <Doors>
+      <Id>0003</Id>
+    </Doors>
     <Id>0001</Id>
     <Name>The Test Room</Name>
     <Description>A vast room, with white floors.</Description>
   </Room>
+  
   <Room>
     <Things>
       <Id>0003</Id>
@@ -36,5 +40,14 @@
     <Id>0002</Id>
     <Name>The Second Room</Name>
     <Description>This is the second room.</Description>
+  </Room>
+  
+  <Room>
+    <Doors>
+      <Id>0004</Id>
+    </Doors>
+    <Id>0003</Id>
+    <Name>Locked Door Test</Name>
+    <Description>If you're reading this, you've managed to unlock the door. Congratulations.</Description>
   </Room>
 </Rooms>
