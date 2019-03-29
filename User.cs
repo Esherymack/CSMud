@@ -58,6 +58,7 @@ namespace CSMud
         private void OnConnect()
         {
             // multiline string literal is making me very upset, many conniptions
+            // using \n new lines works on linux, not so much on windows
             Connection.SendMessage(@"Welcome!
 Send 'quit' to exit.
 Send 'help' for help.");
@@ -86,7 +87,7 @@ Send 'help' for help.");
                 {
                     break;
                 }
-                else if (splitLine.Length == 1)
+                if (splitLine.Length == 1)
                 {
                     switch (splitLine[0])
                     {

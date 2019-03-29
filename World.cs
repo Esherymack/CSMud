@@ -9,7 +9,6 @@ namespace CSMud
 {
     // A World holds connections and handles broadcasting messages from those connections
     // The world also handles taking care of all of the commands, both parameterized and unparameterized.
-    // TODO: Reduce obscene amount of if/else/if statements
     public class World
     {
         // a world has connections
@@ -134,7 +133,7 @@ namespace CSMud
             {
                 foreach (User user in Users)
                 {
-                    user.Connection.SendMessage(msg);
+                    user.Connection.SendMessage($"'{msg}'");
                 }
             }
         }
@@ -149,13 +148,13 @@ namespace CSMud
                 {
                     if (user.CurrRoomId == (sender as User).CurrRoomId)
                     {
-                        user.Connection.SendMessage(msg);
+                        user.Connection.SendMessage($"'{msg}'");
                     }
                 }
             }
         }
 
-        #region Handlers for events / If/Else Hell(TM)
+        #region Handlers for events
         void HandleHelpEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage(@"Help:
@@ -172,7 +171,8 @@ namespace CSMud
 'go <direction>' : Move between rooms through valid doors.
 'no' or 'n' : Decline.
 'yes' or 'y' : Agree.
-'say <message>' : Talk to the players in your room.");
+'say <message>' : Talk to the players in your room.
+'whisper <user> <message>' : Talk to a specific player. You cannot talk privately to Someones.");
         }
 
         #region Utility funcs for event handlers 
@@ -182,25 +182,41 @@ namespace CSMud
             return WorldMap.Rooms.FindIndex(a => a.Id == sender.CurrRoomId);
         }
         // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
-        bool hasEntities(User sender)
+        bool HasEntities(User sender)
         {
             return WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Count != 0;
         }
         // Utility func for finding if a room has Things
-        bool hasThings(User sender)
+        bool HasThings(User sender)
         {
             return WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Count != 0;
         }
         // Utility func for finding if a room has Doors
-        bool hasDoors(User sender)
+        bool HasDoors(User sender)
         {
             return WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Count != 0;
         }
         // Utility function for string matching
-        bool fuzzyEquals(string a, string b)
+        bool FuzzyEquals(string a, string b)
         {
             return string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
         }
+        // Gets the intended recipient for trades and whispers
+        User GetRecipient(string a)
+        {
+            lock(Users)
+            {
+                foreach(User user in Users)
+                {
+                    if(FuzzyEquals(user.Name, a))
+                    {
+                        return user;
+                    }
+                }
+                return null;
+            }
+        }
+
         #endregion
 
         // Look gets the description of a room.
@@ -209,11 +225,11 @@ namespace CSMud
             User s = sender as User;
             int index = GetCurrentRoomId(s);
             s.Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}");
-            if (hasThings(s))
+            if (HasThings(s))
             {
                 s.Connection.SendMessage($"You see some interesting things: {string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}.");
             }
-            if (hasDoors(s))
+            if (HasDoors(s))
             {
                 s.Connection.SendMessage($"You see doors to: {string.Join(", ", WorldMap.Rooms[index].Doors.Select(t => t.Actual))}.");
             }
@@ -235,7 +251,7 @@ namespace CSMud
                 }
                 currentUsers.Remove(s);
             }
-            if (hasEntities(s))
+            if (HasEntities(s))
             {
                 List<Entity> friendlies = new List<Entity>();
                 List<Entity> meanies = new List<Entity>();
@@ -341,6 +357,9 @@ namespace CSMud
                 case "say":
                     RoomSay($"{User.FormatMessage(action, s.Name)}", s);
                     break;
+                case "whisper":
+                    HandleWhisper(s, action);
+                    break;
                 case "take":
                     HandleTake(s, action);
                     break;
@@ -375,7 +394,7 @@ namespace CSMud
         void HandleTake(User sender, string e)
         {
             int roomId = GetCurrentRoomId(sender);
-            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e));
+            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => FuzzyEquals(t.Actual.Name, e));
             
             if (target == null)
             {
@@ -416,7 +435,7 @@ namespace CSMud
         void HandleDrop(User sender, string e)
         {
             int roomId = GetCurrentRoomId(sender);
-            Thing target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            Thing target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
 
             if (target == null)
             {
@@ -440,7 +459,7 @@ namespace CSMud
         void HandleHoldDrop(User sender, string e)
         {
             int roomID = GetCurrentRoomId(sender);
-            var target = sender.Player.Held.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            var target = sender.Player.Held.FirstOrDefault(t => FuzzyEquals(t.Name, e));
 
             if (target == null)
             {
@@ -471,7 +490,7 @@ namespace CSMud
                 return;
             }
 
-            if (fuzzyEquals(e, "self"))
+            if (FuzzyEquals(e, "self"))
             {
                 sender.Connection.SendMessage("You look yourself over.");
                 if (sender.Player.Equipped.Count > 0)
@@ -486,7 +505,7 @@ namespace CSMud
             }
 
             int roomId = GetCurrentRoomId(sender);
-            Thing thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => fuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            Thing thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => FuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
             if(thing == null)
             {
                 sender.Connection.SendMessage("That does not exist here.");
@@ -504,7 +523,7 @@ namespace CSMud
 
         void HandleEquip(User sender, string e)
         {
-            var target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
             bool isWearing = false;
 
             if(!target.IsWearable)
@@ -550,7 +569,7 @@ namespace CSMud
 
         void HandleRemove(User sender, string e)
         {
-            var target = sender.Player.Equipped.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            var target = sender.Player.Equipped.FirstOrDefault(t => FuzzyEquals(t.Name, e));
             if (target == null)
             {
                 sender.Connection.SendMessage("You are not wearing that.");
@@ -570,7 +589,7 @@ namespace CSMud
 
        void HandleHold(User sender, string e)
        {
-            var target = sender.Inventory.Things.FirstOrDefault(t => fuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
 
             if (target == null)
             {
@@ -604,7 +623,7 @@ namespace CSMud
         {
             int currentRoomId = GetCurrentRoomId(sender);
             int numDoors = WorldMap.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
-            var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => fuzzyEquals(t.Actual.Direction, e))?.Actual;
+            var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => FuzzyEquals(t.Actual.Direction, e))?.Actual;
             if (numDoors == 0)
             {
                 sender.Connection.SendMessage("There are no doors here. You cannot go anywhere.");
@@ -644,6 +663,37 @@ namespace CSMud
                 sender.Connection.SendMessage("You are unable to open the door.");
             }
         }
-       #endregion
+
+        // Send a message to a specific player
+        void HandleWhisper(User sender, string msg)
+        {
+            string[] splitLine = msg.Split(new char[] { ' ' }, 2);
+            User recipient = GetRecipient(splitLine[0]);
+            if (recipient == null)
+            {
+                sender.Connection.SendMessage("You cannot talk to that person.");
+                return;
+            }
+            if (recipient.Name == "Someone")
+            {
+                sender.Connection.SendMessage("You cannot whisper to strangers.");
+                return;
+            }
+            recipient.Connection.SendMessage($"{sender.Name} whispers, '{splitLine[1]}'");
+        }
+
+        // Attack an enemy
+        void HandleAttack()
+        {
+        
+        }
+        
+        // Talk to an NPC
+        void HandleTalkTo()
+        {
+            
+        }
+
+        #endregion
     }
 }

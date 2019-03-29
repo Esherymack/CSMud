@@ -34,6 +34,10 @@ namespace CSMud
         public void setCurrentLoweredCapacity(int weight)
         {
             CurrentCapacity = CurrentCapacity - weight;
+            if(CurrentCapacity < 0)
+            {
+                CurrentCapacity = 0;
+            }
         }
 
         public void AddToInventory(Thing thing)
@@ -44,7 +48,6 @@ namespace CSMud
         public void RemoveFromInventory(Thing thing)
         {
             Things.Remove(thing);
-            CurrentCapacity = CurrentCapacity - thing.Weight;
         }
 
         public override string ToString()
