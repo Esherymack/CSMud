@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 
 /* A 'Thing' object is a collection of commands, an Id, a Name, and a Description
@@ -25,7 +26,9 @@ namespace CSMud
         public string Slot { get; set; }
         // A wearable must increase some stat(s) by some amount.
         [XmlElement]
-        public List<string> StatIncrease { get; set; }
+        public List<StatValue> StatIncreaseList { get; set; }
+        [XmlIgnore]
+        public Dictionary<string, int> StatIncrease { get; set; }
         // If an item is a weapon
         [XmlElement]
         public bool IsWeapon { get; set; }
@@ -44,7 +47,7 @@ namespace CSMud
             Description = "";
             IsWearable = false;
             Slot = "";
-            StatIncrease = new List<string>();
+            StatIncreaseList = new List<StatValue>();
             IsWeapon = false;
             Damage = 0;
             Weight = 0;

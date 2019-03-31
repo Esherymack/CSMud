@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
 namespace CSMud
 {
     /* The stats class houses statistics for players including health pool and damage output. */
@@ -17,6 +21,31 @@ namespace CSMud
             Perception = percep;
             Dexterity = dex;
             Strength = str;
+        }
+
+        public int getHealth()
+        {
+            return Health;
+        }
+
+        public int getDefense()
+        {
+            return Defense;
+        }
+
+        public int getPerception()
+        {
+            return Perception;
+        }
+
+        public int getDexterity()
+        {
+            return Dexterity;
+        }
+
+        public int getStrength()
+        {
+            return Strength;
         }
     }
 }

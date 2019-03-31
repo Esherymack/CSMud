@@ -45,6 +45,10 @@ namespace CSMud
             {
                 // Set the list
                 Things = (List<Thing>)serializer.Deserialize(reader);
+                foreach(Thing things in Things)
+                {
+                    things.StatIncrease = things.StatIncreaseList.ToDictionary(t => t.Stat, t => t.Value);
+                }
                 return Things;
             }
         }

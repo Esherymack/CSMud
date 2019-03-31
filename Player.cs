@@ -33,7 +33,6 @@ namespace CSMud
         }
 
         // Hold an item in your hand
-        // TODO: see TODO on line 23
         public void Hold(Thing thing)
         {
             Held.Add(thing);

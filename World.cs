@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -133,7 +134,7 @@ namespace CSMud
             {
                 foreach (User user in Users)
                 {
-                    user.Connection.SendMessage($"'{msg}'");
+                    user.Connection.SendMessage(msg);
                 }
             }
         }
@@ -148,7 +149,7 @@ namespace CSMud
                 {
                     if (user.CurrRoomId == (sender as User).CurrRoomId)
                     {
-                        user.Connection.SendMessage($"'{msg}'");
+                        user.Connection.SendMessage(msg);
                     }
                 }
             }
@@ -197,7 +198,7 @@ namespace CSMud
             return WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Count != 0;
         }
         // Utility function for string matching
-        bool FuzzyEquals(string a, string b)
+        public static bool FuzzyEquals(string a, string b)
         {
             return string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
         }
@@ -216,7 +217,52 @@ namespace CSMud
                 return null;
             }
         }
-
+        // Helps change user stats based on item modifiers
+        void ChangeStats(Thing target, User sender)
+        {
+            foreach (KeyValuePair<string, int> entry in target.StatIncrease)
+            {
+                Type type = sender.Player.Stats.GetType();
+                PropertyInfo property = type.GetProperty(entry.Key);
+                if (entry.Value > 0)
+                {
+                    int increase = (int)property.GetValue(sender.Player.Stats) + entry.Value;
+                    property.SetValue(sender.Player.Stats, increase);
+                    sender.Connection.SendMessage($"Current {property} rating: {increase}");
+                    return;
+                }
+                int decrease = (int)property.GetValue(sender.Player.Stats) - entry.Value;
+                if (decrease < 0)
+                {
+                    decrease = 0;
+                }
+                property.SetValue(sender.Player.Stats, decrease);
+                sender.Connection.SendMessage($"Current {property} rating: {decrease}");
+            }
+        }
+        // The inverse of ChangeStats, for removing equipped items.
+        void RemoveItemChangeStats(Thing target, User sender)
+        {
+            foreach (KeyValuePair<string, int> entry in target.StatIncrease)
+            {
+                Type type = sender.Player.Stats.GetType();
+                PropertyInfo property = type.GetProperty(entry.Key);
+                if(entry.Value > 0)
+                {
+                    int decrease = (int)property.GetValue(sender.Player.Stats) - entry.Value;
+                    if(decrease < 0)
+                    {
+                        decrease = 0;
+                    }
+                    property.SetValue(sender.Player.Stats, decrease);
+                    sender.Connection.SendMessage($"Current {property} rating: {decrease}");
+                    return;
+                }
+                int increase = (int)property.GetValue(sender.Player.Stats) + entry.Value;
+                property.SetValue(sender.Player.Stats, increase);
+                sender.Connection.SendMessage($"Current {property} rating: {increase}");
+            }
+        }
         #endregion
 
         // Look gets the description of a room.
@@ -250,6 +296,21 @@ namespace CSMud
                     }
                 }
                 currentUsers.Remove(s);
+            }
+                        // if there is one player
+            if (currentUsers.Count == 1)
+            {
+                s.Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
+            }
+            // if there are multiple players
+            else if (currentUsers.Count > 1)
+            {
+                s.Connection.SendMessage($"You see your allies, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
+            }
+            // if there are no other players
+            else
+            {
+                s.Connection.SendMessage("You have no allies nearby.");
             }
             if (HasEntities(s))
             {
@@ -296,27 +357,12 @@ namespace CSMud
                     }
                     if(detectedSneakies.Count > 0)
                     {
-                        s.Connection.SendMessage($"Although they are trying to be stealthy, you can see some other enemies lurking in the shadows: {string.Join(", ", detectedSneakies.Select(t => t.Name))}");
+                        s.Connection.SendMessage($"Although they are trying to be stealthy, you can see some enemies lurking in the shadows: {string.Join(", ", detectedSneakies.Select(t => t.Name))}");
                         return;
                     }
                     s.Connection.SendMessage("You don't see anyone new, but you sense a strange presence.");
                     return;
                 }
-            }
-            // if there is one player
-            if (currentUsers.Count == 1)
-            {
-                s.Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
-            }
-            // if there are multiple players
-            else if (currentUsers.Count > 1)
-            {
-                s.Connection.SendMessage($"You see your allies, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
-            }
-            // if there are no other players
-            else
-            {
-                s.Connection.SendMessage("You have no allies nearby.");
             }
         }
 
@@ -561,11 +607,12 @@ namespace CSMud
                 {
                     sender.Inventory.RemoveFromInventory(target);
                     sender.Player.Equip(target);
+                    ChangeStats(target, sender);
                     sender.Inventory.setCurrentLoweredCapacity(target.Weight);
                     return;
                 }
             }
-        }       
+        }
 
         void HandleRemove(User sender, string e)
         {
@@ -580,6 +627,7 @@ namespace CSMud
             {
                 sender.Player.Unequip(target);
                 sender.Inventory.setCurrentRaisedCapacity(target.Weight);
+                RemoveItemChangeStats(target, sender);
                 sender.Inventory.AddToInventory(target);
                 return;
             }

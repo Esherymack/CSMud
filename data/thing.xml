@@ -26,8 +26,14 @@
     <Commands>hold</Commands>
     <IsWearable>true</IsWearable>
     <Slot>head</Slot>
-    <StatIncrease>defense, 10</StatIncrease>
-    <StatIncrease>strength, 4</StatIncrease>
+    <StatIncreaseList>
+      <Stat>Defense</Stat>
+      <Value>4</Value>
+    </StatIncreaseList>
+    <StatIncreaseList>
+      <Stat>Strength</Stat>
+      <Value>2</Value>
+    </StatIncreaseList>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
   </Thing>
@@ -56,7 +62,10 @@
     <Commands>remove</Commands>
     <IsWearable>true</IsWearable>
     <Slot>torso</Slot>
-    <StatIncrease>defense, 3</StatIncrease>
+    <StatIncreaseList>
+      <Stat>Defense</Stat>
+      <Value>3</Value>
+    </StatIncreaseList>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
   </Thing>
@@ -84,7 +93,10 @@
     <Commands>remove</Commands>
     <IsWearable>true</IsWearable>
     <Slot>head</Slot>
-    <StatIncrease>defense, 20</StatIncrease>
+    <StatIncreaseList>
+      <Stat>Defense</Stat>
+      <Value>20</Value>
+    </StatIncreaseList>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
   </Thing>
