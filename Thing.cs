@@ -32,9 +32,6 @@ namespace CSMud
         // If an item is a weapon
         [XmlElement]
         public bool IsWeapon { get; set; }
-        // Weapons deal damage.
-        [XmlElement]
-        public int Damage { get; set; }
         // Weight is directly involved in the player's Strength rating.
         [XmlElement]
         public int Weight { get; set; }
@@ -49,7 +46,6 @@ namespace CSMud
             Slot = "";
             StatIncreaseList = new List<StatValue>();
             IsWeapon = false;
-            Damage = 0;
             Weight = 0;
         }
 

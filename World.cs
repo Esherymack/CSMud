@@ -202,6 +202,10 @@ namespace CSMud
         {
             return string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
         }
+        public string[] splitLine(string msg)
+        {
+            return msg.Split(new char[] { ' ' }, 2);
+        }
         // Gets the intended recipient for trades and whispers
         User GetRecipient(string a)
         {
@@ -217,6 +221,18 @@ namespace CSMud
                 return null;
             }
         }
+        // Same as GetRecipient, but for NPCs. Used in combat, trades, conversation.
+        Entity GetTarget(int room, string a)
+        {
+            foreach (var i in WorldMap.Rooms[room].Entities)
+            {
+                if (FuzzyEquals(i.Actual.Name, a))
+                {
+                    return i.Actual;
+                }
+            }
+            return null;
+        }
         // Helps change user stats based on item modifiers
         void ChangeStats(Thing target, User sender)
         {
@@ -228,7 +244,7 @@ namespace CSMud
                 {
                     int increase = (int)property.GetValue(sender.Player.Stats) + entry.Value;
                     property.SetValue(sender.Player.Stats, increase);
-                    sender.Connection.SendMessage($"Current {property} rating: {increase}");
+                    sender.Connection.SendMessage($"Current {entry.Key} rating: {increase}");
                     return;
                 }
                 int decrease = (int)property.GetValue(sender.Player.Stats) - entry.Value;
@@ -237,7 +253,7 @@ namespace CSMud
                     decrease = 0;
                 }
                 property.SetValue(sender.Player.Stats, decrease);
-                sender.Connection.SendMessage($"Current {property} rating: {decrease}");
+                sender.Connection.SendMessage($"Current {entry.Key} rating: {decrease}");
             }
         }
         // The inverse of ChangeStats, for removing equipped items.
@@ -255,12 +271,12 @@ namespace CSMud
                         decrease = 0;
                     }
                     property.SetValue(sender.Player.Stats, decrease);
-                    sender.Connection.SendMessage($"Current {property} rating: {decrease}");
+                    sender.Connection.SendMessage($"Current {entry.Key} rating: {decrease}");
                     return;
                 }
                 int increase = (int)property.GetValue(sender.Player.Stats) + entry.Value;
                 property.SetValue(sender.Player.Stats, increase);
-                sender.Connection.SendMessage($"Current {property} rating: {increase}");
+                sender.Connection.SendMessage($"Current {entry.Key} rating: {increase}");
             }
         }
         #endregion
@@ -419,6 +435,7 @@ namespace CSMud
                     HandleGo(s, action);
                     break;
                 case "equip":
+                case "wear":
                     HandleEquip(s, action);
                     break;
                 case "remove":
@@ -426,6 +443,9 @@ namespace CSMud
                     break;
                 case "hold":
                     HandleHold(s, action);
+                    break;
+                case "attack":
+                    HandleAttack(s, action);
                     break;
                 default:
                     s.Connection.SendMessage("You cannot do that.");
@@ -520,6 +540,7 @@ namespace CSMud
             }
             sender.Player.Drop(target);
             sender.Inventory.setCurrentRaisedCapacity(target.Weight);
+            RemoveItemChangeStats(target, sender);
             sender.Inventory.AddToInventory(target);
         }
 
@@ -655,6 +676,7 @@ namespace CSMud
 
                 sender.Inventory.RemoveFromInventory(target);
                 sender.Inventory.setCurrentLoweredCapacity(target.Weight);
+                ChangeStats(target, sender);
                 sender.Player.Hold(target);
                 return;
             }
@@ -715,8 +737,8 @@ namespace CSMud
         // Send a message to a specific player
         void HandleWhisper(User sender, string msg)
         {
-            string[] splitLine = msg.Split(new char[] { ' ' }, 2);
-            User recipient = GetRecipient(splitLine[0]);
+            string[] sl = splitLine(msg);
+            User recipient = GetRecipient(sl[0]);
             if (recipient == null)
             {
                 sender.Connection.SendMessage("You cannot talk to that person.");
@@ -727,19 +749,44 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot whisper to strangers.");
                 return;
             }
-            recipient.Connection.SendMessage($"{sender.Name} whispers, '{splitLine[1]}'");
+            recipient.Connection.SendMessage($"{sender.Name} whispers, '{sl[1]}'");
         }
 
         // Attack an enemy
-        void HandleAttack()
+        void HandleAttack(User sender, string e)
         {
-        
+            int currRoom = GetCurrentRoomId(sender);
+            Entity target = GetTarget(currRoom, e);
+            if(target == null)
+            {
+                sender.Connection.SendMessage("You cannot attack that.");
+                return;
+            }
+            if(target.IsFriendly)
+            {
+                sender.Connection.SendMessage("You cannot attack friendly people!");
+                return;
+            }
+
+              
         }
-        
+
         // Talk to an NPC
-        void HandleTalkTo()
+        void HandleTalkTo(User sender, string e)
         {
-            
+            int currRoom = GetCurrentRoomId(sender);
+            Entity target = GetTarget(currRoom, e);
+            if(target == null)
+            {
+                sender.Connection.SendMessage("You babble to no one in particular for a moment.");
+                return;
+            }
+            if(!target.IsFriendly)
+            {
+                sender.Connection.SendMessage("While talking your way out of confrontation is admirable, it won't work in this situation.");
+                return;
+            }
+
         }
 
         #endregion

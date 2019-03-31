@@ -13,14 +13,16 @@ namespace CSMud
         public int Perception { get; set; }
         public int Dexterity { get; set; }
         public int Strength { get; set; }
+        public int Damage { get; set; }
 
-        public Stats(int health, int defense, int percep, int dex, int str)
+        public Stats(int health, int defense, int percep, int dex, int str, int damage)
         {
             Health = health;
             Defense = defense;
             Perception = percep;
             Dexterity = dex;
             Strength = str;
+            Damage = damage;
         }
 
         public int getHealth()

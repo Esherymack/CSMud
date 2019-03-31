@@ -16,7 +16,7 @@ namespace CSMud
         {
             Equipped = new List<Thing>();
             Held = new List<Thing>();
-            Stats = new Stats(100, 25, 15, 15, 15);
+            Stats = new Stats(100, 25, 15, 15, 15, 0);
             Name = name;
         }
 

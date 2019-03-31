@@ -12,5 +12,6 @@ namespace CSMud
 {
     class Combat
     {
+
     }
 }

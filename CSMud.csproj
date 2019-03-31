@@ -45,7 +45,9 @@
     <Compile Include="Combat.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="Door.cs" />
+    <Compile Include="Enemy.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Friendly.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Movement.cs" />

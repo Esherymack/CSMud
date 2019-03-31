@@ -45,6 +45,13 @@ namespace CSMud
         // If an entity is hidden, their minimum perception rating determines if the player can see them.
         [XmlElement]
         public int minPerception { get; set; }
+        // The entity's inventory
+        [XmlElement]
+        List<XMLReference<Thing>> Inventory { get; set; }
+        [XmlIgnore]
+        Combat Combat { get; set; }
+        [XmlIgnore]
+        Conversation Conversation { get; set; }
 
         public Entity()
         {
@@ -58,6 +65,7 @@ namespace CSMud
             IsFriendly = true;
             IsHidden = false;
             minPerception = 0;
+            Inventory = new List<XMLReference<Thing>>();
         }
 
         public override string ToString()

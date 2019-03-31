@@ -47,7 +47,10 @@
     <Commands>drop</Commands>
     <IsWearable>false</IsWearable>
     <IsWeapon>true</IsWeapon>
-    <Damage>8</Damage>
+    <StatIncreaseList>
+      <Stat>Damage</Stat>
+      <Value>8</Value>
+    </StatIncreaseList>
     <Weight>2</Weight>
   </Thing>
   <Thing>

@@ -11,8 +11,15 @@
     <Defense>100</Defense>
     <Damage>10</Damage>
     <IsFriendly>true</IsFriendly>
-    <IsHidden>false</IsHidden>
-    <minPerception>0</minPerception>
+    <Inventory>
+      <Id>0001</Id>
+    </Inventory>
+    <Inventory>
+      <Id>0001</Id>
+    </Inventory>
+    <Inventory>
+      <Id>0001</Id>
+    </Inventory>
   </Entity>
   <Entity>
     <Name>An Ork</Name>
@@ -26,6 +33,15 @@
     <IsFriendly>false</IsFriendly>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
+    <Inventory>
+      <Id>0005</Id>
+    </Inventory>
+    <Inventory>
+      <Id>0005</Id>
+    </Inventory>
+    <Inventory>
+      <Id>0005</Id>
+    </Inventory>
   </Entity>
   <Entity>
     <Name>A Purple Ork</Name>
@@ -39,5 +55,11 @@
     <IsFriendly>false</IsFriendly>
     <IsHidden>true</IsHidden>
     <minPerception>15</minPerception>
+    <Inventory>
+      <Id>0005</Id>
+    </Inventory>
+    <Inventory>
+      <Id>0005</Id>
+    </Inventory>
   </Entity>
 </Entities>
