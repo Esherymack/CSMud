@@ -7,8 +7,12 @@
     <Commands>examine</Commands>
     <Commands>talk to</Commands>
     <Commands>listen to</Commands>
+    <Health>100</Health>
+    <Defense>100</Defense>
+    <Damage>10</Damage>
     <IsFriendly>true</IsFriendly>
     <IsHidden>false</IsHidden>
+    <minPerception>0</minPerception>
   </Entity>
   <Entity>
     <Name>An Ork</Name>
@@ -16,8 +20,12 @@
     <Description>An angry green fungus. He's not very friendly.</Description>
     <Commands>examine</Commands>
     <Commands>attack</Commands>
+    <Health>100</Health>
+    <Defense>50</Defense>
+    <Damage>15</Damage>
     <IsFriendly>false</IsFriendly>
     <IsHidden>false</IsHidden>
+    <minPerception>0</minPerception>
   </Entity>
   <Entity>
     <Name>A Purple Ork</Name>
@@ -25,7 +33,11 @@
     <Description>An angry green fungus, this time wearing purple, to be sneaky.</Description>
     <Commands>examine</Commands>
     <Commands>attack</Commands>
+    <Health>200</Health>
+    <Defense>0</Defense>
+    <Damage>10</Damage>
     <IsFriendly>false</IsFriendly>
     <IsHidden>true</IsHidden>
+    <minPerception>15</minPerception>
   </Entity>
 </Entities>

@@ -9,6 +9,9 @@
     <Commands>examine</Commands>
     <Commands>drop</Commands>
     <Commands>hold</Commands>
+    <IsWearable>false</IsWearable>
+    <IsWeapon>false</IsWeapon>
+    <Weight>1</Weight>
   </Thing>
   <Thing>
     <Name>Quesombrero</Name>
@@ -21,6 +24,18 @@
     <Commands>take</Commands>
     <Commands>drop</Commands>
     <Commands>hold</Commands>
+    <IsWearable>true</IsWearable>
+    <Slot>head</Slot>
+    <StatIncreaseList>
+      <Stat>Defense</Stat>
+      <Value>4</Value>
+    </StatIncreaseList>
+    <StatIncreaseList>
+      <Stat>Strength</Stat>
+      <Value>2</Value>
+    </StatIncreaseList>
+    <IsWeapon>false</IsWeapon>
+    <Weight>1</Weight>
   </Thing>
   <Thing>
     <Name>Sword</Name>
@@ -30,6 +45,10 @@
     <Commands>hold</Commands>
     <Commands>examine</Commands>
     <Commands>drop</Commands>
+    <IsWearable>false</IsWearable>
+    <IsWeapon>true</IsWeapon>
+    <Damage>8</Damage>
+    <Weight>2</Weight>
   </Thing>
   <Thing>
     <Name>White T-Shirt</Name>
@@ -41,14 +60,44 @@
     <Commands>drop</Commands>
     <Commands>equip</Commands>
     <Commands>remove</Commands>
+    <IsWearable>true</IsWearable>
+    <Slot>torso</Slot>
+    <StatIncreaseList>
+      <Stat>Defense</Stat>
+      <Value>3</Value>
+    </StatIncreaseList>
+    <IsWeapon>false</IsWeapon>
+    <Weight>1</Weight>
   </Thing>
   <Thing>
-        <Name>Gold Coin</Name>
-        <Description>A solid gold coin.</Description>
-        <Id>0005</Id>
-        <Commands>take</Commands>
-        <Commands>hold</Commands>
-        <Commands>examine</Commands>
-        <Commands>drop</Commands>
+    <Name>Gold Coin</Name>
+    <Description>A solid gold coin.</Description>
+    <Id>0005</Id>
+    <Commands>take</Commands>
+    <Commands>hold</Commands>
+    <Commands>examine</Commands>
+    <Commands>drop</Commands>
+    <IsWearable>false</IsWearable>
+    <IsWeapon>false</IsWeapon>
+    <Weight>0</Weight>
+  </Thing>
+  <Thing>
+    <Name>Gaudy Hat</Name>
+    <Description>The most hideous hat you've ever seen.</Description>
+    <Id>0006</Id>
+    <Commands>take</Commands>
+    <Commands>hold</Commands>
+    <Commands>examine</Commands>
+    <Commands>drop</Commands>
+    <Commands>equip</Commands>
+    <Commands>remove</Commands>
+    <IsWearable>true</IsWearable>
+    <Slot>head</Slot>
+    <StatIncreaseList>
+      <Stat>Defense</Stat>
+      <Value>20</Value>
+    </StatIncreaseList>
+    <IsWeapon>false</IsWeapon>
+    <Weight>1</Weight>
   </Thing>
 </Things>

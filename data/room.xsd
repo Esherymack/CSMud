@@ -3,7 +3,7 @@
   <xs:element name="Rooms">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Room">
+        <xs:element maxOccurs="unbounded" name="Room">
           <xs:complexType>
             <xs:sequence>
               <xs:element maxOccurs="unbounded" name="Things">
@@ -13,7 +13,20 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:element maxOccurs="unbounded" name="Doors" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="Entities">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Id" type="xs:unsignedByte" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Doors">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Id" type="xs:unsignedByte" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="Id" type="xs:unsignedByte" />
               <xs:element name="Name" type="xs:string" />
               <xs:element name="Description" type="xs:string" />

@@ -10,6 +10,12 @@
               <xs:element name="Id" type="xs:unsignedByte" />
               <xs:element name="Description" type="xs:string" />
               <xs:element maxOccurs="unbounded" name="Commands" type="xs:string" />
+              <xs:element name="Health" type="xs:unsignedByte" />
+              <xs:element name="Defense" type="xs:unsignedByte" />
+              <xs:element name="Damage" type="xs:unsignedByte" />
+              <xs:element name="IsFriendly" type="xs:boolean" />
+              <xs:element name="IsHidden" type="xs:boolean" />
+              <xs:element name="minPerception" type="xs:unsignedByte" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

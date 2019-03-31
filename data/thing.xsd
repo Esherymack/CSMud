@@ -10,6 +10,12 @@
               <xs:element name="Description" type="xs:string" />
               <xs:element name="Id" type="xs:unsignedByte" />
               <xs:element maxOccurs="unbounded" name="Commands" type="xs:string" />
+              <xs:element name="IsWearable" type="xs:boolean" />
+              <xs:element minOccurs="0" name="Slot" type="xs:string" />
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="StatIncrease" type="xs:string" />
+              <xs:element name="IsWeapon" type="xs:boolean" />
+              <xs:element minOccurs="0" name="Damage" type="xs:unsignedByte" />
+              <xs:element name="Weight" type="xs:unsignedByte" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>

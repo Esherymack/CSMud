@@ -49,6 +49,7 @@
     <Compile Include="Inventory.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Movement.cs" />
+    <Compile Include="StatValue.cs" />
     <Compile Include="Thing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="User.cs" />
@@ -58,7 +59,7 @@
     <Compile Include="XMLReference.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Stats.cs" />
-    <Compile Include="EntityStats.cs" />
+    <Compile Include="Conversation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
