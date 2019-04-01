@@ -447,6 +447,9 @@ namespace CSMud
                 case "attack":
                     HandleAttack(s, action);
                     break;
+                case "talk":
+                    HandleTalkTo(s, action);
+                    break;
                 default:
                     s.Connection.SendMessage("You cannot do that.");
                     break;
@@ -786,7 +789,11 @@ namespace CSMud
                 sender.Connection.SendMessage("While talking your way out of confrontation is admirable, it won't work in this situation.");
                 return;
             }
+            Combat fight = new Combat();
+            while(target.Health != 0)
+            {
 
+            }
         }
 
         #endregion

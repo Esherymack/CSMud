@@ -13,5 +13,25 @@ namespace CSMud
     class Combat
     {
 
+        public void Hit()
+        {
+
+        }
+
+        public void Bonus()
+        {
+
+        }
+
+        public void Damage()
+        {
+
+        }
+
+        public void AttackBonus()
+        {
+
+        }
+
     }
 }

@@ -68,6 +68,26 @@ namespace CSMud
             Inventory = new List<XMLReference<Thing>>();
         }
 
+        public void setHealthLowered(int damage)
+        {
+            Health = Health - damage;
+        }
+
+        public void setHealthRaised(int heal)
+        {
+            Health = Health + heal;
+        }
+
+        public void setDefenseLowered(int damage)
+        {
+            Defense = Defense - damage;
+        }
+
+        public void setDefenseRaised(int restore)
+        {
+            Defense = Defense + restore;
+        }
+
         public override string ToString()
         {
             return $"{Name}";

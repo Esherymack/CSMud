@@ -14,8 +14,10 @@ namespace CSMud
         public int Dexterity { get; set; }
         public int Strength { get; set; }
         public int Damage { get; set; }
+        public int Accuracy { get; set; }
+        public int Agility { get; set; }
 
-        public Stats(int health, int defense, int percep, int dex, int str, int damage)
+        public Stats(int health, int defense, int percep, int dex, int str, int damage, int acc, int agil)
         {
             Health = health;
             Defense = defense;
@@ -23,6 +25,8 @@ namespace CSMud
             Dexterity = dex;
             Strength = str;
             Damage = damage;
+            Accuracy = acc;
+            Agility = agil;
         }
 
         public int getHealth()
@@ -48,6 +52,16 @@ namespace CSMud
         public int getStrength()
         {
             return Strength;
+        }
+
+        public int getAccuracy()
+        {
+            return Accuracy;
+        }
+
+        public int getAgility()
+        {
+            return Agility;
         }
     }
 }
