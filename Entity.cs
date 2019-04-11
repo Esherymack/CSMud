@@ -12,9 +12,6 @@ namespace CSMud
     [XmlRoot("Entities")]
     public class Entity : Identifiable
     {
-
-        // TODO: figure out way to add an inventory ("drop inventory" for enemies, "shop inventory" for npcs)
-
         // Valid commands for a given entity
         [XmlElement]
         public List<string> Commands { get; set; }
@@ -36,22 +33,25 @@ namespace CSMud
         // Entities deal implicit damage regardless of disposition to the player
         [XmlElement]
         public int Damage { get; set; }
-        // Whether or not the entity is friendly
+        // Entity faction
         [XmlElement]
-        public bool IsFriendly { get; set; }
+        public string Faction { get; set; }
         // Whether or not the entity is hidden
         [XmlElement]
         public bool IsHidden { get; set; }
         // If an entity is hidden, their minimum perception rating determines if the player can see them.
         [XmlElement]
         public int minPerception { get; set; }
+        // An entity's Presence score is to help place them in the order of turns.
+        [XmlElement]
+        public int Presence { get; set; }
         // The entity's inventory
         [XmlElement]
         List<XMLReference<Thing>> Inventory { get; set; }
+
         [XmlIgnore]
-        Combat Combat { get; set; }
-        [XmlIgnore]
-        Conversation Conversation { get; set; }
+        public bool InCombat { get; set; }
+
 
         public Entity()
         {
@@ -62,10 +62,12 @@ namespace CSMud
             Health = 100;
             Defense = 100;
             Damage = 10;
-            IsFriendly = true;
+            Faction = "ally";
             IsHidden = false;
             minPerception = 0;
+            Presence = 0;
             Inventory = new List<XMLReference<Thing>>();
+            InCombat = false;
         }
 
         public void setHealthLowered(int damage)

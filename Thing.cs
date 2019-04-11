@@ -35,6 +35,9 @@ namespace CSMud
         // Weight is directly involved in the player's Strength rating.
         [XmlElement]
         public int Weight { get; set; }
+        // Value determines trade value 
+        [XmlElement]
+        public int Value { get; set; }
 
         public Thing()
         {
@@ -47,6 +50,7 @@ namespace CSMud
             StatIncreaseList = new List<StatValue>();
             IsWeapon = false;
             Weight = 0;
+            Value = 0;
         }
 
         public override string ToString()

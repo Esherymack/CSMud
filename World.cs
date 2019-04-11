@@ -156,6 +156,7 @@ namespace CSMud
         }
 
         #region Handlers for events
+        #region Help handler 
         void HandleHelpEvent(object sender, EventArgs e)
         {
             (sender as User).Connection.SendMessage(@"Help:
@@ -175,7 +176,7 @@ namespace CSMud
 'say <message>' : Talk to the players in your room.
 'whisper <user> <message>' : Talk to a specific player. You cannot talk privately to Someones.");
         }
-
+        #endregion
         #region Utility funcs for event handlers 
         // Utility func for getting the user's current room ID
         int GetCurrentRoomId(User sender)
@@ -279,8 +280,20 @@ namespace CSMud
                 sender.Connection.SendMessage($"Current {entry.Key} rating: {increase}");
             }
         }
+        // Check if player has a Thing in their inventory
+        bool OwnsThing(User sender, string item)
+        {
+            foreach(Thing thing in sender.Inventory.Things)
+            {
+                if(FuzzyEquals(thing.Name, item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         #endregion
-
+        #region Look handler
         // Look gets the description of a room.
         void HandleLookEvent(object sender, EventArgs e)
         {
@@ -296,7 +309,8 @@ namespace CSMud
                 s.Connection.SendMessage($"You see doors to: {string.Join(", ", WorldMap.Rooms[index].Doors.Select(t => t.Actual))}.");
             }
         }
-
+        #endregion
+        #region Who handler
         // Who gets a list of players currently in the sender's room.
         void HandleWhoEvent(object sender, EventArgs e)
         {
@@ -337,11 +351,11 @@ namespace CSMud
                 foreach (var i in WorldMap.Rooms[GetCurrentRoomId(s)].Entities)
                 {
                     // each i is a reference to an entity
-                    if (i.Actual.IsFriendly)
+                    if (FuzzyEquals(i.Actual.Faction, "ally"))
                     {
                         friendlies.Add(i.Actual);
                     }
-                    else
+                    else if (FuzzyEquals(i.Actual.Faction, "enemy"))
                     {
                         if (i.Actual.IsHidden)
                         {
@@ -381,7 +395,8 @@ namespace CSMud
                 }
             }
         }
-
+        #endregion
+        #region Inventory handler
         // Inventory gets the user's inventory.
         void HandleInventoryQueryEvent(object sender, EventArgs e)
         {
@@ -396,7 +411,8 @@ namespace CSMud
                 s.Connection.SendMessage($"Your inventory consists of:\n{s.Inventory.ToString()}");
             }
         }
-
+        #endregion
+        #region Yes/No handlers
         // No says no.
         void HandleNoEvent(object sender, EventArgs e)
         {
@@ -408,7 +424,8 @@ namespace CSMud
         {
             (sender as User).Connection.SendMessage("You nod affirmatively.");
         }
-
+        #endregion
+        #region Parameterized Event handlers
         // Switch statement for handling events with params
         void HandleParameterizedEvent(object sender, ParameterizedEvent e)
         {
@@ -455,7 +472,7 @@ namespace CSMud
                     break;
             }
         }
-
+        #region Take handler
         /* HandleTake and HandleDrop are relatively similar functions that just perform the inverses of each other
          * HandleTake checks if the item a user wants to take exists in the context of the room they are in.
          * if item exists, remove it from the room's list of references and add it to the player's inventory list instead       
@@ -496,7 +513,8 @@ namespace CSMud
                 }
             }
         }
-
+        #endregion
+        #region Drop handlers
         /* Like Handletake, HandleDrop checks for an item's existence, but in this case it has to be in the 
          * requesting user's inventory.
          * if item exists, remove it from the user inventory's list of refs and add to the room's Things instead
@@ -546,7 +564,8 @@ namespace CSMud
             RemoveItemChangeStats(target, sender);
             sender.Inventory.AddToInventory(target);
         }
-
+        #endregion
+        #region Examine handler
         /* HandleExamine allows a user to examine an object or themselves
          * 'examine self' returns a description of the user's player entity, including what they're wearing and appearance.
          * 'examine <item>' returns the description of the item. The item can be either in the room or in the user's inventory.
@@ -590,7 +609,8 @@ namespace CSMud
             sender.Connection.SendMessage($"You examine the {e}.");
             sender.Connection.SendMessage($"{thing.Description}");
         }
-
+        #endregion
+        #region Equip handler
         void HandleEquip(User sender, string e)
         {
             var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
@@ -637,7 +657,8 @@ namespace CSMud
                 }
             }
         }
-
+        #endregion
+        #region Remove handler
         void HandleRemove(User sender, string e)
         {
             var target = sender.Player.Equipped.FirstOrDefault(t => FuzzyEquals(t.Name, e));
@@ -658,8 +679,9 @@ namespace CSMud
            
             sender.Connection.SendMessage("You cannot remove that.");
         }
-
-       void HandleHold(User sender, string e)
+        #endregion
+        #region Hold handler
+        void HandleHold(User sender, string e)
        {
             var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
 
@@ -686,7 +708,8 @@ namespace CSMud
             
             sender.Connection.SendMessage("You cannot hold that.");
         }
-
+        #endregion
+        #region Go handler
         /* HandleGo handles moving between rooms.
          * TODO: Find a better way to handle the RoomsIConnect list - currently, in the XML, rooms must be 
          * placed in the order of CURRENT ROOM in index 0 and CONNECTING ROOM in index 1    
@@ -694,6 +717,22 @@ namespace CSMud
          */
         void HandleGo(User sender, string e)
         {
+            if(FuzzyEquals(e, "north"))
+            {
+                e = "n";
+            }
+            if(FuzzyEquals(e, "south"))
+            {
+                e = "s";
+            }
+            if(FuzzyEquals(e, "east"))
+            {
+                e = "e";
+            }
+            if(FuzzyEquals(e, "west"))
+            {
+                e = "w";
+            }
             int currentRoomId = GetCurrentRoomId(sender);
             int numDoors = WorldMap.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
             var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => FuzzyEquals(t.Actual.Direction, e))?.Actual;
@@ -724,11 +763,17 @@ namespace CSMud
             {
                 sender.Connection.SendMessage("Although the door is locked, you are deft enough to pick your way in.");
                 proceed();
+                directionGone.Locked = false;
                 return;
             }
                 
             if(directionGone.HasKey)
             {
+                if(OwnsThing(sender, "key"))
+                {
+                    proceed();
+                    return;
+                }
                 sender.Connection.SendMessage("This door is locked and has a key. Look around!");
             }
             else
@@ -736,7 +781,8 @@ namespace CSMud
                 sender.Connection.SendMessage("You are unable to open the door.");
             }
         }
-
+        #endregion
+        #region Whisper handler
         // Send a message to a specific player
         void HandleWhisper(User sender, string msg)
         {
@@ -754,7 +800,8 @@ namespace CSMud
             }
             recipient.Connection.SendMessage($"{sender.Name} whispers, '{sl[1]}'");
         }
-
+        #endregion
+        #region Attack handler
         // Attack an enemy
         void HandleAttack(User sender, string e)
         {
@@ -765,15 +812,24 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot attack that.");
                 return;
             }
-            if(target.IsFriendly)
+            if(FuzzyEquals(target.Faction, "ally"))
             {
                 sender.Connection.SendMessage("You cannot attack friendly people!");
                 return;
             }
+            Combat fight = new Combat();
+            while(target.Health != 0)
+            {
+                sender.Connection.SendMessage(@"a: Attack
+d: Defend
+h: Heal
+e: Examine
+r: Run");
+            }
 
-              
         }
-
+        #endregion
+        #region NPC Conversation handler
         // Talk to an NPC
         void HandleTalkTo(User sender, string e)
         {
@@ -784,18 +840,15 @@ namespace CSMud
                 sender.Connection.SendMessage("You babble to no one in particular for a moment.");
                 return;
             }
-            if(!target.IsFriendly)
+            if(!FuzzyEquals(target.Faction, "ally"))
             {
                 sender.Connection.SendMessage("While talking your way out of confrontation is admirable, it won't work in this situation.");
                 return;
             }
-            Combat fight = new Combat();
-            while(target.Health != 0)
-            {
-
-            }
+            Conversation chat = new Conversation();
         }
-
+        #endregion
+        #endregion
         #endregion
     }
 }

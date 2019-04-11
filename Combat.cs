@@ -12,26 +12,43 @@ namespace CSMud
 {
     class Combat
     {
+        static ulong next_id = 0;
+        // The combat session ID
+        public ulong CombatSession { get; set; }
+        // The list of users currently in the combat session.
+        public List<User> Combatants { get; set; }
 
-        public void Hit()
+        public Combat()
+        {
+            CombatSession = next_id++;
+        }
+
+        public void PlayerOrder()
         {
 
         }
 
-        public void Bonus()
+        public void Attack()
+        {
+
+        }
+        public void Defend()
+        {
+    
+        }
+        public void Heal()
+        {
+
+        }
+        public void Run()
+        {
+    
+        }
+        public void Examine()
         {
 
         }
 
-        public void Damage()
-        {
-
-        }
-
-        public void AttackBonus()
-        {
-
-        }
 
     }
 }

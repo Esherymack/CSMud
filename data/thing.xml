@@ -12,6 +12,7 @@
     <IsWearable>false</IsWearable>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
+    <Value>1</Value>
   </Thing>
   <Thing>
     <Name>Quesombrero</Name>
@@ -36,6 +37,7 @@
     </StatIncreaseList>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
+    <Value>300</Value>
   </Thing>
   <Thing>
     <Name>Sword</Name>
@@ -52,6 +54,7 @@
       <Value>8</Value>
     </StatIncreaseList>
     <Weight>2</Weight>
+    <Value>20</Value>
   </Thing>
   <Thing>
     <Name>White T-Shirt</Name>
@@ -71,6 +74,7 @@
     </StatIncreaseList>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
+    <Value>20</Value>
   </Thing>
   <Thing>
     <Name>Gold Coin</Name>
@@ -83,6 +87,7 @@
     <IsWearable>false</IsWearable>
     <IsWeapon>false</IsWeapon>
     <Weight>0</Weight>
+    <Value>1</Value>
   </Thing>
   <Thing>
     <Name>Gaudy Hat</Name>
@@ -102,5 +107,6 @@
     </StatIncreaseList>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
+    <Value>4000</Value>
   </Thing>
 </Things>

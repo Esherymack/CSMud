@@ -10,7 +10,10 @@
     <Health>100</Health>
     <Defense>100</Defense>
     <Damage>10</Damage>
-    <IsFriendly>true</IsFriendly>
+    <Faction>ally</Faction>
+    <IsHidden>false</IsHidden>
+    <minPerception>0</minPerception>
+    <Presence>4</Presence>
     <Inventory>
       <Id>0001</Id>
     </Inventory>
@@ -30,9 +33,10 @@
     <Health>100</Health>
     <Defense>50</Defense>
     <Damage>15</Damage>
-    <IsFriendly>false</IsFriendly>
+    <Faction>enemy</Faction>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
+    <Presence>1</Presence>
     <Inventory>
       <Id>0005</Id>
     </Inventory>
@@ -52,9 +56,10 @@
     <Health>200</Health>
     <Defense>0</Defense>
     <Damage>10</Damage>
-    <IsFriendly>false</IsFriendly>
+    <Faction>enemy</Faction>
     <IsHidden>true</IsHidden>
     <minPerception>15</minPerception>
+    <Presence>8</Presence>
     <Inventory>
       <Id>0005</Id>
     </Inventory>

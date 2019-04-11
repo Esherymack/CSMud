@@ -9,6 +9,9 @@ namespace CSMud
         public List<Thing> Held { get; }
         public Stats Stats { get; set; }
 
+        public bool InCombat { get; set; }
+        public int ActionPoints { get; set; }
+
         string Name { get; set; }
         string Appearance { get; set; }
 
@@ -16,7 +19,9 @@ namespace CSMud
         {
             Equipped = new List<Thing>();
             Held = new List<Thing>();
-            Stats = new Stats(100, 25, 15, 15, 15, 0, 15, 15);
+            Stats = new Stats(100, 25, 15, 15, 15, 0, 15, 15, 15, 5, 15);
+            InCombat = false;
+            ActionPoints = 1;
             Name = name;
         }
 
