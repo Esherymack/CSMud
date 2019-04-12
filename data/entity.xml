@@ -36,6 +36,7 @@
     <Faction>enemy</Faction>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
+    <MinStrike>2</MinStrike>
     <Presence>1</Presence>
     <Inventory>
       <Id>0005</Id>
@@ -59,6 +60,7 @@
     <Faction>enemy</Faction>
     <IsHidden>true</IsHidden>
     <minPerception>15</minPerception>
+    <MinStrike>8</MinStrike>
     <Presence>8</Presence>
     <Inventory>
       <Id>0005</Id>

@@ -55,6 +55,7 @@
     </StatIncreaseList>
     <Weight>2</Weight>
     <Value>20</Value>
+    <WeaponType>sword</WeaponType>
   </Thing>
   <Thing>
     <Name>White T-Shirt</Name>

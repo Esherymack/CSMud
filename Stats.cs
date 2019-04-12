@@ -47,40 +47,5 @@ namespace CSMud
             Presence = pres;
             Knowledge = know;
         }
-
-        public int getHealth()
-        {
-            return Health;
-        }
-
-        public int getDefense()
-        {
-            return Defense;
-        }
-
-        public int getPerception()
-        {
-            return Perception;
-        }
-
-        public int getDexterity()
-        {
-            return Dexterity;
-        }
-
-        public int getStrength()
-        {
-            return Strength;
-        }
-
-        public int getAccuracy()
-        {
-            return Accuracy;
-        }
-
-        public int getAgility()
-        {
-            return Agility;
-        }
     }
 }

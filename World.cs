@@ -817,16 +817,72 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot attack friendly people!");
                 return;
             }
-            Combat fight = new Combat();
-            while(target.Health != 0)
+            // If these checks pass, then there is an available target to fight
+            Combat fight = new Combat(target);
+            // Check and see if the target is already engaged : if so, join the target session
+            if(target.CombatId != 0 && target.InCombat == true && target.IsDead == false)
             {
-                sender.Connection.SendMessage(@"a: Attack
+                // Set the player's combat id = to the target's combat session
+                sender.Player.CombatId = target.CombatId;
+            }
+            // Otherwise there is no fight and a new one must be started.
+            else
+            {
+                fight.StartNewFight();
+            }
+            
+            // Adds the player to the combat list and reorders the list
+            fight.Combatants.Add(sender);
+            fight.PlayerOrder();
+
+            void Turn()
+            {
+                while(sender.Player.ActionPoints > 0)
+                {
+                    sender.Connection.SendMessage($"You have {sender.Player.ActionPoints} AP left.");
+                    sender.Connection.SendMessage(@"a: Attack
 d: Defend
 h: Heal
 e: Examine
 r: Run");
+                    string Action = sender.Connection.ReadMessage();
+                    switch(Action)
+                    {
+                        case "a":
+                        case "A":
+                            fight.Attack(sender);                       
+                            break;
+                        case "d":
+                        case "D":
+                            fight.Defend();
+                            break;
+                        case "h":
+                        case "H":
+                            fight.Heal();
+                            break;
+                        case "e":
+                        case "E":
+                            fight.Examine();
+                            break;
+                        case "r":
+                        case "R":
+                            fight.Run();
+                            break;
+                        default:
+                            sender.Connection.SendMessage("Invalid option");
+                            break;
+                    }
+                }               
             }
 
+            // Combat loop: check turns            
+            while (target.Health > 0)
+            {
+                foreach(User user in fight.Combatants)
+                {
+                    Turn();
+                }
+            }
         }
         #endregion
         #region NPC Conversation handler

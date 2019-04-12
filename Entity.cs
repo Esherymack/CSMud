@@ -42,6 +42,8 @@ namespace CSMud
         // If an entity is hidden, their minimum perception rating determines if the player can see them.
         [XmlElement]
         public int minPerception { get; set; }
+        [XmlElement]
+        public int MinStrike { get; set; }
         // An entity's Presence score is to help place them in the order of turns.
         [XmlElement]
         public int Presence { get; set; }
@@ -51,7 +53,10 @@ namespace CSMud
 
         [XmlIgnore]
         public bool InCombat { get; set; }
-
+        [XmlIgnore]
+        public ulong CombatId { get; set; }
+        [XmlIgnore]
+        public bool IsDead { get; set; }
 
         public Entity()
         {
@@ -65,9 +70,12 @@ namespace CSMud
             Faction = "ally";
             IsHidden = false;
             minPerception = 0;
+            MinStrike = 0;
             Presence = 0;
             Inventory = new List<XMLReference<Thing>>();
             InCombat = false;
+            CombatId = 0;
+            IsDead = false;
         }
 
         public void setHealthLowered(int damage)

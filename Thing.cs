@@ -38,6 +38,8 @@ namespace CSMud
         // Value determines trade value 
         [XmlElement]
         public int Value { get; set; }
+        [XmlElement]
+        public string WeaponType { get; set; }
 
         public Thing()
         {
@@ -51,6 +53,7 @@ namespace CSMud
             IsWeapon = false;
             Weight = 0;
             Value = 0;
+            WeaponType = "";
         }
 
         public override string ToString()
