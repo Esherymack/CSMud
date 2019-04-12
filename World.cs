@@ -20,6 +20,7 @@ namespace CSMud
 
         public MapBuild WorldMap { get; set; }
 
+
         // constructor
         public World()
         {
@@ -342,6 +343,10 @@ namespace CSMud
             {
                 s.Connection.SendMessage("You have no allies nearby.");
             }
+            if (WorldMap.Rooms[GetCurrentRoomId(s)].DeadEntities.ToList().Count > 0)
+            {
+                s.Connection.SendMessage($"There are some dead bodies here: {string.Join(", ", WorldMap.Rooms[GetCurrentRoomId(s)].DeadEntities.Select(t => t.Actual.Name))}");
+            }
             if (HasEntities(s))
             {
                 List<Entity> friendlies = new List<Entity>();
@@ -351,11 +356,7 @@ namespace CSMud
                 foreach (var i in WorldMap.Rooms[GetCurrentRoomId(s)].Entities)
                 {
                     // each i is a reference to an entity
-                    if (FuzzyEquals(i.Actual.Faction, "ally"))
-                    {
-                        friendlies.Add(i.Actual);
-                    }
-                    else if (FuzzyEquals(i.Actual.Faction, "enemy"))
+                    if (FuzzyEquals(i.Actual.Faction, "enemy"))
                     {
                         if (i.Actual.IsHidden)
                         {
@@ -366,10 +367,14 @@ namespace CSMud
                             meanies.Add(i.Actual);
                         }
                     }
+                    else 
+                    {
+                        friendlies.Add(i.Actual);
+                    }                  
                 }
                 if (friendlies.Count > 0)
                 {
-                    s.Connection.SendMessage($"You can see some friendlies: {string.Join(", ", friendlies.Select(t => t.Name))}");
+                    s.Connection.SendMessage($"You can see: {string.Join(", ", friendlies.Select(t => t.Name))}");
                 }
                 if (meanies.Count > 0)
                 {
@@ -565,7 +570,7 @@ namespace CSMud
             sender.Inventory.AddToInventory(target);
         }
         #endregion
-        #region Examine handler
+        #region Examine handlers
         /* HandleExamine allows a user to examine an object or themselves
          * 'examine self' returns a description of the user's player entity, including what they're wearing and appearance.
          * 'examine <item>' returns the description of the item. The item can be either in the room or in the user's inventory.
@@ -597,7 +602,8 @@ namespace CSMud
             Thing thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => FuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
             if(thing == null)
             {
-                sender.Connection.SendMessage("That does not exist here.");
+                // If it's not a thing, try and see if the target is an entity
+                HandleEntityExamine(sender, e);
                 return;
             }
             if(!thing.Commands.Contains("examine"))
@@ -608,6 +614,25 @@ namespace CSMud
 
             sender.Connection.SendMessage($"You examine the {e}.");
             sender.Connection.SendMessage($"{thing.Description}");
+        }
+
+        void HandleEntityExamine(User sender, string e)
+        {
+            int roomId = GetCurrentRoomId(sender);
+            Entity entity = WorldMap.Rooms[roomId].Entities.FirstOrDefault(t => FuzzyEquals(t.Actual.Name, e))?.Actual;
+            if(entity == null)
+            {
+                // If it's not an entity or a thing, it's not examinable.
+                sender.Connection.SendMessage("That does not exist here!");
+                return;
+            }
+            if (!entity.Commands.Contains("examine"))
+            {
+                sender.Connection.SendMessage("You cannot examine that.");
+                return;
+            }
+            sender.Connection.SendMessage($"You examine the {e}.");
+            sender.Connection.SendMessage($"{entity.Description}");
         }
         #endregion
         #region Equip handler
@@ -817,6 +842,11 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot attack friendly people!");
                 return;
             }
+            if(FuzzyEquals(target.Faction, "dead"))
+            {
+                sender.Connection.SendMessage("You cannot attack dead bodies!");
+                return;
+            }
             // If these checks pass, then there is an available target to fight
             Combat fight = new Combat(target);
             // Check and see if the target is already engaged : if so, join the target session
@@ -835,52 +865,57 @@ namespace CSMud
             fight.Combatants.Add(sender);
             fight.PlayerOrder();
 
-            void Turn()
-            {
-                while(sender.Player.ActionPoints > 0)
-                {
-                    sender.Connection.SendMessage($"You have {sender.Player.ActionPoints} AP left.");
-                    sender.Connection.SendMessage(@"a: Attack
-d: Defend
-h: Heal
-e: Examine
-r: Run");
-                    string Action = sender.Connection.ReadMessage();
-                    switch(Action)
-                    {
-                        case "a":
-                        case "A":
-                            fight.Attack(sender);                       
-                            break;
-                        case "d":
-                        case "D":
-                            fight.Defend();
-                            break;
-                        case "h":
-                        case "H":
-                            fight.Heal();
-                            break;
-                        case "e":
-                        case "E":
-                            fight.Examine();
-                            break;
-                        case "r":
-                        case "R":
-                            fight.Run();
-                            break;
-                        default:
-                            sender.Connection.SendMessage("Invalid option");
-                            break;
-                    }
-                }               
-            }
-
             // Combat loop: check turns            
             while (target.Health > 0)
             {
                 foreach(User user in fight.Combatants)
                 {
-                    Turn();
+                    while (target.IsDead == false)
+                    {
+                        user.Connection.SendMessage(@"a: Attack
+d: Defend
+h: Heal
+e: Examine
+r: Run");
+                        string Action = user.Connection.ReadMessage();
+                        switch (Action)
+                        {
+                            case "a":
+                            case "A":
+                                fight.Attack(user);
+                                break;
+                            case "d":
+                            case "D":
+                                fight.Defend();
+                                break;
+                            case "h":
+                            case "H":
+                                fight.Heal();
+                                break;
+                            case "e":
+                            case "E":
+                                fight.Examine();
+                                break;
+                            case "r":
+                            case "R":
+                                fight.Run();
+                                break;
+                            default:
+                                user.Connection.SendMessage("Invalid option");
+                                break;
+                        }
+                    }
+                }
+            }
+            // After this loop, the target is dead. Remove them from the entity list and add them to the dead list/faction.
+            target.Faction = "dead";
+            //WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Remove(target);
+            foreach (var i in WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.ToList())
+            {
+                if(i.Actual.Name == target.Name)
+                {
+                    WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Remove(i);
+                    WorldMap.Rooms[GetCurrentRoomId(sender)].DeadEntities.Add(i);
                 }
             }
         }

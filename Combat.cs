@@ -24,6 +24,7 @@ namespace CSMud
 
         public Combat(Entity target)
         {
+            Combatants = new List<User>();
             Target = target;
         }
 
@@ -40,10 +41,13 @@ namespace CSMud
             Combatants = Combatants.OrderBy(o => o.Player.Stats.Presence).ToList();
         }
 
+        public void TargetAttackGo(Entity enemy)
+        {
+
+        }
+
         public void Attack(User current)
         {
-            // 1 AP is deducted for attacking, regardless of whether or not it hits.
-            current.Player.AdjustAPDown(1);
             // first roll:
             int hit = Dice.RollTen();
             hit = hit + (current.Player.Stats.Luck / 10) + (current.Player.Stats.Accuracy / 2);
@@ -56,11 +60,12 @@ namespace CSMud
             int damage = current.Player.Stats.Damage;
             // if the attack does hit, determine if the attack is a critical hit.
             int crit = Dice.RollTwenty();
-            crit = crit + (current.Player.Stats.Luck / 2);
+            crit = crit + (current.Player.Stats.Luck / 10);
             // A critical hit does base damage + 1/2 the base damage value.
-            if(crit >= 15)
+            if(crit >= 18)
             {
                 damage = damage + (damage / 2);
+                current.Connection.SendMessage($"Critical hit!");
             }
             /* Next, determine attack bonuses.
                Attack bonuses come from multiple sources: 
@@ -83,18 +88,22 @@ namespace CSMud
                         if(World.FuzzyEquals(thing.WeaponType, "slow"))
                         {
                             damage = damage + (current.Player.Stats.Strength / 2);
+                            current.Connection.SendMessage($"Bonus: Slow Weapon - {damage} damage!");
                         }
                         if(World.FuzzyEquals(thing.WeaponType, "fast"))
                         {
                             damage = damage + (current.Player.Stats.Dexterity / 2);
+                            current.Connection.SendMessage($"Bonus: Fast Weapon - {damage} damage!");
                         }
                         if(World.FuzzyEquals(thing.WeaponType, "spell"))
                         {
                             damage = damage + (current.Player.Stats.Knowledge / 2);
+                            current.Connection.SendMessage($"Bonus: Magic - {damage} damage!");
                         }
                         if(World.FuzzyEquals(thing.WeaponType, "ranged"))
                         {
                             damage = damage + (current.Player.Stats.Dexterity / 2) + (current.Player.Stats.Agility / 2);
+                            current.Connection.SendMessage($"Bonus: Ranged - {damage} damage!");
                         }
                     }
                 }
@@ -103,12 +112,20 @@ namespace CSMud
             else
             {
                 damage = damage + current.Player.Stats.Strength;
+                current.Connection.SendMessage($"Bonus: Pugalist - {damage} damage!");
             }
             // Finally, consider enemy's defense level:
             damage = damage - (Target.Defense / 2);
             // and deal damage:
             Target.Health = Target.Health - damage;
             current.Connection.SendMessage($"Dealt {damage} damage to {Target.Name}!");
+            if (Target.Health <= 0)
+            {
+                Target.IsDead = true;
+                current.Connection.SendMessage($"{Target.Name} has been defeated by {current.Name}!");
+                current.Player.CombatId = 0;
+                return;
+            }
             current.Connection.SendMessage($"{Target.Name} has {Target.Health} health left");
          }
         public void Defend()
@@ -124,6 +141,10 @@ namespace CSMud
     
         }
         public void Examine()
+        {
+
+        }
+        public void EndCombat()
         {
 
         }

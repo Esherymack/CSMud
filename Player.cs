@@ -10,7 +10,6 @@ namespace CSMud
         public Stats Stats { get; set; }
 
         public bool InCombat { get; set; }
-        public int ActionPoints { get; set; }
 
         string Name { get; set; }
         string Appearance { get; set; }
@@ -23,7 +22,6 @@ namespace CSMud
             Held = new List<Thing>();
             Stats = new Stats(100, 25, 15, 15, 15, 0, 15, 15, 15, 5, 15);
             InCombat = false;
-            ActionPoints = 1;
             CombatId = 0;
             Name = name;
         }
@@ -50,16 +48,6 @@ namespace CSMud
         public void Drop(Thing thing)
         {
             Held.Remove(thing);
-        }
-
-        public void AdjustAPDown(int val)
-        {
-            ActionPoints = ActionPoints - val;
-        }
-        
-        public void AdjustAPUp(int val)
-        {
-            ActionPoints = ActionPoints + val;
         }
     }
 }

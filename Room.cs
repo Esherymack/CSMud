@@ -15,9 +15,9 @@ namespace CSMud
         [XmlElement]
         public List<XMLReference<Entity>> Entities { get; set; }
         [XmlElement]
-        public List<XMLReference<Enemy>> Enemies { get; set; }
-        [XmlElement]
         public List<XMLReference<Door>> Doors { get; set; }
+        [XmlIgnore]
+        public List<XMLReference<Entity>> DeadEntities { get; set; }
 
         [XmlElement]
         public string Name { get; set; }
@@ -29,9 +29,9 @@ namespace CSMud
         public Room()
         {
             Entities = new List<XMLReference<Entity>>();
-            Enemies = new List<XMLReference<Enemy>>();
             Doors = new List<XMLReference<Door>>();
             Things = new List<XMLReference<Thing>>();
+            DeadEntities = new List<XMLReference<Entity>>();
 
             Name = "";
             Id = 0;

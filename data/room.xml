@@ -13,6 +13,9 @@
     <Entities>
         <Id>0003</Id>
     </Entities>
+    <Entities>
+      <Id>0004</Id>
+    </Entities>
     <Doors>
       <Id>0001</Id>
     </Doors>
