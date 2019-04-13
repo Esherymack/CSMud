@@ -148,7 +148,7 @@ namespace CSMud
             {
                 foreach (User user in Users)
                 {
-                    if (user.CurrRoomId == (sender as User).CurrRoomId)
+                    if (user.CurrRoomId == sender.CurrRoomId)
                     {
                         user.Connection.SendMessage(msg);
                     }
@@ -853,7 +853,6 @@ namespace CSMud
             if(target.Combat == null)
             {
                 target.Combat = new Combat(target);
-                target.Combat.Combatants.Add(sender);
             }
             target.Combat.Combatants.Add(sender);
             sender.Player.Combat = target.Combat;

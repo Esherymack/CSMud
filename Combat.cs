@@ -23,6 +23,20 @@ namespace CSMud
             Target = target;
         }
 
+        public void CombatSay(string msg, User sender)
+        {
+            lock(Combatants)
+            {
+                foreach(User user in Combatants)
+                {
+                    if(!World.FuzzyEquals(user.Name, sender.Name))
+                    {
+                        user.Connection.SendMessage(msg);
+                    }
+                }
+            }
+        }
+
         public void TargetAttackGo(Entity enemy)
         {
 
@@ -100,19 +114,12 @@ namespace CSMud
             damage = damage - (Target.Defense / 2);
             // and deal damage:
             Target.Health = Target.Health - damage;
-            var filtered = Combatants.Where(user => user.Name != current.Name);
-            foreach (User user in filtered)
-            {
-                user.Connection.SendMessage($"{current.Name} dealt {damage} damage to {Target.Name}!");
-            }
+            CombatSay($"{current.Name} dealt {damage} to {Target.Name}!", current);
             current.Connection.SendMessage($"Dealt {damage} damage to {Target.Name}!");
             if (Target.Health <= 0)
             {
                 Target.IsDead = true;
-                foreach(User user in filtered)
-                {
-                    user.Connection.SendMessage($"{Target.Name} has been defeated by {current.Name}!");
-                }
+                CombatSay($"{Target.Name} has been defeated by {current.Name}!", current);
                 current.Connection.SendMessage($"Defeated the {Target.Name}!");
                 return;
             }
