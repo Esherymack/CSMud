@@ -922,13 +922,14 @@ namespace CSMud
             target.Combat.Combatants.Add(sender);
             sender.Player.Combat = target.Combat;
 
+            
+            var runDir = WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Where(d => !d.Actual.Locked).FirstOrDefault()?.Actual;
+
             // Combat loop: check turns            
-            while (target.IsDead == false)
+            while (!target.IsDead && sender.Player.Combat != null)
             {
                 sender.Connection.SendMessage(@"a: Attack
 d: Defend
-h: Heal
-e: Examine
 r: Run");
                 string Action = sender.Connection.ReadMessage();
                 switch (Action)
@@ -941,18 +942,10 @@ r: Run");
                     case "D":
                         target.Combat.Defend(sender);
                         break;
-                    case "h":
-                    case "H":
-                        target.Combat.Heal();
-                        break;
-                    case "e":
-                    case "E":
-                        target.Combat.Examine();
-                        break;
                     case "r":
                     case "R":
-                        target.Combat.Run();
-                        break;
+                        target.Combat.Run(sender, runDir);
+                        return;
                     case "q":
                     case "Q":
                         // TODO: fix this later; this just lets people exit combat
@@ -964,7 +957,7 @@ r: Run");
             } 
             // After this loop, the target is dead. Remove them from the entity list and add them to the dead list/faction.
             target.Faction = "dead";
-            //WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Remove(target);
+
             foreach (var i in WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.ToList())
             {
                 if(i.Actual.Name == target.Name)

@@ -156,17 +156,23 @@ namespace CSMud
             // The defense is subtracted from the enemy's next successful strike
             Strike = Strike - defense;
         }
-        public void Heal()
-        {
 
-        }
-        public void Run()
+        public void Run(User current, Door run)
         {
-    
-        }
-        public void Examine()
-        {
-
+            if(Combatants.Count > 1)
+            {
+                current.Connection.SendMessage("You cannot abandon your allies!");
+                return;
+            }
+            if(run == null)
+            {
+                current.Connection.SendMessage("There is no escape!");
+                return;
+            }
+            current.Connection.SendMessage($"You manage to escape {run.Direction}!");
+            Combatants.Remove(current);
+            current.Player.Combat = null;
+            current.CurrRoomId = run.RoomsIConnect[1];
         }
     }
 }
