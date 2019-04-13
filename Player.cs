@@ -9,20 +9,17 @@ namespace CSMud
         public List<Thing> Held { get; }
         public Stats Stats { get; set; }
 
-        public bool InCombat { get; set; }
+        public Combat Combat { get; set; }
 
         string Name { get; set; }
         string Appearance { get; set; }
 
-        public ulong CombatId { get; set; }
 
         public Player(string name)
         {
             Equipped = new List<Thing>();
             Held = new List<Thing>();
             Stats = new Stats(100, 25, 15, 15, 15, 0, 15, 15, 15, 5, 15);
-            InCombat = false;
-            CombatId = 0;
             Name = name;
         }
 

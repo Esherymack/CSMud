@@ -309,6 +309,10 @@ namespace CSMud
             {
                 s.Connection.SendMessage($"You see doors to: {string.Join(", ", WorldMap.Rooms[index].Doors.Select(t => t.Actual))}.");
             }
+            if (WorldMap.Rooms[GetCurrentRoomId(s)].DeadEntities.ToList().Count > 0)
+            {
+                s.Connection.SendMessage($"There are some dead bodies here: {string.Join(", ", WorldMap.Rooms[GetCurrentRoomId(s)].DeadEntities.Select(t => t.Actual.Name))}");
+            }
         }
         #endregion
         #region Who handler
@@ -342,10 +346,6 @@ namespace CSMud
             else
             {
                 s.Connection.SendMessage("You have no allies nearby.");
-            }
-            if (WorldMap.Rooms[GetCurrentRoomId(s)].DeadEntities.ToList().Count > 0)
-            {
-                s.Connection.SendMessage($"There are some dead bodies here: {string.Join(", ", WorldMap.Rooms[GetCurrentRoomId(s)].DeadEntities.Select(t => t.Actual.Name))}");
             }
             if (HasEntities(s))
             {
@@ -847,66 +847,57 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot attack dead bodies!");
                 return;
             }
+            RoomSay($"{sender.Name} is attacking the {target.Name}!", sender);
             // If these checks pass, then there is an available target to fight
-            Combat fight = new Combat(target);
             // Check and see if the target is already engaged : if so, join the target session
-            if(target.CombatId != 0 && target.InCombat == true && target.IsDead == false)
+            if(target.Combat == null)
             {
-                // Set the player's combat id = to the target's combat session
-                sender.Player.CombatId = target.CombatId;
+                target.Combat = new Combat(target);
+                target.Combat.Combatants.Add(sender);
             }
-            // Otherwise there is no fight and a new one must be started.
-            else
-            {
-                fight.StartNewFight();
-            }
-            
-            // Adds the player to the combat list and reorders the list
-            fight.Combatants.Add(sender);
-            fight.PlayerOrder();
+            target.Combat.Combatants.Add(sender);
+            sender.Player.Combat = target.Combat;
 
             // Combat loop: check turns            
-            while (target.Health > 0)
+            while (target.IsDead == false)
             {
-                foreach(User user in fight.Combatants)
-                {
-                    while (target.IsDead == false)
-                    {
-                        user.Connection.SendMessage(@"a: Attack
+                sender.Connection.SendMessage(@"a: Attack
 d: Defend
 h: Heal
 e: Examine
 r: Run");
-                        string Action = user.Connection.ReadMessage();
-                        switch (Action)
-                        {
-                            case "a":
-                            case "A":
-                                fight.Attack(user);
-                                break;
-                            case "d":
-                            case "D":
-                                fight.Defend();
-                                break;
-                            case "h":
-                            case "H":
-                                fight.Heal();
-                                break;
-                            case "e":
-                            case "E":
-                                fight.Examine();
-                                break;
-                            case "r":
-                            case "R":
-                                fight.Run();
-                                break;
-                            default:
-                                user.Connection.SendMessage("Invalid option");
-                                break;
-                        }
-                    }
+                string Action = sender.Connection.ReadMessage();
+                switch (Action)
+                {
+                    case "a":
+                    case "A":
+                        target.Combat.Attack(sender);
+                        break;
+                    case "d":
+                    case "D":
+                        target.Combat.Defend();
+                        break;
+                    case "h":
+                    case "H":
+                        target.Combat.Heal();
+                        break;
+                    case "e":
+                    case "E":
+                        target.Combat.Examine();
+                        break;
+                    case "r":
+                    case "R":
+                        target.Combat.Run();
+                        break;
+                    case "q":
+                    case "Q":
+                        // TODO: fix this later; this just lets people exit combat
+                        break;
+                    default:
+                        sender.Connection.SendMessage("Invalid option");
+                        break;
                 }
-            }
+            } 
             // After this loop, the target is dead. Remove them from the entity list and add them to the dead list/faction.
             target.Faction = "dead";
             //WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Remove(target);
@@ -918,6 +909,9 @@ r: Run");
                     WorldMap.Rooms[GetCurrentRoomId(sender)].DeadEntities.Add(i);
                 }
             }
+            sender.Connection.SendMessage("Send 'q' to exit combat.");
+            sender.Player.Combat = null;
+            target.Combat = null;
         }
         #endregion
         #region NPC Conversation handler
@@ -931,7 +925,7 @@ r: Run");
                 sender.Connection.SendMessage("You babble to no one in particular for a moment.");
                 return;
             }
-            if(!FuzzyEquals(target.Faction, "ally"))
+            if(FuzzyEquals(target.Faction, "enemy"))
             {
                 sender.Connection.SendMessage("While talking your way out of confrontation is admirable, it won't work in this situation.");
                 return;

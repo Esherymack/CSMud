@@ -10,13 +10,8 @@ using System.Threading.Tasks;
 
 namespace CSMud
 {
-    class Combat
+    public class Combat
     {
-        // The combat session ID
-        // Using a ulong gives us roughly 18 quintillion available combat sessions
-        // if we run out, something is seriously wrong.
-        static ulong next_id = 0;
-        public ulong CombatSession { get; set; }
         // The list of users currently in the combat session.
         public List<User> Combatants { get; set; }
         // The target of the fight
@@ -26,19 +21,6 @@ namespace CSMud
         {
             Combatants = new List<User>();
             Target = target;
-        }
-
-        public void StartNewFight()
-        {
-            CombatSession = next_id++;
-            // Set the target's CombatId = to the combat session
-            Target.CombatId = CombatSession;
-        }
-
-        // Orders the players in the current Combat roster
-        public void PlayerOrder()
-        {
-            Combatants = Combatants.OrderBy(o => o.Player.Stats.Presence).ToList();
         }
 
         public void TargetAttackGo(Entity enemy)
@@ -79,7 +61,7 @@ namespace CSMud
                 - Equipment bonus : Some equipment will modify damage
                 However, because all of these factors directly change stats on impact, we just check stat bonuses here.
             */
-            if(current.Player.Held != null)
+            if(current.Player.Held.Count != 0)
             {
                 foreach (Thing thing in current.Player.Held)
                 {
@@ -112,21 +94,32 @@ namespace CSMud
             else
             {
                 damage = damage + current.Player.Stats.Strength;
-                current.Connection.SendMessage($"Bonus: Pugalist - {damage} damage!");
+                current.Connection.SendMessage($"Bonus: Pugilist - {damage} damage!");
             }
             // Finally, consider enemy's defense level:
             damage = damage - (Target.Defense / 2);
             // and deal damage:
             Target.Health = Target.Health - damage;
+            var filtered = Combatants.Where(user => user.Name != current.Name);
+            foreach (User user in filtered)
+            {
+                user.Connection.SendMessage($"{current.Name} dealt {damage} damage to {Target.Name}!");
+            }
             current.Connection.SendMessage($"Dealt {damage} damage to {Target.Name}!");
             if (Target.Health <= 0)
             {
                 Target.IsDead = true;
-                current.Connection.SendMessage($"{Target.Name} has been defeated by {current.Name}!");
-                current.Player.CombatId = 0;
+                foreach(User user in filtered)
+                {
+                    user.Connection.SendMessage($"{Target.Name} has been defeated by {current.Name}!");
+                }
+                current.Connection.SendMessage($"Defeated the {Target.Name}!");
                 return;
             }
-            current.Connection.SendMessage($"{Target.Name} has {Target.Health} health left");
+            foreach (User user in Combatants)
+            {
+                user.Connection.SendMessage($"{Target.Name} has {Target.Health} health left");
+            }
          }
         public void Defend()
         {
@@ -141,10 +134,6 @@ namespace CSMud
     
         }
         public void Examine()
-        {
-
-        }
-        public void EndCombat()
         {
 
         }

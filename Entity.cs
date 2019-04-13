@@ -52,11 +52,12 @@ namespace CSMud
         List<XMLReference<Thing>> Inventory { get; set; }
 
         [XmlIgnore]
+        public Combat Combat { get; set; }
+        [XmlIgnore]
         public bool InCombat { get; set; }
         [XmlIgnore]
-        public ulong CombatId { get; set; }
-        [XmlIgnore]
         public bool IsDead { get; set; }
+
 
         public Entity()
         {
@@ -74,7 +75,6 @@ namespace CSMud
             Presence = 0;
             Inventory = new List<XMLReference<Thing>>();
             InCombat = false;
-            CombatId = 0;
             IsDead = false;
         }
 
