@@ -29,6 +29,11 @@ namespace CSMud
         public List<StatValue> StatIncreaseList { get; set; }
         [XmlIgnore]
         public Dictionary<string, int> StatIncrease { get; set; }
+        // If an item is consumable
+        [XmlElement]
+        public bool IsConsumable { get; set; }
+        [XmlElement]
+        public string ConsumableType { get; set; }
         // If an item is a weapon
         [XmlElement]
         public bool IsWeapon { get; set; }
@@ -54,6 +59,7 @@ namespace CSMud
             Weight = 0;
             Value = 0;
             WeaponType = "";
+            ConsumableType = "";
         }
 
         public override string ToString()

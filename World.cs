@@ -169,6 +169,8 @@ namespace CSMud
 'take <object>' : Take an item.
 'hold <object>' : Hold an item in your inventory.
 'drop <object>' : Drop a held or taken item.
+'eat <object>' : Eat a food item.
+'drink <object>' : Drink a drink or potion.
 'examine <object>' : Examine an item.
 'examine self' : Look at yourself.
 'go <direction>' : Move between rooms through valid doors.
@@ -242,6 +244,12 @@ namespace CSMud
             {
                 Type type = sender.Player.Stats.GetType();
                 PropertyInfo property = type.GetProperty(entry.Key);
+                if(FuzzyEquals(entry.Key, "health"))
+                {
+                    sender.Player.Heal(entry.Value);
+                    sender.Connection.SendMessage($"Healed for {entry.Value} health. Current health rating: {sender.Player.Stats.CurrHealth}");
+                    return;
+                }
                 if (entry.Value > 0)
                 {
                     int increase = (int)property.GetValue(sender.Player.Stats) + entry.Value;
@@ -258,7 +266,7 @@ namespace CSMud
                 sender.Connection.SendMessage($"Current {entry.Key} rating: {decrease}");
             }
         }
-        // The inverse of ChangeStats, for removing equipped items.
+        // The inverse of ChangeStats, for removing equipped items & handling timeouts on potions.
         void RemoveItemChangeStats(Thing target, User sender)
         {
             foreach (KeyValuePair<string, int> entry in target.StatIncrease)
@@ -450,6 +458,12 @@ namespace CSMud
                 case "drop":
                     HandleDrop(s, action);
                     break;
+                case "eat":
+                    HandleEat(s, action);
+                    break;
+                case "drink":
+                    HandleDrink(s, action);
+                    break;
                 case "examine":
                     HandleExamine(s, action);
                     break;
@@ -568,6 +582,37 @@ namespace CSMud
             sender.Inventory.setCurrentRaisedCapacity(target.Weight);
             RemoveItemChangeStats(target, sender);
             sender.Inventory.AddToInventory(target);
+        }
+        #endregion
+        #region Eat and Drink handlers
+        void HandleEat(User sender, string e)
+        {
+            var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            
+            if(!target.IsConsumable)
+            {
+                sender.Connection.SendMessage("You cannot eat that.");
+                return;
+            }
+            if(!FuzzyEquals(target.ConsumableType, "food"))
+            {
+                sender.Connection.SendMessage("You cannot eat that.");
+                return;
+            }
+            if(target == null)
+            {
+                sender.Connection.SendMessage("You must have the object in your inventory.");
+                return;
+            }
+
+            sender.Inventory.RemoveFromInventory(target);
+            ChangeStats(target, sender);
+            sender.Inventory.setCurrentLoweredCapacity(target.Weight);
+            return;
+        }
+        void HandleDrink(User sender, string e)
+        {
+
         }
         #endregion
         #region Examine handlers

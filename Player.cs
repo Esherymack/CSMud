@@ -23,6 +23,20 @@ namespace CSMud
             Name = name;
         }
 
+        public void TakeDamage(int damage)
+        {
+            Stats.CurrHealth = Stats.CurrHealth - damage;
+        }
+
+        public void Heal(int heal)
+        {
+            Stats.CurrHealth = Stats.CurrHealth + heal;
+            if(Stats.CurrHealth > Stats.MaxHealth)
+            {
+                Stats.CurrHealth = Stats.MaxHealth;
+            }
+        }
+
         // Equip a wearable item
         public void Equip(Thing thing)
         {

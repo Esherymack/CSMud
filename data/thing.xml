@@ -11,6 +11,12 @@
     <Commands>hold</Commands>
     <IsWearable>false</IsWearable>
     <IsWeapon>false</IsWeapon>
+    <IsConsumable>true</IsConsumable>
+    <StatIncreaseList>
+      <Stat>Health</Stat>
+      <Value>10</Value>
+    </StatIncreaseList>
+    <ConsumableType>food</ConsumableType>
     <Weight>1</Weight>
     <Value>1</Value>
   </Thing>
@@ -26,6 +32,7 @@
     <Commands>drop</Commands>
     <Commands>hold</Commands>
     <IsWearable>true</IsWearable>
+    <IsConsumable>true</IsConsumable>
     <Slot>head</Slot>
     <StatIncreaseList>
       <Stat>Defense</Stat>
@@ -35,6 +42,7 @@
       <Stat>Strength</Stat>
       <Value>2</Value>
     </StatIncreaseList>
+    <ConsumableType>food</ConsumableType>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
     <Value>300</Value>

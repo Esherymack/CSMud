@@ -9,7 +9,8 @@ namespace CSMud
     public class Stats
     {
         // The player's health determines how many hit points (HP) they have.
-        public int Health { get; set; }
+        public int MaxHealth { get; set; }
+        public int CurrHealth { get; set; }
         // The player's defense determines damage reduction from incoming attacks.
         public int Defense { get; set; }
         // The player's perception determines their ability to see hidden enemies and traps.
@@ -35,7 +36,8 @@ namespace CSMud
 
         public Stats(int health, int defense, int percep, int dex, int str, int damage, int acc, int agil, int luck, int pres, int know)
         {
-            Health = health;
+            MaxHealth = health;
+            CurrHealth = MaxHealth;
             Defense = defense;
             Perception = percep;
             Dexterity = dex;
