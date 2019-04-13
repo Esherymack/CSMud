@@ -44,6 +44,8 @@ namespace CSMud
         public int minPerception { get; set; }
         [XmlElement]
         public int MinStrike { get; set; }
+        [XmlElement]
+        public int MinDefend { get; set; }
         // An entity's Presence score is to help place them in the order of turns.
         [XmlElement]
         public int Presence { get; set; }
@@ -72,6 +74,7 @@ namespace CSMud
             IsHidden = false;
             minPerception = 0;
             MinStrike = 0;
+            MinDefend = 0;
             Presence = 0;
             Inventory = new List<XMLReference<Thing>>();
             InCombat = false;

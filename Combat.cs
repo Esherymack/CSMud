@@ -14,8 +14,17 @@ namespace CSMud
     {
         // The list of users currently in the combat session.
         public List<User> Combatants { get; set; }
-        // The target of the fight
+        // The enemy of the fight
         public Entity Target { get; set; }
+
+        // The enemy's next strike
+        public int Strike { get; set; }
+        // The enemy's next heal 
+        public int EnemyHeal { get; set; }
+        // The enemy's next block
+        public int EnemyBlock { get; set; }
+        // The enemy's target
+        public User AttackTarget { get; set; }
 
         public Combat(Entity target)
         {
@@ -128,9 +137,24 @@ namespace CSMud
                 user.Connection.SendMessage($"{Target.Name} has {Target.Health} health left");
             }
          }
-        public void Defend()
+        public void Defend(User current)
         {
-    
+            CombatSay($"{current.Name} defends!", current);
+            // Roll to see if the defend is successful
+            int defend = Dice.RollTwenty();
+            // Defending is modded by luck and strength
+            defend = defend + (current.Player.Stats.Luck / 10) + (current.Player.Stats.Strength / 4);
+            // Check and see if defend is >= target's min strike defense
+            if (defend < Target.MinDefend)
+            {
+                current.Connection.SendMessage("Defense failed!");
+                return;
+            }
+            // although shields are an aspect of the game, due to the nature of the Thing class, they are already included
+            // in the user's defense rating
+            int defense = current.Player.Stats.Defense;
+            // The defense is subtracted from the enemy's next successful strike
+            Strike = Strike - defense;
         }
         public void Heal()
         {

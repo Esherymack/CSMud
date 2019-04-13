@@ -874,7 +874,7 @@ r: Run");
                         break;
                     case "d":
                     case "D":
-                        target.Combat.Defend();
+                        target.Combat.Defend(sender);
                         break;
                     case "h":
                     case "H":
