@@ -612,7 +612,27 @@ namespace CSMud
         }
         void HandleDrink(User sender, string e)
         {
+            var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            if(!target.IsConsumable)
+            {
+                sender.Connection.SendMessage("You cannot drink that.");
+                return;
+            }
+            if(!FuzzyEquals(target.ConsumableType, "drink"))
+            {
+                sender.Connection.SendMessage("You cannot drink that.");
+                return;
+            }
+            if(target == null)
+            {
+                sender.Connection.SendMessage("You must have the object in your inventory.");
+                return;
+            }
 
+            sender.Inventory.RemoveFromInventory(target);
+            ChangeStats(target, sender);
+            sender.Inventory.setCurrentLoweredCapacity(target.Weight);
+            return;
         }
         #endregion
         #region Examine handlers
