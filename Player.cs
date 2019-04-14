@@ -10,6 +10,7 @@ namespace CSMud
         public Stats Stats { get; set; }
 
         public Combat Combat { get; set; }
+        public Conversation Conversation { get; set; }
         public bool IsBlocking { get; set; }
         public bool IsDead { get; set; }
 

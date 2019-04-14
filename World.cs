@@ -20,6 +20,7 @@ namespace CSMud
 
         public MapBuild WorldMap { get; set; }
 
+        public string News { get; set; }
 
         // constructor
         public World()
@@ -41,6 +42,8 @@ namespace CSMud
             {
                 e.PopulateInventory();
             }
+
+            News = "World news placeholder.";
         }
 
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
@@ -182,7 +185,9 @@ namespace CSMud
 'no' or 'n' : Decline.
 'yes' or 'y' : Agree.
 'say <message>' : Talk to the players in your room.
-'whisper <user> <message>' : Talk to a specific player. You cannot talk privately to Someones.");
+'whisper <user> <message>' : Talk to a specific player. You cannot talk privately to Someones.
+'talk <entity>' : Talk to an NPC.
+'attack <entity>' : Attack an enemy.");
         }
         #endregion
         #region Utility funcs for event handlers 
@@ -1078,7 +1083,70 @@ r: Run");
                 sender.Connection.SendMessage("While talking your way out of confrontation is admirable, it won't work in this situation.");
                 return;
             }
-            Conversation chat = new Conversation();
+            if(FuzzyEquals(target.Faction, "dead"))
+            {
+                sender.Connection.SendMessage("He's dead, Jim.");
+                return;
+            }
+            target.Conversation = new Conversation(target, sender);
+            sender.Player.Conversation = target.Conversation;
+
+            target.Conversation.Greeting();
+
+            while(target.Conversation != null && sender.Player.Conversation != null)
+            {
+                sender.Connection.SendMessage(@"w: Who
+n: News
+t: Trade
+q: Quest
+b: Bye");
+                string action = sender.Connection.ReadMessage();
+                if(FuzzyEquals(action, "w"))
+                {
+                    target.Conversation.Who();
+                }
+                if(FuzzyEquals(action, "n"))
+                {
+                    target.Conversation.News();
+                    sender.Connection.SendMessage(News);
+                }
+                if(FuzzyEquals(action, "t"))
+                {
+                    if(FuzzyEquals(target.Faction, "ally") || FuzzyEquals(target.Faction, "neutral"))
+                    {
+                        target.Conversation.Trade();
+                    }
+                    else
+                    {
+                        sender.Connection.SendMessage(target.Conversation.TradeFlavor);
+                    }
+                }
+                if(FuzzyEquals(action, "q"))
+                {
+                    if (FuzzyEquals(target.Faction, "ally") || (FuzzyEquals(target.Faction, "neutral")))
+                    {
+                        if(target.HasQuest)
+                        {
+                            target.Conversation.Quest();
+                        }
+                        else
+                        {
+                            sender.Connection.SendMessage($"{target.Name} does not have a quest for you.");
+                        }
+                    }
+                    else 
+                    {
+                        sender.Connection.SendMessage(target.Conversation.QuestFlavor);
+                    }
+                }
+                if(FuzzyEquals(action, "b"))
+                {
+                    target.Conversation.Bye();
+                    break;
+                }
+            }
+            target.Conversation = null;
+            sender.Player.Conversation = null;
         }
         #endregion
         #endregion

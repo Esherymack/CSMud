@@ -64,6 +64,10 @@ namespace CSMud
         [XmlIgnore]
         public bool IsDead { get; set; }
 
+        [XmlIgnore]
+        public Conversation Conversation { get; set; }
+        [XmlElement]
+        public bool HasQuest { get; set; }
 
         public Entity()
         {
@@ -85,6 +89,7 @@ namespace CSMud
             Inventory = new Inventory();
             InCombat = false;
             IsDead = false;
+            HasQuest = false;
         }
 
         public void PopulateInventory()
