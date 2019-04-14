@@ -1016,7 +1016,7 @@ r: Run");
                     }
                 }
                 sender.Connection.SendMessage("As you were the only soul in this place, you have been sent back to the start.");
-                foreach(Thing things in sender.Inventory.Things)
+                foreach(Thing things in sender.Inventory.Things.ToList())
                 {
                     sender.Inventory.RemoveFromInventory(things);
                     XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
@@ -1028,6 +1028,8 @@ r: Run");
             }
             // After this loop, the target is dead. Remove them from the entity list and add them to the dead list/faction.
             target.Faction = "dead";
+            // Upon death, an entity's inventory gets dropped to the room.
+            WorldMap.Rooms[GetCurrentRoomId(sender)].Things.AddRange(target.Inventory);
 
             foreach (var i in WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.ToList())
             {
@@ -1037,6 +1039,7 @@ r: Run");
                     WorldMap.Rooms[GetCurrentRoomId(sender)].DeadEntities.Add(i);
                 }
             }
+
             sender.Connection.SendMessage("Send 'q' to exit combat.");
             sender.Player.Combat = null;
             target.Combat = null;

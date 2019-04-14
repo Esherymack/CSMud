@@ -53,7 +53,7 @@ namespace CSMud
         
         // The entity's inventory
         [XmlElement]
-        List<XMLReference<Thing>> Inventory { get; set; }
+        public List<XMLReference<Thing>> Inventory { get; set; }
 
         [XmlIgnore]
         public Combat Combat { get; set; }

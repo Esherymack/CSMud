@@ -19,6 +19,7 @@ namespace CSMud
         [XmlIgnore]
         public List<XMLReference<Entity>> DeadEntities { get; set; }
 
+
         [XmlElement]
         public string Name { get; set; }
         [XmlElement]

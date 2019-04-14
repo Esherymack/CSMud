@@ -16,12 +16,6 @@
     <Inventory>
       <Id>0001</Id>
     </Inventory>
-    <Inventory>
-      <Id>0001</Id>
-    </Inventory>
-    <Inventory>
-      <Id>0001</Id>
-    </Inventory>
   </Entity>
   <Entity>
     <Name>Ork</Name>
@@ -29,6 +23,7 @@
     <Description>An angry green fungus. He's not very friendly.</Description>
     <Commands>examine</Commands>
     <Commands>attack</Commands>
+    <Commands>loot</Commands>
     <Health>100</Health>
     <Defense>8</Defense>
     <Damage>15</Damage>
@@ -42,12 +37,6 @@
     <Inventory>
       <Id>0005</Id>
     </Inventory>
-    <Inventory>
-      <Id>0005</Id>
-    </Inventory>
-    <Inventory>
-      <Id>0005</Id>
-    </Inventory>
   </Entity>
   <Entity>
     <Name>Purple Ork</Name>
@@ -55,6 +44,7 @@
     <Description>An angry green fungus, this time wearing purple, to be sneaky.</Description>
     <Commands>examine</Commands>
     <Commands>attack</Commands>
+    <Commands>loot</Commands>
     <Health>200</Health>
     <Defense>0</Defense>
     <Damage>10</Damage>
@@ -68,9 +58,6 @@
     <Inventory>
       <Id>0005</Id>
     </Inventory>
-    <Inventory>
-      <Id>0005</Id>
-    </Inventory>
   </Entity>
   <Entity>
     <Name>Rat</Name>
@@ -78,6 +65,7 @@
     <Description>A large, grey rat. It's missing an eye.</Description>
     <Commands>examine</Commands>
     <Commands>attack</Commands>
+    <Commands>loot</Commands>
     <Health>10</Health>
     <Defense>0</Defense>
     <Damage>1</Damage>
