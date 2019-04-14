@@ -60,6 +60,7 @@ namespace CSMud
             using (XmlReader reader = XmlReader.Create(@"..\..\data\entity.xml"))
             {
                 Entities = (List<Entity>)serializer.Deserialize(reader);
+                Entities.ForEach(i => XMLReference<Thing>.Link(i.Things, Things));
                 return Entities;
             }
         }

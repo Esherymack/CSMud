@@ -36,6 +36,11 @@ namespace CSMud
 
             // Generate the map last
             WorldMap = new MapBuild();
+
+            foreach(Entity e in WorldMap.Entities)
+            {
+                e.PopulateInventory();
+            }
         }
 
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
@@ -1029,7 +1034,13 @@ r: Run");
             // After this loop, the target is dead. Remove them from the entity list and add them to the dead list/faction.
             target.Faction = "dead";
             // Upon death, an entity's inventory gets dropped to the room.
-            WorldMap.Rooms[GetCurrentRoomId(sender)].Things.AddRange(target.Inventory);
+            //WorldMap.Rooms[GetCurrentRoomId(sender)].Things.AddRange(target.Things);
+            foreach(Thing things in target.Inventory.Things.ToList())
+            {
+                target.Inventory.RemoveFromInventory(things);
+                XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
+                WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Add(thing);
+            }
 
             foreach (var i in WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.ToList())
             {

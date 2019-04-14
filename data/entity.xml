@@ -13,9 +13,9 @@
     <Faction>ally</Faction>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
-    <Inventory>
+    <Things>
       <Id>0001</Id>
-    </Inventory>
+    </Things>
   </Entity>
   <Entity>
     <Name>Ork</Name>
@@ -34,9 +34,9 @@
     <MinDefend>15</MinDefend>
     <AttackSpeed>slow</AttackSpeed>
     <CritChance>30</CritChance>
-    <Inventory>
+    <Things>
       <Id>0005</Id>
-    </Inventory>
+    </Things>
   </Entity>
   <Entity>
     <Name>Purple Ork</Name>
@@ -55,9 +55,9 @@
     <MinDefend>10</MinDefend>
     <AttackSpeed>fast</AttackSpeed>
     <CritChance>10</CritChance>
-    <Inventory>
+    <Things>
       <Id>0005</Id>
-    </Inventory>
+    </Things>
   </Entity>
   <Entity>
     <Name>Rat</Name>
@@ -76,8 +76,8 @@
     <MinDefend>1</MinDefend>
     <CritChance>20</CritChance>
     <AttackSpeed>mid</AttackSpeed>
-    <Inventory>
+    <Things>
       <Id>0001</Id>
-    </Inventory>
+    </Things>
   </Entity>
 </Entities>

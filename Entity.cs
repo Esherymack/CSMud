@@ -50,10 +50,12 @@ namespace CSMud
         public int MinDefend { get; set; }
         [XmlElement]
         public string AttackSpeed { get; set; }
-        
+
         // The entity's inventory
         [XmlElement]
-        public List<XMLReference<Thing>> Inventory { get; set; }
+        public List<XMLReference<Thing>> Things { get; set; }
+        [XmlIgnore]
+        public Inventory Inventory { get; set; }
 
         [XmlIgnore]
         public Combat Combat { get; set; }
@@ -79,9 +81,18 @@ namespace CSMud
             MinDefend = 0;
             CritChance = 0;
             AttackSpeed = "";
-            Inventory = new List<XMLReference<Thing>>();
+            Things = new List<XMLReference<Thing>>();
+            Inventory = new Inventory();
             InCombat = false;
             IsDead = false;
+        }
+
+        public void PopulateInventory()
+        {
+            foreach (var i in Things)
+            {
+                Inventory.AddToInventory(i.Actual);
+            }
         }
 
         public void setHealthLowered(int damage)
