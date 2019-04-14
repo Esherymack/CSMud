@@ -38,5 +38,11 @@ namespace CSMud
             Random rand = new Random();
             return rand.Next(21);
         }
+
+        public static int RollHundred()
+        {
+            Random rand = new Random();
+            return rand.Next(101);
+        }
     }
 }

@@ -13,7 +13,6 @@
     <Faction>ally</Faction>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
-    <Presence>4</Presence>
     <Inventory>
       <Id>0001</Id>
     </Inventory>
@@ -31,14 +30,15 @@
     <Commands>examine</Commands>
     <Commands>attack</Commands>
     <Health>100</Health>
-    <Defense>50</Defense>
+    <Defense>8</Defense>
     <Damage>15</Damage>
     <Faction>enemy</Faction>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
     <MinStrike>2</MinStrike>
     <MinDefend>15</MinDefend>
-    <Presence>1</Presence>
+    <AttackSpeed>slow</AttackSpeed>
+    <CritChance>30</CritChance>
     <Inventory>
       <Id>0005</Id>
     </Inventory>
@@ -63,7 +63,8 @@
     <minPerception>15</minPerception>
     <MinStrike>8</MinStrike>
     <MinDefend>10</MinDefend>
-    <Presence>8</Presence>
+    <AttackSpeed>fast</AttackSpeed>
+    <CritChance>10</CritChance>
     <Inventory>
       <Id>0005</Id>
     </Inventory>
@@ -85,7 +86,8 @@
     <minPerception>0</minPerception>
     <MinStrike>1</MinStrike>
     <MinDefend>1</MinDefend>
-    <Presence>2</Presence>
+    <CritChance>20</CritChance>
+    <AttackSpeed>mid</AttackSpeed>
     <Inventory>
       <Id>0001</Id>
     </Inventory>

@@ -45,10 +45,12 @@ namespace CSMud
         [XmlElement]
         public int MinStrike { get; set; }
         [XmlElement]
-        public int MinDefend { get; set; }
-        // An entity's Presence score is to help place them in the order of turns.
+        public int CritChance { get; set; }
         [XmlElement]
-        public int Presence { get; set; }
+        public int MinDefend { get; set; }
+        [XmlElement]
+        public string AttackSpeed { get; set; }
+        
         // The entity's inventory
         [XmlElement]
         List<XMLReference<Thing>> Inventory { get; set; }
@@ -75,7 +77,8 @@ namespace CSMud
             minPerception = 0;
             MinStrike = 0;
             MinDefend = 0;
-            Presence = 0;
+            CritChance = 0;
+            AttackSpeed = "";
             Inventory = new List<XMLReference<Thing>>();
             InCombat = false;
             IsDead = false;

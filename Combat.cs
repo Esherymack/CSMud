@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 /* Combat class for CSMud
  * Combat is initiated by interacting with enemies through 'attack' or 'talk' commands.
@@ -19,43 +20,134 @@ namespace CSMud
 
         // The enemy's next strike
         public int Strike { get; set; }
-        // The enemy's next heal 
-        public int EnemyHeal { get; set; }
         // The enemy's next block
         public int EnemyBlock { get; set; }
         // The enemy's target
         public User AttackTarget { get; set; }
 
+        // Flavor text for enemy actions
+        public string AttackSuccessFlavor { get; set; }
+        public string AttackFailFlavor { get; set; }
+        public string AttackCriticalFlavor { get; set; }
+        public string AttackWeakFlavor { get; set; }
+        public string BlockFlavor { get; set; }
+        public string LowHealthFlavor { get; set; }
+
         public Combat(Entity target)
         {
             Combatants = new List<User>();
             Target = target;
+            Strike = Target.Damage;
+            EnemyBlock = Target.Defense;
+            GetFlavorText();
         }
 
-        public void CombatSay(string msg, User sender)
+        public void GetFlavorText()
         {
-            lock(Combatants)
+            if (World.FuzzyEquals(Target.AttackSpeed, "fast"))
             {
-                foreach(User user in Combatants)
+                AttackSuccessFlavor = $"The {Target.Name} attacks quickly!";
+                AttackFailFlavor = $"The {Target.Name} tries to strike fast, but misses!";
+                AttackCriticalFlavor = $"The {Target.Name} strikes with brutal speed!";
+                AttackWeakFlavor = $"The {Target.Name} just nicks you!";
+                BlockFlavor = $"The {Target.Name} blocks your attack!";
+                LowHealthFlavor = $"The {Target.Name} looks weak!";
+                return;
+            }
+            if (World.FuzzyEquals(Target.AttackSpeed, "slow"))
+            {
+                AttackSuccessFlavor = $"The {Target.Name} attacks slowly!";
+                AttackFailFlavor = $"The {Target.Name} tries to strike, but is too slow!";
+                AttackCriticalFlavor = $"The {Target.Name} slams you into the ground!";
+                AttackWeakFlavor = $"The {Target.Name} barely hits you!";
+                BlockFlavor = $"The {Target.Name} casually blocks your attack!";
+                LowHealthFlavor = $"The {Target.Name} looks like it might pass out!";
+                return;
+            }
+            if (World.FuzzyEquals(Target.AttackSpeed, "mid"))
+            {
+                AttackSuccessFlavor = $"The {Target.Name} attacks!";
+                AttackFailFlavor = $"The {Target.Name} tries to strike, but misses!";
+                AttackCriticalFlavor = $"The {Target.Name} lands a brutal blow!";
+                AttackWeakFlavor = $"The {Target.Name} strikes weakly!";
+                BlockFlavor = $"The {Target.Name} blocks your attack!";
+                LowHealthFlavor = $"The {Target.Name} looks weak!";
+                return;
+            }
+        }
+
+        public void CombatSay(string msg)
+        {
+            lock (Combatants)
+            {
+                foreach (User user in Combatants)
                 {
-                    if(!World.FuzzyEquals(user.Name, sender.Name))
-                    {
-                        user.Connection.SendMessage(msg);
-                    }
+                    user.Connection.SendMessage(msg);
                 }
             }
         }
 
-        public void TargetAttackGo(Entity enemy)
+        public void EnemyTurn()
         {
-
+            var highestPresence = Combatants.Max(u => u.Player.Stats.Presence);
+            AttackTarget = Combatants.Where(u => u.Player.Stats.Presence == highestPresence).First();
+            if(AttackTarget == null)
+            {
+                Target.Combat = null;
+                return;
+            }
+            if (AttackTarget.Player.Stats.CurrHealth <= 0)
+            {
+                Target.Combat = null;
+                return;
+            }
+            // Roll to see if the monster lands a hit
+            int hit = Dice.RollHundred();
+            int attack = Strike;
+            if (hit >= AttackTarget.Player.Stats.Agility)
+            {
+                // Check if the attack is a critical
+                int crit = Dice.RollHundred();
+                if(crit >= AttackTarget.Player.Stats.CritAvoid)
+                {
+                    AttackTarget.Connection.SendMessage(AttackCriticalFlavor);
+                    attack = attack + (Strike / 2);
+                }
+                if(crit < AttackTarget.Player.Stats.CritAvoid)
+                {
+                    // If it's not critical, check if it's weak
+                    int weak = Dice.RollHundred();
+                    if(weak <= AttackTarget.Player.Stats.Luck)
+                    {
+                        AttackTarget.Connection.SendMessage(AttackWeakFlavor);
+                        attack = attack - (Strike / 2);
+                    }
+                    AttackTarget.Connection.SendMessage(AttackSuccessFlavor);
+                }
+                // If the player is blocking, attack gets a further strike to damage
+                if(AttackTarget.Player.IsBlocking)
+                {
+                    attack = attack - AttackTarget.Player.Stats.Defense;
+                    if(attack < 0)
+                    {
+                        attack = 0;
+                    }
+                    CombatSay($"{Target.Name} is blocked by {AttackTarget.Name}!");
+                }
+                AttackTarget.Player.TakeDamage(attack);
+                CombatSay($"{Target.Name} deals {Strike} damage to {AttackTarget.Name}");
+                AttackTarget.Connection.SendMessage($"Your current health is {AttackTarget.Player.Stats.CurrHealth}");
+                return;
+            }
+            AttackTarget.Connection.SendMessage(AttackFailFlavor);
+            AttackTarget.Connection.SendMessage($"Your current health is {AttackTarget.Player.Stats.CurrHealth}");
         }
 
         public void Attack(User current)
         {
             // first roll:
-            int hit = Dice.RollTen();
-            hit = hit + (current.Player.Stats.Luck / 10) + (current.Player.Stats.Accuracy / 2);
+            int hit = Dice.RollHundred();
+            hit = hit + current.Player.Stats.Accuracy;
             // Check and see if the attack actually hits
             if(hit < Target.MinStrike)
             {
@@ -64,10 +156,10 @@ namespace CSMud
             }
             int damage = current.Player.Stats.Damage;
             // if the attack does hit, determine if the attack is a critical hit.
-            int crit = Dice.RollTwenty();
-            crit = crit + (current.Player.Stats.Luck / 10);
+            int crit = Dice.RollHundred();
+            crit = crit + (current.Player.Stats.Luck);
             // A critical hit does base damage + 1/2 the base damage value.
-            if(crit >= 18)
+            if(crit >= Target.CritChance)
             {
                 damage = damage + (damage / 2);
                 current.Connection.SendMessage($"Critical hit!");
@@ -120,16 +212,18 @@ namespace CSMud
                 current.Connection.SendMessage($"Bonus: Pugilist - {damage} damage!");
             }
             // Finally, consider enemy's defense level:
-            damage = damage - (Target.Defense / 2);
+            damage = damage - (Target.Defense);
+            if(damage < 0)
+            {
+                damage = 0;
+            }
             // and deal damage:
             Target.Health = Target.Health - damage;
-            CombatSay($"{current.Name} dealt {damage} to {Target.Name}!", current);
-            current.Connection.SendMessage($"Dealt {damage} damage to {Target.Name}!");
+            CombatSay($"{current.Name} dealt {damage} to {Target.Name}!");
             if (Target.Health <= 0)
             {
                 Target.IsDead = true;
-                CombatSay($"{Target.Name} has been defeated by {current.Name}!", current);
-                current.Connection.SendMessage($"Defeated the {Target.Name}!");
+                CombatSay($"{Target.Name} has been defeated by {current.Name}!");
                 return;
             }
             foreach (User user in Combatants)
@@ -139,22 +233,18 @@ namespace CSMud
          }
         public void Defend(User current)
         {
-            CombatSay($"{current.Name} defends!", current);
+            CombatSay($"{current.Name} defends!");
             // Roll to see if the defend is successful
-            int defend = Dice.RollTwenty();
-            // Defending is modded by luck and strength
-            defend = defend + (current.Player.Stats.Luck / 10) + (current.Player.Stats.Strength / 4);
+            int defend = Dice.RollHundred();
+            // Defend chance is modded by luck and defense level
+            defend = defend + current.Player.Stats.Defense + current.Player.Stats.Luck;
             // Check and see if defend is >= target's min strike defense
             if (defend < Target.MinDefend)
             {
                 current.Connection.SendMessage("Defense failed!");
                 return;
             }
-            // although shields are an aspect of the game, due to the nature of the Thing class, they are already included
-            // in the user's defense rating
-            int defense = current.Player.Stats.Defense;
-            // The defense is subtracted from the enemy's next successful strike
-            Strike = Strike - defense;
+            current.Player.IsBlocking = true;
         }
 
         public void Run(User current, Door run)

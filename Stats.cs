@@ -28,13 +28,13 @@ namespace CSMud
         // The player's luck helps modify critical hit chance, dodge chance, and chance of an enemy not picking them in combat.
         public int Luck { get; set; }
         // The player's presence is a hidden stat that helps determine turn order in combat, as well as help enemies pick who to attack.
-        // The highest presence can be is 15.
-        // Base presence is 5.
         public int Presence { get; set; }
+        // Player's crit avoid is a hidden stat that helps determine their likelihood of avoiding a critical hit
+        public int CritAvoid { get; set; }
         // The player's knowledge helps determine spell damage, as well as make better conversation.
         public int Knowledge { get; set; }
 
-        public Stats(int health, int defense, int percep, int dex, int str, int damage, int acc, int agil, int luck, int pres, int know)
+        public Stats(int health, int defense, int percep, int dex, int str, int damage, int acc, int agil, int luck, int know)
         {
             MaxHealth = health;
             CurrHealth = MaxHealth;
@@ -46,8 +46,10 @@ namespace CSMud
             Accuracy = acc;
             Agility = agil;
             Luck = luck;
-            Presence = pres;
             Knowledge = know;
+
+            Presence = Agility + Dexterity + Accuracy + Knowledge - Defense - Luck - Strength;
+            CritAvoid = (Agility + Dexterity + Accuracy + Perception + Luck) / 2;
         }
     }
 }

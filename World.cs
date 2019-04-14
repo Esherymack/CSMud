@@ -498,6 +498,11 @@ namespace CSMud
          */
         void HandleTake(User sender, string e)
         {
+            if(sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
             int roomId = GetCurrentRoomId(sender);
             var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => FuzzyEquals(t.Actual.Name, e));
             
@@ -540,6 +545,11 @@ namespace CSMud
          */
         void HandleDrop(User sender, string e)
         {
+            if (sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
             int roomId = GetCurrentRoomId(sender);
             Thing target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
 
@@ -587,6 +597,11 @@ namespace CSMud
         #region Eat and Drink handlers
         void HandleEat(User sender, string e)
         {
+            if (sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
             var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
             
             if(!target.IsConsumable)
@@ -612,6 +627,11 @@ namespace CSMud
         }
         void HandleDrink(User sender, string e)
         {
+            if (sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
             var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
             if(!target.IsConsumable)
             {
@@ -643,6 +663,11 @@ namespace CSMud
          */
         void HandleExamine(User sender, string e)
         {
+            if (sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
             if (e == null)
             {
                 sender.Connection.SendMessage("Examine what?");
@@ -660,6 +685,7 @@ namespace CSMud
                 {
                     sender.Connection.SendMessage($"Held: {string.Join(", ", sender.Player.Held)}");
                 }
+                sender.Connection.SendMessage($"Health: {sender.Player.Stats.CurrHealth}; Defense: {sender.Player.Stats.Defense}");
                 return;
             }
 
@@ -703,6 +729,11 @@ namespace CSMud
         #region Equip handler
         void HandleEquip(User sender, string e)
         {
+            if (sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
             var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
             bool isWearing = false;
 
@@ -807,7 +838,12 @@ namespace CSMud
          */
         void HandleGo(User sender, string e)
         {
-            if(FuzzyEquals(e, "north"))
+            if (sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
+            if (FuzzyEquals(e, "north"))
             {
                 e = "n";
             }
@@ -895,8 +931,14 @@ namespace CSMud
         // Attack an enemy
         void HandleAttack(User sender, string e)
         {
+            if (sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
             int currRoom = GetCurrentRoomId(sender);
             Entity target = GetTarget(currRoom, e);
+            // Make sure the target is actually attackable
             if(target == null)
             {
                 sender.Connection.SendMessage("You cannot attack that.");
@@ -912,49 +954,78 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot attack dead bodies!");
                 return;
             }
-            RoomSay($"{sender.Name} is attacking the {target.Name}!", sender);
             // If these checks pass, then there is an available target to fight
             // Check and see if the target is already engaged : if so, join the target session
-            if(target.Combat == null)
+            RoomSay($"{sender.Name} is attacking the {target.Name}!", sender);
+            if (target.Combat == null)
             {
                 target.Combat = new Combat(target);
             }
             target.Combat.Combatants.Add(sender);
             sender.Player.Combat = target.Combat;
 
-            
+            // Pre-emptively get the direction to run in in case the user decides to try to run.
             var runDir = WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Where(d => !d.Actual.Locked).FirstOrDefault()?.Actual;
 
             // Combat loop: check turns            
-            while (!target.IsDead && sender.Player.Combat != null)
+            while(target.Combat != null && sender.Player.Combat != null)
             {
+                sender.Player.IsBlocking = false;
                 sender.Connection.SendMessage(@"a: Attack
 d: Defend
 r: Run");
-                string Action = sender.Connection.ReadMessage();
-                switch (Action)
+                if (sender.Player.Stats.CurrHealth <= 0)
                 {
-                    case "a":
-                    case "A":
-                        target.Combat.Attack(sender);
-                        break;
-                    case "d":
-                    case "D":
-                        target.Combat.Defend(sender);
-                        break;
-                    case "r":
-                    case "R":
-                        target.Combat.Run(sender, runDir);
-                        return;
-                    case "q":
-                    case "Q":
-                        // TODO: fix this later; this just lets people exit combat
-                        break;
-                    default:
-                        sender.Connection.SendMessage("Invalid option");
-                        break;
+                    break;
                 }
-            } 
+                else
+                {
+                    string action = sender.Connection.ReadMessage();
+                    if (FuzzyEquals(action, "a"))
+                    {
+                        target.Combat.Attack(sender);
+                    }
+                    if (FuzzyEquals(action, "d"))
+                    {
+                        target.Combat.Defend(sender);
+                    }
+                    if (FuzzyEquals(action, "r"))
+                    {
+                        target.Combat.Run(sender, runDir);
+                    }
+                }
+                if(target.Health <= 0)
+                {
+                    break;
+                }
+                target.Combat.EnemyTurn();
+            }
+
+            if (sender.Player.Stats.CurrHealth <= 0)
+            {
+                sender.Connection.SendMessage("You have been defeated!");
+                if(Users.Count > 2)
+                {
+                    sender.Connection.SendMessage("Would you like to wait for a revive? (y/n)");
+                    string action = sender.Connection.ReadMessage();
+                    if(FuzzyEquals(action, "y"))
+                    {
+                        sender.Player.Combat = null;
+                        sender.Player.IsDead = true;
+                        return;
+                    }
+                }
+                sender.Connection.SendMessage("As you were the only soul in this place, you have been sent back to the start.");
+                foreach(Thing things in sender.Inventory.Things)
+                {
+                    sender.Inventory.RemoveFromInventory(things);
+                    XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
+                    WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Add(thing);
+                }
+                sender.Player.Stats.CurrHealth = sender.Player.Stats.MaxHealth;
+                sender.CurrRoomId = 0001;
+                return;
+            }
             // After this loop, the target is dead. Remove them from the entity list and add them to the dead list/faction.
             target.Faction = "dead";
 
@@ -970,11 +1041,17 @@ r: Run");
             sender.Player.Combat = null;
             target.Combat = null;
         }
+
         #endregion
         #region NPC Conversation handler
         // Talk to an NPC
         void HandleTalkTo(User sender, string e)
         {
+            if (sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
             int currRoom = GetCurrentRoomId(sender);
             Entity target = GetTarget(currRoom, e);
             if(target == null)

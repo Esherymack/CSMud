@@ -10,6 +10,8 @@ namespace CSMud
         public Stats Stats { get; set; }
 
         public Combat Combat { get; set; }
+        public bool IsBlocking { get; set; }
+        public bool IsDead { get; set; }
 
         string Name { get; set; }
         string Appearance { get; set; }
@@ -19,7 +21,10 @@ namespace CSMud
         {
             Equipped = new List<Thing>();
             Held = new List<Thing>();
-            Stats = new Stats(100, 25, 15, 15, 15, 0, 15, 15, 15, 5, 15);
+            IsBlocking = false;
+            IsDead = false;
+            // Stats have a maximum of 100, except for health and defense.
+            Stats = new Stats(100, 5, 5, 5, 5, 5, 5, 5, 5, 5);
             Name = name;
         }
 
