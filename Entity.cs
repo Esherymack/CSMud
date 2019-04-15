@@ -12,9 +12,6 @@ namespace CSMud
     [XmlRoot("Entities")]
     public class Entity : Identifiable
     {
-
-        // TODO: figure out way to add an inventory ("drop inventory" for enemies, "shop inventory" for npcs)
-
         // Valid commands for a given entity
         [XmlElement]
         public List<string> Commands { get; set; }
@@ -36,15 +33,41 @@ namespace CSMud
         // Entities deal implicit damage regardless of disposition to the player
         [XmlElement]
         public int Damage { get; set; }
-        // Whether or not the entity is friendly
+        // Entity faction
         [XmlElement]
-        public bool IsFriendly { get; set; }
+        public string Faction { get; set; }
         // Whether or not the entity is hidden
         [XmlElement]
         public bool IsHidden { get; set; }
         // If an entity is hidden, their minimum perception rating determines if the player can see them.
         [XmlElement]
         public int minPerception { get; set; }
+        [XmlElement]
+        public int MinStrike { get; set; }
+        [XmlElement]
+        public int CritChance { get; set; }
+        [XmlElement]
+        public int MinDefend { get; set; }
+        [XmlElement]
+        public string AttackSpeed { get; set; }
+
+        // The entity's inventory
+        [XmlElement]
+        public List<XMLReference<Thing>> Things { get; set; }
+        [XmlIgnore]
+        public Inventory Inventory { get; set; }
+
+        [XmlIgnore]
+        public Combat Combat { get; set; }
+        [XmlIgnore]
+        public bool InCombat { get; set; }
+        [XmlIgnore]
+        public bool IsDead { get; set; }
+
+        [XmlIgnore]
+        public Conversation Conversation { get; set; }
+        [XmlElement]
+        public bool HasQuest { get; set; }
 
         public Entity()
         {
@@ -55,9 +78,46 @@ namespace CSMud
             Health = 100;
             Defense = 100;
             Damage = 10;
-            IsFriendly = true;
+            Faction = "ally";
             IsHidden = false;
             minPerception = 0;
+            MinStrike = 0;
+            MinDefend = 0;
+            CritChance = 0;
+            AttackSpeed = "";
+            Things = new List<XMLReference<Thing>>();
+            Inventory = new Inventory();
+            InCombat = false;
+            IsDead = false;
+            HasQuest = false;
+        }
+
+        public void PopulateInventory()
+        {
+            foreach (var i in Things)
+            {
+                Inventory.AddToInventory(i.Actual);
+            }
+        }
+
+        public void setHealthLowered(int damage)
+        {
+            Health = Health - damage;
+        }
+
+        public void setHealthRaised(int heal)
+        {
+            Health = Health + heal;
+        }
+
+        public void setDefenseLowered(int damage)
+        {
+            Defense = Defense - damage;
+        }
+
+        public void setDefenseRaised(int restore)
+        {
+            Defense = Defense + restore;
         }
 
         public override string ToString()

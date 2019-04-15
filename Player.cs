@@ -9,15 +9,40 @@ namespace CSMud
         public List<Thing> Held { get; }
         public Stats Stats { get; set; }
 
+        public Combat Combat { get; set; }
+        public Conversation Conversation { get; set; }
+        public bool IsBlocking { get; set; }
+        public bool IsDead { get; set; }
+        public bool IsTrading { get; set; }
+
         string Name { get; set; }
         string Appearance { get; set; }
+
 
         public Player(string name)
         {
             Equipped = new List<Thing>();
             Held = new List<Thing>();
-            Stats = new Stats(100, 25, 15, 15, 15);
+            IsBlocking = false;
+            IsDead = false;
+            IsTrading = false;
+            // Stats have a maximum of 100, except for health and defense.
+            Stats = new Stats(100, 5, 5, 5, 5, 5, 5, 5, 5, 5);
             Name = name;
+        }
+
+        public void TakeDamage(int damage)
+        {
+            Stats.CurrHealth = Stats.CurrHealth - damage;
+        }
+
+        public void Heal(int heal)
+        {
+            Stats.CurrHealth = Stats.CurrHealth + heal;
+            if(Stats.CurrHealth > Stats.MaxHealth)
+            {
+                Stats.CurrHealth = Stats.MaxHealth;
+            }
         }
 
         // Equip a wearable item

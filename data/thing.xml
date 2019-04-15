@@ -11,7 +11,14 @@
     <Commands>hold</Commands>
     <IsWearable>false</IsWearable>
     <IsWeapon>false</IsWeapon>
+    <IsConsumable>true</IsConsumable>
+    <StatIncreaseList>
+      <Stat>Health</Stat>
+      <Value>10</Value>
+    </StatIncreaseList>
+    <ConsumableType>food</ConsumableType>
     <Weight>1</Weight>
+    <Value>1</Value>
   </Thing>
   <Thing>
     <Name>Quesombrero</Name>
@@ -25,6 +32,7 @@
     <Commands>drop</Commands>
     <Commands>hold</Commands>
     <IsWearable>true</IsWearable>
+    <IsConsumable>true</IsConsumable>
     <Slot>head</Slot>
     <StatIncreaseList>
       <Stat>Defense</Stat>
@@ -34,8 +42,10 @@
       <Stat>Strength</Stat>
       <Value>2</Value>
     </StatIncreaseList>
+    <ConsumableType>food</ConsumableType>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
+    <Value>300</Value>
   </Thing>
   <Thing>
     <Name>Sword</Name>
@@ -47,8 +57,13 @@
     <Commands>drop</Commands>
     <IsWearable>false</IsWearable>
     <IsWeapon>true</IsWeapon>
-    <Damage>8</Damage>
+    <StatIncreaseList>
+      <Stat>Damage</Stat>
+      <Value>8</Value>
+    </StatIncreaseList>
     <Weight>2</Weight>
+    <Value>20</Value>
+    <WeaponType>slow</WeaponType>
   </Thing>
   <Thing>
     <Name>White T-Shirt</Name>
@@ -68,6 +83,7 @@
     </StatIncreaseList>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
+    <Value>20</Value>
   </Thing>
   <Thing>
     <Name>Gold Coin</Name>
@@ -80,6 +96,7 @@
     <IsWearable>false</IsWearable>
     <IsWeapon>false</IsWeapon>
     <Weight>0</Weight>
+    <Value>1</Value>
   </Thing>
   <Thing>
     <Name>Gaudy Hat</Name>
@@ -99,5 +116,26 @@
     </StatIncreaseList>
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
+    <Value>4000</Value>
+  </Thing>
+  <Thing>
+    <Name>Bottled Water</Name>
+    <Description>A plastic bottle of stale water. Who knows how long it's been here.</Description>
+    <Id>0007</Id>
+    <Commands>take</Commands>
+    <Commands>hold</Commands>
+    <Commands>examine</Commands>
+    <Commands>drop</Commands>
+    <Commands>drink</Commands>
+    <IsWearable>false</IsWearable>
+    <IsWeapon>false</IsWeapon>
+    <IsConsumable>true</IsConsumable>
+    <StatIncreaseList>
+      <Stat>Health</Stat>
+      <Value>25</Value>
+    </StatIncreaseList>
+    <ConsumableType>drink</ConsumableType>
+    <Weight>1</Weight>
+    <Value>1</Value>
   </Thing>
 </Things>

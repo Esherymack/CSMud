@@ -60,6 +60,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="Conversation.cs" />
+    <Compile Include="Dice.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

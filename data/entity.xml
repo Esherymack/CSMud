@@ -10,34 +10,74 @@
     <Health>100</Health>
     <Defense>100</Defense>
     <Damage>10</Damage>
-    <IsFriendly>true</IsFriendly>
+    <Faction>ally</Faction>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
+    <Things>
+      <Id>0001</Id>
+    </Things>
   </Entity>
   <Entity>
-    <Name>An Ork</Name>
+    <Name>Ork</Name>
     <Id>0002</Id>
     <Description>An angry green fungus. He's not very friendly.</Description>
     <Commands>examine</Commands>
     <Commands>attack</Commands>
+    <Commands>loot</Commands>
     <Health>100</Health>
-    <Defense>50</Defense>
+    <Defense>8</Defense>
     <Damage>15</Damage>
-    <IsFriendly>false</IsFriendly>
+    <Faction>enemy</Faction>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
+    <MinStrike>2</MinStrike>
+    <MinDefend>15</MinDefend>
+    <AttackSpeed>slow</AttackSpeed>
+    <CritChance>30</CritChance>
+    <Things>
+      <Id>0005</Id>
+    </Things>
   </Entity>
   <Entity>
-    <Name>A Purple Ork</Name>
+    <Name>Purple Ork</Name>
     <Id>0003</Id>
     <Description>An angry green fungus, this time wearing purple, to be sneaky.</Description>
     <Commands>examine</Commands>
     <Commands>attack</Commands>
+    <Commands>loot</Commands>
     <Health>200</Health>
     <Defense>0</Defense>
     <Damage>10</Damage>
-    <IsFriendly>false</IsFriendly>
+    <Faction>enemy</Faction>
     <IsHidden>true</IsHidden>
     <minPerception>15</minPerception>
+    <MinStrike>8</MinStrike>
+    <MinDefend>10</MinDefend>
+    <AttackSpeed>fast</AttackSpeed>
+    <CritChance>10</CritChance>
+    <Things>
+      <Id>0005</Id>
+    </Things>
+  </Entity>
+  <Entity>
+    <Name>Rat</Name>
+    <Id>0004</Id>
+    <Description>A large, grey rat. It's missing an eye.</Description>
+    <Commands>examine</Commands>
+    <Commands>attack</Commands>
+    <Commands>loot</Commands>
+    <Health>10</Health>
+    <Defense>0</Defense>
+    <Damage>1</Damage>
+    <Faction>wildlife</Faction>
+    <IsHidden>false</IsHidden>
+    <minPerception>0</minPerception>
+    <MinStrike>1</MinStrike>
+    <MinDefend>1</MinDefend>
+    <CritChance>20</CritChance>
+    <AttackSpeed>mid</AttackSpeed>
+    <Things>
+      <Id>0001</Id>
+    </Things>
   </Entity>
 </Entities>

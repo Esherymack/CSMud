@@ -15,6 +15,7 @@ namespace CSMud
     {
         public List<Thing> Things { get; set; }
         public List<Entity> Entities { get; set; }
+        public List<Entity> DeadEntities { get; set; }
         public List<Door> Doors { get; set; }  
         public List<Room> Rooms { get; set; }
         public Dictionary<int, Thing> AllThings { get; set; }
@@ -59,6 +60,7 @@ namespace CSMud
             using (XmlReader reader = XmlReader.Create(@"..\..\data\entity.xml"))
             {
                 Entities = (List<Entity>)serializer.Deserialize(reader);
+                Entities.ForEach(i => XMLReference<Thing>.Link(i.Things, Things));
                 return Entities;
             }
         }
