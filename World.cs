@@ -983,6 +983,7 @@ namespace CSMud
                 sender.Player.IsBlocking = false;
                 sender.Connection.SendMessage(@"a: Attack
 d: Defend
+h: Heal
 r: Run");
                 if (sender.Player.Stats.CurrHealth <= 0)
                 {
@@ -998,6 +999,17 @@ r: Run");
                     if (FuzzyEquals(action, "d"))
                     {
                         target.Combat.Defend(sender);
+                    }
+                    if(FuzzyEquals(action, "h"))
+                    {
+                        sender.Connection.SendMessage("Consume what?");
+                        var consumables = sender.Inventory.Things.Where(t => t.IsConsumable);
+                        foreach(Thing thing in consumables)
+                        {
+                            sender.Connection.SendMessage(thing.Name);
+                        }
+                        string choice = sender.Connection.ReadMessage();
+                        HandleEat(sender, choice);
                     }
                     if (FuzzyEquals(action, "r"))
                     {
