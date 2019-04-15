@@ -1014,6 +1014,8 @@ r: Run");
                     if (FuzzyEquals(action, "r"))
                     {
                         target.Combat.Run(sender, runDir);
+                        target.Combat = null;
+                        break;
                     }
                 }
                 if(target.Health <= 0)
@@ -1025,6 +1027,8 @@ r: Run");
 
             if (sender.Player.Stats.CurrHealth <= 0)
             {
+                sender.Player.Combat = null;
+                target.Combat = null;
                 sender.Connection.SendMessage("You have been defeated!");
                 if(Users.Count > 2)
                 {
@@ -1032,7 +1036,6 @@ r: Run");
                     string action = sender.Connection.ReadMessage();
                     if(FuzzyEquals(action, "y"))
                     {
-                        sender.Player.Combat = null;
                         sender.Player.IsDead = true;
                         return;
                     }
@@ -1051,7 +1054,6 @@ r: Run");
             // After this loop, the target is dead. Remove them from the entity list and add them to the dead list/faction.
             target.Faction = "dead";
             // Upon death, an entity's inventory gets dropped to the room.
-            //WorldMap.Rooms[GetCurrentRoomId(sender)].Things.AddRange(target.Things);
             foreach(Thing things in target.Inventory.Things.ToList())
             {
                 target.Inventory.RemoveFromInventory(things);

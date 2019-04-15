@@ -13,6 +13,7 @@ namespace CSMud
         public Conversation Conversation { get; set; }
         public bool IsBlocking { get; set; }
         public bool IsDead { get; set; }
+        public bool IsTrading { get; set; }
 
         string Name { get; set; }
         string Appearance { get; set; }
@@ -24,6 +25,7 @@ namespace CSMud
             Held = new List<Thing>();
             IsBlocking = false;
             IsDead = false;
+            IsTrading = false;
             // Stats have a maximum of 100, except for health and defense.
             Stats = new Stats(100, 5, 5, 5, 5, 5, 5, 5, 5, 5);
             Name = name;
