@@ -60,6 +60,7 @@
     <Compile Include="Stats.cs" />
     <Compile Include="Conversation.cs" />
     <Compile Include="Dice.cs" />
+    <Compile Include="ParameterizedEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

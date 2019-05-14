@@ -1,6 +1,6 @@
-﻿/* CSMud - Rev 1
+﻿/* CSMud - Rev 2
  * Author: Madison Tibbett
- * Last Modified: 02/22/2019
+ * Last Modified: 05/14/2019
  */
 
 using System.Net;

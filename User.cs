@@ -2,13 +2,6 @@
 
 namespace CSMud
 {
-    // Class for parameterized events - included it here because it's very tiny.
-    public class ParameterizedEvent : EventArgs
-    {
-        public string Command { get; set; }
-        public string Action { get; set; }
-    }
-
     public class User : IDisposable
     {
         public Connection Connection { get; }
