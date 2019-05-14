@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -20,6 +19,8 @@ namespace CSMud
 
         public MapBuild WorldMap { get; set; }
 
+        public ProcessUnparameterizedCommand PUC { get; set; }
+
         // constructor
         public World()
         {
@@ -33,8 +34,11 @@ namespace CSMud
             };
             Beat.Elapsed += OnTimedEvent;
 
-            // Generate the map last
+            // Generate the map
             WorldMap = new MapBuild();
+
+            // Initialize command processors 
+            PUC = new ProcessUnparameterizedCommand(WorldMap, Users);
 
             foreach(Entity e in WorldMap.Entities)
             {
@@ -72,9 +76,9 @@ namespace CSMud
                     }
 
                     #region Subscribe the user to events. 
-                    user.Command.RaiseHelpEvent += HandleHelpEvent;
-                    user.Command.RaiseLookEvent += HandleLookEvent;
-                    user.Command.RaiseWhoEvent += HandleWhoEvent;
+                    user.Command.RaiseHelpEvent += PUC.HandleHelpEvent;
+                    user.Command.RaiseLookEvent += PUC.HandleLookEvent;
+                    user.Command.RaiseWhoEvent += PUC.HandleWhoEvent;
                     user.Command.RaiseInventoryQueryEvent += HandleInventoryQueryEvent;
                     user.Command.RaiseNoEvent += HandleNoEvent;
                     user.Command.RaiseYesEvent += HandleYesEvent;
@@ -161,260 +165,6 @@ namespace CSMud
         }
 
         #region Handlers for events
-        #region Help handler 
-        void HandleHelpEvent(object sender, EventArgs e)
-        {
-            (sender as User).Connection.SendMessage(@"Help:
-'help' : Display this message.
-'quit' : Exit the game.
-'look' : Look at the room you are in.
-'who' : Look at the players in your current room.
-'inventory' or 'i' : Display inventory.
-'take <object>' : Take an item.
-'hold <object>' : Hold an item in your inventory.
-'drop <object>' : Drop a held or taken item.
-'eat <object>' : Eat a food item.
-'drink <object>' : Drink a drink or potion.
-'examine <object>' : Examine an item.
-'examine self' : Look at yourself.
-'go <direction>' : Move between rooms through valid doors.
-'no' or 'n' : Decline.
-'yes' or 'y' : Agree.
-'say <message>' : Talk to the players in your room.
-'whisper <user> <message>' : Talk to a specific player. You cannot talk privately to Someones.
-'talk <entity>' : Talk to an NPC.
-'attack <entity>' : Attack an enemy.");
-        }
-        #endregion
-        #region Utility funcs for event handlers 
-        // Utility func for getting the user's current room ID
-        int GetCurrentRoomId(User sender)
-        {
-            return WorldMap.Rooms.FindIndex(a => a.Id == sender.CurrRoomId);
-        }
-        // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
-        bool HasEntities(User sender)
-        {
-            return WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Count != 0;
-        }
-        // Utility func for finding if a room has Things
-        bool HasThings(User sender)
-        {
-            return WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Count != 0;
-        }
-        // Utility func for finding if a room has Doors
-        bool HasDoors(User sender)
-        {
-            return WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Count != 0;
-        }
-        // Utility function for string matching
-        public static bool FuzzyEquals(string a, string b)
-        {
-            return string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase);
-        }
-        public string[] splitLine(string msg)
-        {
-            return msg.Split(new char[] { ' ' }, 2);
-        }
-        // Gets the intended recipient for trades and whispers
-        User GetRecipient(string a)
-        {
-            lock(Users)
-            {
-                foreach(User user in Users)
-                {
-                    if(FuzzyEquals(user.Name, a))
-                    {
-                        return user;
-                    }
-                }
-                return null;
-            }
-        }
-        // Same as GetRecipient, but for NPCs. Used in combat, trades, conversation.
-        Entity GetTarget(int room, string a)
-        {
-            foreach (var i in WorldMap.Rooms[room].Entities)
-            {
-                if (FuzzyEquals(i.Actual.Name, a))
-                {
-                    return i.Actual;
-                }
-            }
-            return null;
-        }
-        // Helps change user stats based on item modifiers
-        void ChangeStats(Thing target, User sender)
-        {
-            foreach (KeyValuePair<string, int> entry in target.StatIncrease)
-            {
-                Type type = sender.Player.Stats.GetType();
-                PropertyInfo property = type.GetProperty(entry.Key);
-                if(FuzzyEquals(entry.Key, "health"))
-                {
-                    sender.Player.Heal(entry.Value);
-                    sender.Connection.SendMessage($"Healed for {entry.Value} health. Current health rating: {sender.Player.Stats.CurrHealth}");
-                    return;
-                }
-                if (entry.Value > 0)
-                {
-                    int increase = (int)property.GetValue(sender.Player.Stats) + entry.Value;
-                    property.SetValue(sender.Player.Stats, increase);
-                    sender.Connection.SendMessage($"Current {entry.Key} rating: {increase}");
-                    return;
-                }
-                int decrease = (int)property.GetValue(sender.Player.Stats) - entry.Value;
-                if (decrease < 0)
-                {
-                    decrease = 0;
-                }
-                property.SetValue(sender.Player.Stats, decrease);
-                sender.Connection.SendMessage($"Current {entry.Key} rating: {decrease}");
-            }
-        }
-        // The inverse of ChangeStats, for removing equipped items & handling timeouts on potions.
-        void RemoveItemChangeStats(Thing target, User sender)
-        {
-            foreach (KeyValuePair<string, int> entry in target.StatIncrease)
-            {
-                Type type = sender.Player.Stats.GetType();
-                PropertyInfo property = type.GetProperty(entry.Key);
-                if(entry.Value > 0)
-                {
-                    int decrease = (int)property.GetValue(sender.Player.Stats) - entry.Value;
-                    if(decrease < 0)
-                    {
-                        decrease = 0;
-                    }
-                    property.SetValue(sender.Player.Stats, decrease);
-                    sender.Connection.SendMessage($"Current {entry.Key} rating: {decrease}");
-                    return;
-                }
-                int increase = (int)property.GetValue(sender.Player.Stats) + entry.Value;
-                property.SetValue(sender.Player.Stats, increase);
-                sender.Connection.SendMessage($"Current {entry.Key} rating: {increase}");
-            }
-        }
-        // Check if player has a Thing in their inventory
-        bool OwnsThing(User sender, string item)
-        {
-            foreach(Thing thing in sender.Inventory.Things)
-            {
-                if(FuzzyEquals(thing.Name, item))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        #endregion
-        #region Look handler
-        // Look gets the description of a room.
-        void HandleLookEvent(object sender, EventArgs e)
-        {
-            User s = sender as User;
-            int index = GetCurrentRoomId(s);
-            s.Connection.SendMessage($"You look around:\n{WorldMap.Rooms[index].Description}");
-            if (HasThings(s))
-            {
-                s.Connection.SendMessage($"You see some interesting things: {string.Join(", ", WorldMap.Rooms[index].Things.Select(t => t.Actual))}.");
-            }
-            if (HasDoors(s))
-            {
-                s.Connection.SendMessage($"You see doors to: {string.Join(", ", WorldMap.Rooms[index].Doors.Select(t => t.Actual))}.");
-            }
-            if (WorldMap.Rooms[GetCurrentRoomId(s)].DeadEntities.ToList().Count > 0)
-            {
-                s.Connection.SendMessage($"There are some dead bodies here: {string.Join(", ", WorldMap.Rooms[GetCurrentRoomId(s)].DeadEntities.Select(t => t.Actual.Name))}");
-            }
-        }
-        #endregion
-        #region Who handler
-        // Who gets a list of players currently in the sender's room.
-        void HandleWhoEvent(object sender, EventArgs e)
-        {
-            User s = sender as User;
-            List<User> currentUsers = new List<User>();
-            lock (Users)
-            {
-                foreach (User user in Users)
-                {
-                    if (user.CurrRoomId == s.CurrRoomId)
-                    {
-                        currentUsers.Add(user);
-                    }
-                }
-                currentUsers.Remove(s);
-            }
-                        // if there is one player
-            if (currentUsers.Count == 1)
-            {
-                s.Connection.SendMessage($"You see your ally, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
-            }
-            // if there are multiple players
-            else if (currentUsers.Count > 1)
-            {
-                s.Connection.SendMessage($"You see your allies, {string.Join(", ", currentUsers.Select(t => t.Name))}.");
-            }
-            // if there are no other players
-            else
-            {
-                s.Connection.SendMessage("You have no allies nearby.");
-            }
-            if (HasEntities(s))
-            {
-                List<Entity> friendlies = new List<Entity>();
-                List<Entity> meanies = new List<Entity>();
-                List<Entity> sneakies = new List<Entity>();
-                List<Entity> detectedSneakies = new List<Entity>();
-                foreach (var i in WorldMap.Rooms[GetCurrentRoomId(s)].Entities)
-                {
-                    // each i is a reference to an entity
-                    if (FuzzyEquals(i.Actual.Faction, "enemy"))
-                    {
-                        if (i.Actual.IsHidden)
-                        {
-                            sneakies.Add(i.Actual);
-                        }
-                        else
-                        {
-                            meanies.Add(i.Actual);
-                        }
-                    }
-                    else 
-                    {
-                        friendlies.Add(i.Actual);
-                    }                  
-                }
-                if (friendlies.Count > 0)
-                {
-                    s.Connection.SendMessage($"You can see: {string.Join(", ", friendlies.Select(t => t.Name))}");
-                }
-                if (meanies.Count > 0)
-                {
-                    s.Connection.SendMessage($"You can see some enemies: {string.Join(", ", meanies.Select(t => t.Name))}");
-                }
-                if (sneakies.Count > 0)
-                {
-                    // sender.Player.Stats.Dexterity >= directionGone.Actual.minDexterity
-                    foreach(Entity entity in sneakies)
-                    {
-                        if (s.Player.Stats.Perception >= entity.minPerception)
-                        {
-                            detectedSneakies.Add(entity);
-                        }
-                    }
-                    if(detectedSneakies.Count > 0)
-                    {
-                        s.Connection.SendMessage($"Although they are trying to be stealthy, you can see some enemies lurking in the shadows: {string.Join(", ", detectedSneakies.Select(t => t.Name))}");
-                        return;
-                    }
-                    s.Connection.SendMessage("You don't see anyone new, but you sense a strange presence.");
-                    return;
-                }
-            }
-        }
-        #endregion
         #region Inventory handler
         // Inventory gets the user's inventory.
         void HandleInventoryQueryEvent(object sender, EventArgs e)
@@ -509,8 +259,8 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            int roomId = GetCurrentRoomId(sender);
-            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => FuzzyEquals(t.Actual.Name, e));
+            int roomId = sender.CurrRoomId;
+            var target = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e));
             
             if (target == null)
             {
@@ -556,8 +306,8 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            int roomId = GetCurrentRoomId(sender);
-            Thing target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            int roomId = sender.CurrRoomId;
+            Thing target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
 
             if (target == null)
             {
@@ -580,8 +330,8 @@ namespace CSMud
 
         void HandleHoldDrop(User sender, string e)
         {
-            int roomID = GetCurrentRoomId(sender);
-            var target = sender.Player.Held.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            int roomID = sender.CurrRoomId;
+            var target = sender.Player.Held.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
 
             if (target == null)
             {
@@ -596,7 +346,7 @@ namespace CSMud
             }
             sender.Player.Drop(target);
             sender.Inventory.setCurrentRaisedCapacity(target.Weight);
-            RemoveItemChangeStats(target, sender);
+            CommandUtils.RemoveItemChangeStats(target, sender);
             sender.Inventory.AddToInventory(target);
         }
         #endregion
@@ -608,14 +358,14 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             
             if(!target.IsConsumable)
             {
                 sender.Connection.SendMessage("You cannot eat that.");
                 return;
             }
-            if(!FuzzyEquals(target.ConsumableType, "food"))
+            if(!CommandUtils.FuzzyEquals(target.ConsumableType, "food"))
             {
                 sender.Connection.SendMessage("You cannot eat that.");
                 return;
@@ -627,7 +377,7 @@ namespace CSMud
             }
 
             sender.Inventory.RemoveFromInventory(target);
-            ChangeStats(target, sender);
+            CommandUtils.ChangeStats(target, sender);
             sender.Inventory.setCurrentLoweredCapacity(target.Weight);
             return;
         }
@@ -638,13 +388,13 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             if(!target.IsConsumable)
             {
                 sender.Connection.SendMessage("You cannot drink that.");
                 return;
             }
-            if(!FuzzyEquals(target.ConsumableType, "drink"))
+            if(!CommandUtils.FuzzyEquals(target.ConsumableType, "drink"))
             {
                 sender.Connection.SendMessage("You cannot drink that.");
                 return;
@@ -656,7 +406,7 @@ namespace CSMud
             }
 
             sender.Inventory.RemoveFromInventory(target);
-            ChangeStats(target, sender);
+            CommandUtils.ChangeStats(target, sender);
             sender.Inventory.setCurrentLoweredCapacity(target.Weight);
             return;
         }
@@ -680,7 +430,7 @@ namespace CSMud
                 return;
             }
 
-            if (FuzzyEquals(e, "self"))
+            if (CommandUtils.FuzzyEquals(e, "self"))
             {
                 sender.Connection.SendMessage("You look yourself over.");
                 if (sender.Player.Equipped.Count > 0)
@@ -695,8 +445,8 @@ namespace CSMud
                 return;
             }
 
-            int roomId = GetCurrentRoomId(sender);
-            Thing thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => FuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            int roomId = sender.CurrRoomId;
+            Thing thing = WorldMap.Rooms[roomId].Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             if(thing == null)
             {
                 // If it's not a thing, try and see if the target is an entity
@@ -715,8 +465,8 @@ namespace CSMud
 
         void HandleEntityExamine(User sender, string e)
         {
-            int roomId = GetCurrentRoomId(sender);
-            Entity entity = WorldMap.Rooms[roomId].Entities.FirstOrDefault(t => FuzzyEquals(t.Actual.Name, e))?.Actual;
+            int roomId = sender.CurrRoomId;
+            Entity entity = WorldMap.Rooms[roomId].Entities.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual;
             if(entity == null)
             {
                 // If it's not an entity or a thing, it's not examinable.
@@ -740,7 +490,7 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             bool isWearing = false;
 
             if(!target.IsWearable)
@@ -778,7 +528,7 @@ namespace CSMud
                 {
                     sender.Inventory.RemoveFromInventory(target);
                     sender.Player.Equip(target);
-                    ChangeStats(target, sender);
+                    CommandUtils.ChangeStats(target, sender);
                     sender.Inventory.setCurrentLoweredCapacity(target.Weight);
                     return;
                 }
@@ -788,7 +538,7 @@ namespace CSMud
         #region Remove handler
         void HandleRemove(User sender, string e)
         {
-            var target = sender.Player.Equipped.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            var target = sender.Player.Equipped.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             if (target == null)
             {
                 sender.Connection.SendMessage("You are not wearing that.");
@@ -799,7 +549,7 @@ namespace CSMud
             {
                 sender.Player.Unequip(target);
                 sender.Inventory.setCurrentRaisedCapacity(target.Weight);
-                RemoveItemChangeStats(target, sender);
+                CommandUtils.RemoveItemChangeStats(target, sender);
                 sender.Inventory.AddToInventory(target);
                 return;
             }
@@ -810,7 +560,7 @@ namespace CSMud
         #region Hold handler
         void HandleHold(User sender, string e)
        {
-            var target = sender.Inventory.Things.FirstOrDefault(t => FuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
 
             if (target == null)
             {
@@ -828,7 +578,7 @@ namespace CSMud
 
                 sender.Inventory.RemoveFromInventory(target);
                 sender.Inventory.setCurrentLoweredCapacity(target.Weight);
-                ChangeStats(target, sender);
+                CommandUtils.ChangeStats(target, sender);
                 sender.Player.Hold(target);
                 return;
             }
@@ -849,25 +599,25 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            if (FuzzyEquals(e, "north"))
+            if (CommandUtils.FuzzyEquals(e, "north"))
             {
                 e = "n";
             }
-            if(FuzzyEquals(e, "south"))
+            if(CommandUtils.FuzzyEquals(e, "south"))
             {
                 e = "s";
             }
-            if(FuzzyEquals(e, "east"))
+            if(CommandUtils.FuzzyEquals(e, "east"))
             {
                 e = "e";
             }
-            if(FuzzyEquals(e, "west"))
+            if(CommandUtils.FuzzyEquals(e, "west"))
             {
                 e = "w";
             }
-            int currentRoomId = GetCurrentRoomId(sender);
+            int currentRoomId = sender.CurrRoomId;
             int numDoors = WorldMap.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
-            var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => FuzzyEquals(t.Actual.Direction, e))?.Actual;
+            var directionGone = WorldMap.Rooms[currentRoomId].Doors.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Direction, e))?.Actual;
             if (numDoors == 0)
             {
                 sender.Connection.SendMessage("There are no doors here. You cannot go anywhere.");
@@ -901,7 +651,7 @@ namespace CSMud
                 
             if(directionGone.HasKey)
             {
-                if(OwnsThing(sender, "key"))
+                if(CommandUtils.OwnsThing(sender, "key"))
                 {
                     proceed();
                     return;
@@ -918,8 +668,8 @@ namespace CSMud
         // Send a message to a specific player
         void HandleWhisper(User sender, string msg)
         {
-            string[] sl = splitLine(msg);
-            User recipient = GetRecipient(sl[0]);
+            string[] sl = CommandUtils.splitLine(msg);
+            User recipient = CommandUtils.GetRecipient(sl[0], Users);
             if (recipient == null)
             {
                 sender.Connection.SendMessage("You cannot talk to that person.");
@@ -942,20 +692,20 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            int currRoom = GetCurrentRoomId(sender);
-            Entity target = GetTarget(currRoom, e);
+            int currRoom = sender.CurrRoomId;
+            Entity target = CommandUtils.GetTarget(currRoom, e, WorldMap);
             // Make sure the target is actually attackable
             if(target == null)
             {
                 sender.Connection.SendMessage("You cannot attack that.");
                 return;
             }
-            if(FuzzyEquals(target.Faction, "ally"))
+            if(CommandUtils.FuzzyEquals(target.Faction, "ally"))
             {
                 sender.Connection.SendMessage("You cannot attack friendly people!");
                 return;
             }
-            if(FuzzyEquals(target.Faction, "dead"))
+            if(CommandUtils.FuzzyEquals(target.Faction, "dead"))
             {
                 sender.Connection.SendMessage("You cannot attack dead bodies!");
                 return;
@@ -971,7 +721,7 @@ namespace CSMud
             sender.Player.Combat = target.Combat;
 
             // Pre-emptively get the direction to run in in case the user decides to try to run.
-            var runDir = WorldMap.Rooms[GetCurrentRoomId(sender)].Doors.Where(d => !d.Actual.Locked).FirstOrDefault()?.Actual;
+            var runDir = WorldMap.Rooms[sender.CurrRoomId].Doors.Where(d => !d.Actual.Locked).FirstOrDefault()?.Actual;
 
             // Combat loop: check turns            
             while(target.Combat != null && sender.Player.Combat != null)
@@ -988,15 +738,15 @@ r: Run");
                 else
                 {
                     string action = sender.Connection.ReadMessage();
-                    if (FuzzyEquals(action, "a"))
+                    if (CommandUtils.FuzzyEquals(action, "a"))
                     {
                         target.Combat.Attack(sender);
                     }
-                    if (FuzzyEquals(action, "d"))
+                    if (CommandUtils.FuzzyEquals(action, "d"))
                     {
                         target.Combat.Defend(sender);
                     }
-                    if(FuzzyEquals(action, "h"))
+                    if(CommandUtils.FuzzyEquals(action, "h"))
                     {
                         sender.Connection.SendMessage("Consume what?");
                         var consumables = sender.Inventory.Things.Where(t => t.IsConsumable);
@@ -1007,7 +757,7 @@ r: Run");
                         string choice = sender.Connection.ReadMessage();
                         HandleEat(sender, choice);
                     }
-                    if (FuzzyEquals(action, "r"))
+                    if (CommandUtils.FuzzyEquals(action, "r"))
                     {
                         target.Combat.Run(sender, runDir);
                         target.Combat = null;
@@ -1030,7 +780,7 @@ r: Run");
                 {
                     sender.Connection.SendMessage("Would you like to wait for a revive? (y/n)");
                     string action = sender.Connection.ReadMessage();
-                    if(FuzzyEquals(action, "y"))
+                    if(CommandUtils.FuzzyEquals(action, "y"))
                     {
                         sender.Player.IsDead = true;
                         return;
@@ -1041,7 +791,7 @@ r: Run");
                 {
                     sender.Inventory.RemoveFromInventory(things);
                     XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
-                    WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Add(thing);
+                    WorldMap.Rooms[sender.CurrRoomId].Things.Add(thing);
                 }
                 sender.Player.Stats.CurrHealth = sender.Player.Stats.MaxHealth;
                 sender.CurrRoomId = 0001;
@@ -1054,15 +804,15 @@ r: Run");
             {
                 target.Inventory.RemoveFromInventory(things);
                 XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
-                WorldMap.Rooms[GetCurrentRoomId(sender)].Things.Add(thing);
+                WorldMap.Rooms[sender.CurrRoomId].Things.Add(thing);
             }
 
-            foreach (var i in WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.ToList())
+            foreach (var i in WorldMap.Rooms[sender.CurrRoomId].Entities.ToList())
             {
                 if(i.Actual.Name == target.Name)
                 {
-                    WorldMap.Rooms[GetCurrentRoomId(sender)].Entities.Remove(i);
-                    WorldMap.Rooms[GetCurrentRoomId(sender)].DeadEntities.Add(i);
+                    WorldMap.Rooms[sender.CurrRoomId].Entities.Remove(i);
+                    WorldMap.Rooms[sender.CurrRoomId].DeadEntities.Add(i);
                 }
             }
 
@@ -1081,20 +831,20 @@ r: Run");
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            int currRoom = GetCurrentRoomId(sender);
-            Entity target = GetTarget(currRoom, e);
+            int currRoom = sender.CurrRoomId;
+            Entity target = CommandUtils.GetTarget(currRoom, e, WorldMap);
             if(target == null)
             {
                 sender.Connection.SendMessage("You babble to no one in particular for a moment.");
                 return;
             }
-            if(FuzzyEquals(target.Faction, "enemy"))
+            if(CommandUtils.FuzzyEquals(target.Faction, "enemy"))
             {
                 sender.Connection.SendMessage("While talking your way out of confrontation is admirable, it won't work in this situation.");
                 HandleAttack(sender, e);
                 return;
             }
-            if(FuzzyEquals(target.Faction, "dead"))
+            if(CommandUtils.FuzzyEquals(target.Faction, "dead"))
             {
                 sender.Connection.SendMessage("He's dead, Jim.");
                 return;
@@ -1112,18 +862,18 @@ t: Trade
 q: Quest
 b: Bye");
                 string action = sender.Connection.ReadMessage();
-                if(FuzzyEquals(action, "w"))
+                if(CommandUtils.FuzzyEquals(action, "w"))
                 {
                     target.Conversation.Who();
                 }
-                if(FuzzyEquals(action, "n"))
+                if(CommandUtils.FuzzyEquals(action, "n"))
                 {
                     target.Conversation.News();
                     sender.Connection.SendMessage("News placeholder");
                 }
-                if(FuzzyEquals(action, "t"))
+                if(CommandUtils.FuzzyEquals(action, "t"))
                 {
-                    if(FuzzyEquals(target.Faction, "ally") || FuzzyEquals(target.Faction, "neutral"))
+                    if(CommandUtils.FuzzyEquals(target.Faction, "ally") || CommandUtils.FuzzyEquals(target.Faction, "neutral"))
                     {
                         target.Conversation.Trade();
                     }
@@ -1132,9 +882,9 @@ b: Bye");
                         sender.Connection.SendMessage(target.Conversation.TradeFlavor);
                     }
                 }
-                if(FuzzyEquals(action, "q"))
+                if(CommandUtils.FuzzyEquals(action, "q"))
                 {
-                    if (FuzzyEquals(target.Faction, "ally") || (FuzzyEquals(target.Faction, "neutral")))
+                    if (CommandUtils.FuzzyEquals(target.Faction, "ally") || (CommandUtils.FuzzyEquals(target.Faction, "neutral")))
                     {
                         if(target.HasQuest)
                         {
@@ -1150,7 +900,7 @@ b: Bye");
                         sender.Connection.SendMessage(target.Conversation.QuestFlavor);
                     }
                 }
-                if(FuzzyEquals(action, "b"))
+                if(CommandUtils.FuzzyEquals(action, "b"))
                 {
                     target.Conversation.Bye();
                     break;

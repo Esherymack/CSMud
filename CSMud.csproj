@@ -62,6 +62,8 @@
     <Compile Include="Dice.cs" />
     <Compile Include="ParameterizedEvent.cs" />
     <Compile Include="HandleCommand.cs" />
+    <Compile Include="ProcessUnparameterizedCommand.cs" />
+    <Compile Include="CommandUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

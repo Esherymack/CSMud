@@ -2,6 +2,7 @@
 
 namespace CSMud
 {
+    // Class for handling commands user sends
     public class HandleCommand
     {
         public User SendingUser { get; }

@@ -28,7 +28,7 @@ namespace CSMud
 
         public void GetFlavorText()
         {
-            if(World.FuzzyEquals(Subject.Faction, "ally"))
+            if(CommandUtils.FuzzyEquals(Subject.Faction, "ally"))
             {
                 GreetingFlavor = $"Hello, {Sender.Name}!";
                 WhoFlavor = $"I'm {Subject.Name}";
@@ -38,7 +38,7 @@ namespace CSMud
                 ByeFlavor = $"See you around, {Sender.Name}!";
                 return;
             }
-            if(World.FuzzyEquals(Subject.Faction, "neutral"))
+            if(CommandUtils.FuzzyEquals(Subject.Faction, "neutral"))
             {
                 GreetingFlavor = $"Who are you?";
                 WhoFlavor = $"I am {Subject.Name}.";
@@ -48,7 +48,7 @@ namespace CSMud
                 ByeFlavor = $"Goodbye, stranger.";
                 return;
             }
-            if(World.FuzzyEquals(Subject.Faction, "hostile"))
+            if(CommandUtils.FuzzyEquals(Subject.Faction, "hostile"))
             {
                 GreetingFlavor = $"Who are you?";
                 WhoFlavor = $"I don't trust you enough to tell you who I am.";
@@ -58,7 +58,7 @@ namespace CSMud
                 ByeFlavor = $"Good riddance.";
                 return;
             }
-            if(World.FuzzyEquals(Subject.Faction, "wildlife"))
+            if(CommandUtils.FuzzyEquals(Subject.Faction, "wildlife"))
             {
                 GreetingFlavor = $"The {Subject.Name} gives you a suspicious look.";
                 WhoFlavor = $"The {Subject.Name} hisses at you.";
@@ -101,7 +101,7 @@ v: View current trade pools
 s: Submit trade
 q: Quit trading");
                 string action = Sender.Connection.ReadMessage();
-                if (World.FuzzyEquals(action, "ao"))
+                if (CommandUtils.FuzzyEquals(action, "ao"))
                 {
                     Sender.Connection.SendMessage("You have: ");
                     foreach (Thing thing in Sender.Inventory.Things)
@@ -110,7 +110,7 @@ q: Quit trading");
                     }
                     Sender.Connection.SendMessage("What would you like to trade?");
                     string tradeItem = Sender.Connection.ReadMessage();
-                    var trade = Sender.Inventory.Things.Find(t => World.FuzzyEquals(t.Name, tradeItem));
+                    var trade = Sender.Inventory.Things.Find(t => CommandUtils.FuzzyEquals(t.Name, tradeItem));
                     if(trade == null)
                     {
                         Sender.Connection.SendMessage($"You do not have a {trade.Name} to offer.");
@@ -121,7 +121,7 @@ q: Quit trading");
                         Sender.Inventory.RemoveFromInventory(trade);
                     }
                 }
-                if (World.FuzzyEquals(action, "at"))
+                if (CommandUtils.FuzzyEquals(action, "at"))
                 {
                     Sender.Connection.SendMessage($"{Subject.Name} has: ");
                     foreach (Thing thing in Subject.Inventory.Things)
@@ -130,7 +130,7 @@ q: Quit trading");
                     }
                     Sender.Connection.SendMessage("What would you like to request?");
                     string tradeItem = Sender.Connection.ReadMessage();
-                    var trade = Subject.Inventory.Things.Find(t => World.FuzzyEquals(t.Name, tradeItem));
+                    var trade = Subject.Inventory.Things.Find(t => CommandUtils.FuzzyEquals(t.Name, tradeItem));
                     if (trade == null)
                     {
                         Sender.Connection.SendMessage($"{Subject.Name} does not have a {trade.Name}.");
@@ -141,7 +141,7 @@ q: Quit trading");
                         Subject.Inventory.RemoveFromInventory(trade);
                     }
                 }
-                if (World.FuzzyEquals(action, "ro"))
+                if (CommandUtils.FuzzyEquals(action, "ro"))
                 {
                     Sender.Connection.SendMessage("You offered: ");
                     foreach (Thing thing in TradeItemsTo)
@@ -150,7 +150,7 @@ q: Quit trading");
                     }
                     Sender.Connection.SendMessage("What would you like to remove from the offers?");
                     string removeItem = Sender.Connection.ReadMessage();
-                    var remove = TradeItemsTo.Find(t => World.FuzzyEquals(t.Name, removeItem));
+                    var remove = TradeItemsTo.Find(t => CommandUtils.FuzzyEquals(t.Name, removeItem));
                     if(remove == null)
                     {
                         Sender.Connection.SendMessage($"You never offered a {remove.Name} to {Subject.Name}.");
@@ -161,7 +161,7 @@ q: Quit trading");
                         Sender.Inventory.AddToInventory(remove);
                     }
                 }
-                if (World.FuzzyEquals(action, "rt"))
+                if (CommandUtils.FuzzyEquals(action, "rt"))
                 {
                     Sender.Connection.SendMessage("You requested: ");
                     foreach (Thing thing in TradeItemsFrom)
@@ -170,7 +170,7 @@ q: Quit trading");
                     }
                     Sender.Connection.SendMessage($"What would you like to return to {Subject.Name}?");
                     string removeItem = Sender.Connection.ReadMessage();
-                    var remove = TradeItemsFrom.Find(t => World.FuzzyEquals(t.Name, removeItem));
+                    var remove = TradeItemsFrom.Find(t => CommandUtils.FuzzyEquals(t.Name, removeItem));
                     if(remove == null)
                     {
                         Sender.Connection.SendMessage($"You never requested a {remove.Name} from {Subject.Name}");
@@ -181,7 +181,7 @@ q: Quit trading");
                         Subject.Inventory.AddToInventory(remove);
                     }
                 }
-                if (World.FuzzyEquals(action, "v"))
+                if (CommandUtils.FuzzyEquals(action, "v"))
                 {
                     Sender.Connection.SendMessage("Current trade pools:");
                     foreach(Thing thing in TradeItemsTo)
@@ -197,7 +197,7 @@ q: Quit trading");
                     Sender.Connection.SendMessage($"Total value trading to {Subject.Name} is {TradeToValue}");
                     Sender.Connection.SendMessage($"Total value taking from {Subject.Name} is {TradeFromValue}");
                 }
-                if (World.FuzzyEquals(action, "s"))
+                if (CommandUtils.FuzzyEquals(action, "s"))
                 {
                     if(TradeItemsTo.Sum(t => t.Value) >= TradeItemsFrom.Sum(t => t.Value))
                     {
@@ -225,7 +225,7 @@ q: Quit trading");
                         Sender.Connection.SendMessage("Trade failed - you're trying to take more than you're giving!");
                     }
                 }
-                if (World.FuzzyEquals(action, "q"))
+                if (CommandUtils.FuzzyEquals(action, "q"))
                 {
                     foreach(Thing thing in TradeItemsTo)
                     {

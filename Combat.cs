@@ -40,7 +40,7 @@ namespace CSMud
 
         public void GetFlavorText()
         {
-            if (World.FuzzyEquals(Target.AttackSpeed, "fast"))
+            if (CommandUtils.FuzzyEquals(Target.AttackSpeed, "fast"))
             {
                 AttackSuccessFlavor = $"The {Target.Name} attacks quickly!";
                 AttackFailFlavor = $"The {Target.Name} tries to strike fast, but misses!";
@@ -50,7 +50,7 @@ namespace CSMud
                 LowHealthFlavor = $"The {Target.Name} looks weak!";
                 return;
             }
-            if (World.FuzzyEquals(Target.AttackSpeed, "slow"))
+            if (CommandUtils.FuzzyEquals(Target.AttackSpeed, "slow"))
             {
                 AttackSuccessFlavor = $"The {Target.Name} attacks slowly!";
                 AttackFailFlavor = $"The {Target.Name} tries to strike, but is too slow!";
@@ -60,7 +60,7 @@ namespace CSMud
                 LowHealthFlavor = $"The {Target.Name} looks like it might pass out!";
                 return;
             }
-            if (World.FuzzyEquals(Target.AttackSpeed, "mid"))
+            if (CommandUtils.FuzzyEquals(Target.AttackSpeed, "mid"))
             {
                 AttackSuccessFlavor = $"The {Target.Name} attacks!";
                 AttackFailFlavor = $"The {Target.Name} tries to strike, but misses!";
@@ -178,22 +178,22 @@ namespace CSMud
                 {
                     if(thing.IsWeapon)
                     {
-                        if(World.FuzzyEquals(thing.WeaponType, "slow"))
+                        if(CommandUtils.FuzzyEquals(thing.WeaponType, "slow"))
                         {
                             damage = damage + (current.Player.Stats.Strength / 2);
                             current.Connection.SendMessage($"Bonus: Slow Weapon - {damage} damage!");
                         }
-                        if(World.FuzzyEquals(thing.WeaponType, "fast"))
+                        if(CommandUtils.FuzzyEquals(thing.WeaponType, "fast"))
                         {
                             damage = damage + (current.Player.Stats.Dexterity / 2);
                             current.Connection.SendMessage($"Bonus: Fast Weapon - {damage} damage!");
                         }
-                        if(World.FuzzyEquals(thing.WeaponType, "spell"))
+                        if(CommandUtils.FuzzyEquals(thing.WeaponType, "spell"))
                         {
                             damage = damage + (current.Player.Stats.Knowledge / 2);
                             current.Connection.SendMessage($"Bonus: Magic - {damage} damage!");
                         }
-                        if(World.FuzzyEquals(thing.WeaponType, "ranged"))
+                        if(CommandUtils.FuzzyEquals(thing.WeaponType, "ranged"))
                         {
                             damage = damage + (current.Player.Stats.Dexterity / 2) + (current.Player.Stats.Agility / 2);
                             current.Connection.SendMessage($"Bonus: Ranged - {damage} damage!");
