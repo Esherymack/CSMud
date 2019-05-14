@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-namespace CSMud
+﻿namespace CSMud
 {
     /* The stats class houses statistics for players including health pool and damage output. */
     public class Stats

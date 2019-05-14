@@ -1095,6 +1095,7 @@ r: Run");
             if(FuzzyEquals(target.Faction, "enemy"))
             {
                 sender.Connection.SendMessage("While talking your way out of confrontation is admirable, it won't work in this situation.");
+                HandleAttack(sender, e);
                 return;
             }
             if(FuzzyEquals(target.Faction, "dead"))

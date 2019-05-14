@@ -1,6 +1,8 @@
 ﻿using System;
+
 namespace CSMud
 {
+    /* A series of dice for rolling in game events. */
     public static class Dice
     {
         public static int RollTwo()

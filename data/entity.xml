@@ -16,6 +16,9 @@
     <Things>
       <Id>0001</Id>
     </Things>
+    <Things>
+      <Id>0003</Id>
+    </Things>
   </Entity>
   <Entity>
     <Name>Ork</Name>

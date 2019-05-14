@@ -48,7 +48,6 @@
     <Compile Include="Entity.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Movement.cs" />
     <Compile Include="StatValue.cs" />
     <Compile Include="Thing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

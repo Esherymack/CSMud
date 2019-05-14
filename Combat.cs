@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
 
 /* Combat class for CSMud
  * Combat is initiated by interacting with enemies through 'attack' or 'talk' commands.
