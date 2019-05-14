@@ -64,6 +64,7 @@
     <Compile Include="HandleCommand.cs" />
     <Compile Include="ProcessUnparameterizedCommand.cs" />
     <Compile Include="CommandUtils.cs" />
+    <Compile Include="ProcessParameterizedCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

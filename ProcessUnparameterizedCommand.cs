@@ -146,5 +146,31 @@ namespace CSMud
             }
         }
 
+        // Inventory gets the user's inventory.
+        public void HandleInventoryQueryEvent(object sender, EventArgs e)
+        {
+            User s = sender as User;
+            s.Connection.SendMessage($"Your current carry capacity is {s.Inventory.CurrentCapacity}/{s.Inventory.CarryCapacity}");
+            if (s.Inventory.Empty)
+            {
+                s.Connection.SendMessage($"You turn out your pockets. You have nothing.");
+            }
+            else
+            {
+                s.Connection.SendMessage($"Your inventory consists of:\n{s.Inventory.ToString()}");
+            }
+        }
+
+        // No says no.
+        public void HandleNoEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You firmly shake your head no.");
+        }
+
+        // Yes says yes.
+        public void HandleYesEvent(object sender, EventArgs e)
+        {
+            (sender as User).Connection.SendMessage("You nod affirmatively.");
+        }
     }
 }
