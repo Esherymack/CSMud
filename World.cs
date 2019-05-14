@@ -20,8 +20,6 @@ namespace CSMud
 
         public MapBuild WorldMap { get; set; }
 
-        public string News { get; set; }
-
         // constructor
         public World()
         {
@@ -42,8 +40,6 @@ namespace CSMud
             {
                 e.PopulateInventory();
             }
-
-            News = "World news placeholder.";
         }
 
         // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
@@ -76,13 +72,13 @@ namespace CSMud
                     }
 
                     #region Subscribe the user to events. 
-                    user.RaiseHelpEvent += HandleHelpEvent;
-                    user.RaiseLookEvent += HandleLookEvent;
-                    user.RaiseWhoEvent += HandleWhoEvent;
-                    user.RaiseInventoryQueryEvent += HandleInventoryQueryEvent;
-                    user.RaiseNoEvent += HandleNoEvent;
-                    user.RaiseYesEvent += HandleYesEvent;
-                    user.RaiseParameterizedEvent += HandleParameterizedEvent;
+                    user.Command.RaiseHelpEvent += HandleHelpEvent;
+                    user.Command.RaiseLookEvent += HandleLookEvent;
+                    user.Command.RaiseWhoEvent += HandleWhoEvent;
+                    user.Command.RaiseInventoryQueryEvent += HandleInventoryQueryEvent;
+                    user.Command.RaiseNoEvent += HandleNoEvent;
+                    user.Command.RaiseYesEvent += HandleYesEvent;
+                    user.Command.RaiseParameterizedEvent += HandleParameterizedEvent;
                     #endregion
 
                     return user;
@@ -1123,7 +1119,7 @@ b: Bye");
                 if(FuzzyEquals(action, "n"))
                 {
                     target.Conversation.News();
-                    sender.Connection.SendMessage(News);
+                    sender.Connection.SendMessage("News placeholder");
                 }
                 if(FuzzyEquals(action, "t"))
                 {

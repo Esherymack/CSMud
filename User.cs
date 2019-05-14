@@ -6,19 +6,7 @@ namespace CSMud
     {
         public Connection Connection { get; }
 
-        #region Events for commands.
-        // These are unparameterized events - they are just called and always do the same thing.
-        public event EventHandler RaiseHelpEvent;
-        public event EventHandler RaiseLookEvent;
-        public event EventHandler RaiseWhoEvent;
-        public event EventHandler RaiseInventoryQueryEvent;
-        public event EventHandler RaiseNoEvent;
-        public event EventHandler RaiseYesEvent;
-
-        // This is a parameterized event that affects a Thing, Player, or Entity
-        public event EventHandler<ParameterizedEvent> RaiseParameterizedEvent;
-
-        #endregion
+        public HandleCommand Command { get; set; }
 
         // a user belongs to a world
         private World World { get; }
@@ -39,6 +27,7 @@ namespace CSMud
         public User(Connection conn, World world, string name)
         {
             Connection = conn;
+            Command = new HandleCommand(this);
             World = world;
             Name = name;
             Player = new Player(name);
@@ -57,6 +46,11 @@ Send 'quit' to exit.
 Send 'help' for help.");
         }
 
+        private void GlobalMessage()
+        {
+            Connection.SendMessage(@"This is a placeholder daily message");
+        }
+
         // OnDisconnect handles removing the terminated connections and tells the sever client that someone has disconnected.
         private void OnDisconnect()
         {
@@ -69,10 +63,11 @@ Send 'help' for help.");
         {
             // Welcome the user to the game
             OnConnect();
+            // Print global message
+            GlobalMessage();
 
             while (true)
             {
-                // Get a message that's sent to the server
                 string line = Connection.ReadMessage();
                 string[] splitLine = line.Split(new char[] { ' ' }, 2);
 
@@ -80,84 +75,10 @@ Send 'help' for help.");
                 {
                     break;
                 }
-                if (splitLine.Length == 1)
-                {
-                    switch (splitLine[0])
-                    {
-                        case "help":
-                            OnRaiseHelpEvent();
-                            break;
-                        case "inventory":
-                        case "i":
-                            OnRaiseInventoryQueryEvent();
-                            break;
-                        case "no":
-                        case "n":
-                            OnRaiseNoEvent();
-                            break;
-                        case "yes":
-                        case "y":
-                            OnRaiseYesEvent();
-                            break;
-                        case "look":
-                            OnRaiseLookEvent();
-                            break;
-                        case "who":
-                            OnRaiseWhoEvent();
-                            break;
-                    }
-                }
-                else
-                {
-                    OnParameterizedEvent(new ParameterizedEvent { Command = splitLine[0], Action = splitLine[1] });
-                }             
-            }
+                // Get a message that's sent to the server
+                Command.ProcessCommand(splitLine);
+            } 
         }
-
-        #region Protected virtual funcs for event raises.
-        protected virtual void OnRaiseHelpEvent()
-        {
-            EventHandler handler = RaiseHelpEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseLookEvent()
-        {
-            EventHandler handler = RaiseLookEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseWhoEvent()
-        {
-            EventHandler handler = RaiseWhoEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseInventoryQueryEvent()
-        {
-            EventHandler handler = RaiseInventoryQueryEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseNoEvent()
-        {
-            EventHandler handler = RaiseNoEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnRaiseYesEvent()
-        {
-            EventHandler handler = RaiseYesEvent;
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnParameterizedEvent(ParameterizedEvent e)
-        {
-            EventHandler<ParameterizedEvent> handler = RaiseParameterizedEvent;
-            handler?.Invoke(this, e);
-        }
-
-        #endregion End events
 
         /*
 		 * ProcessLine handles organizing messages on the MUD server
