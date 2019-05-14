@@ -33,7 +33,7 @@ namespace CSMud
             Player = new Player(name);
             Inventory = new Inventory();
             Inventory.setCarryCapacity(Player.Stats.Strength);
-            CurrRoomId = 1;
+            CurrRoomId = 0001;
         }
 
         // OnConnect handles the welcome messages and tells the server client that someone has connected.

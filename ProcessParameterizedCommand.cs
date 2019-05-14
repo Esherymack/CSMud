@@ -76,7 +76,7 @@ namespace CSMud
             {
                 foreach (User user in Users)
                 {
-                    if (user.CurrRoomId == sender.CurrRoomId)
+                    if (CommandUtils.GetCurrentRoomId(user, Map) == CommandUtils.GetCurrentRoomId(sender, Map))
                     {
                         user.Connection.SendMessage(msg);
                     }
@@ -113,7 +113,7 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            int roomId = sender.CurrRoomId;
+            int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
             var target = Map.Rooms[roomId].Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e));
             
             if (target == null)
@@ -159,7 +159,7 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            int roomId = sender.CurrRoomId;
+            int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
             Thing target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
 
             if (target == null)
@@ -183,7 +183,7 @@ namespace CSMud
 
         void HandleHoldDrop(User sender, string e)
         {
-            int roomID = sender.CurrRoomId;
+            int roomID = CommandUtils.GetCurrentRoomId(sender, Map);
             var target = sender.Player.Held.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
 
             if (target == null)
@@ -296,7 +296,7 @@ namespace CSMud
                 return;
             }
 
-            int roomId = sender.CurrRoomId;
+            int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
             Thing thing = Map.Rooms[roomId].Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             if(thing == null)
             {
@@ -316,7 +316,7 @@ namespace CSMud
 
         void HandleEntityExamine(User sender, string e)
         {
-            int roomId = sender.CurrRoomId;
+            int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
             Entity entity = Map.Rooms[roomId].Entities.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual;
             if(entity == null)
             {
@@ -462,7 +462,7 @@ namespace CSMud
             {
                 e = "w";
             }
-            int currentRoomId = sender.CurrRoomId;
+            int currentRoomId = CommandUtils.GetCurrentRoomId(sender, Map);
             int numDoors = Map.Rooms[currentRoomId].Doors.Select(t => t.Actual).Count();
             var directionGone = Map.Rooms[currentRoomId].Doors.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Direction, e))?.Actual;
             if (numDoors == 0)
@@ -519,7 +519,7 @@ namespace CSMud
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            int currRoom = sender.CurrRoomId;
+            int currRoom = CommandUtils.GetCurrentRoomId(sender, Map);
             Entity target = CommandUtils.GetTarget(currRoom, e, Map);
             // Make sure the target is actually attackable
             if(target == null)
@@ -548,7 +548,7 @@ namespace CSMud
             sender.Player.Combat = target.Combat;
 
             // Pre-emptively get the direction to run in in case the user decides to try to run.
-            var runDir = Map.Rooms[sender.CurrRoomId].Doors.Where(d => !d.Actual.Locked).FirstOrDefault()?.Actual;
+            var runDir = Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Doors.Where(d => !d.Actual.Locked).FirstOrDefault()?.Actual;
 
             // Combat loop: check turns            
             while(target.Combat != null && sender.Player.Combat != null)
@@ -618,7 +618,7 @@ r: Run");
                 {
                     sender.Inventory.RemoveFromInventory(things);
                     XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
-                    Map.Rooms[sender.CurrRoomId].Things.Add(thing);
+                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Things.Add(thing);
                 }
                 sender.Player.Stats.CurrHealth = sender.Player.Stats.MaxHealth;
                 sender.CurrRoomId = 0001;
@@ -631,15 +631,15 @@ r: Run");
             {
                 target.Inventory.RemoveFromInventory(things);
                 XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
-                Map.Rooms[sender.CurrRoomId].Things.Add(thing);
+                Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Things.Add(thing);
             }
 
-            foreach (var i in Map.Rooms[sender.CurrRoomId].Entities.ToList())
+            foreach (var i in Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Entities.ToList())
             {
                 if(i.Actual.Name == target.Name)
                 {
-                    Map.Rooms[sender.CurrRoomId].Entities.Remove(i);
-                    Map.Rooms[sender.CurrRoomId].DeadEntities.Add(i);
+                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Entities.Remove(i);
+                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].DeadEntities.Add(i);
                 }
             }
 
@@ -656,7 +656,7 @@ r: Run");
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            int currRoom = sender.CurrRoomId;
+            int currRoom = CommandUtils.GetCurrentRoomId(sender, Map);
             Entity target = CommandUtils.GetTarget(currRoom, e, Map);
             if(target == null)
             {

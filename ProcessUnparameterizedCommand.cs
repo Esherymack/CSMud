@@ -45,7 +45,7 @@ namespace CSMud
         public void HandleLookEvent(object sender, EventArgs e)
         {
             User s = sender as User;
-            int index = s.CurrRoomId;
+            int index = CommandUtils.GetCurrentRoomId(s, Map);
             s.Connection.SendMessage($"You look around:\n{Map.Rooms[index].Description}");
             if (CommandUtils.HasThings(s, Map))
             {
@@ -55,9 +55,9 @@ namespace CSMud
             {
                 s.Connection.SendMessage($"You see doors to: {string.Join(", ", Map.Rooms[index].Doors.Select(t => t.Actual))}.");
             }
-            if (Map.Rooms[s.CurrRoomId].DeadEntities.ToList().Count > 0)
+            if (Map.Rooms[index].DeadEntities.ToList().Count > 0)
             {
-                s.Connection.SendMessage($"There are some dead bodies here: {string.Join(", ", Map.Rooms[s.CurrRoomId].DeadEntities.Select(t => t.Actual.Name))}");
+                s.Connection.SendMessage($"There are some dead bodies here: {string.Join(", ", Map.Rooms[index].DeadEntities.Select(t => t.Actual.Name))}");
             }
         }
 
@@ -70,7 +70,7 @@ namespace CSMud
             {
                 foreach (User user in Users)
                 {
-                    if (user.CurrRoomId == s.CurrRoomId)
+                    if (CommandUtils.GetCurrentRoomId(user, Map) == CommandUtils.GetCurrentRoomId(s, Map))
                     {
                         currentUsers.Add(user);
                     }
@@ -98,7 +98,7 @@ namespace CSMud
                 List<Entity> meanies = new List<Entity>();
                 List<Entity> sneakies = new List<Entity>();
                 List<Entity> detectedSneakies = new List<Entity>();
-                foreach (var i in Map.Rooms[s.CurrRoomId].Entities)
+                foreach (var i in Map.Rooms[CommandUtils.GetCurrentRoomId(s, Map)].Entities)
                 {
                     // each i is a reference to an entity
                     if (CommandUtils.FuzzyEquals(i.Actual.Faction, "enemy"))

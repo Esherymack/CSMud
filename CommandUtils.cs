@@ -6,20 +6,25 @@ namespace CSMud
 {
     public static class CommandUtils
     {
+         // Utility func for getting the user's current room ID
+        public static int GetCurrentRoomId(User sender, MapBuild WorldMap)
+        {
+            return WorldMap.Rooms.FindIndex(a => a.Id == sender.CurrRoomId);
+        }
         // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
         public static bool HasEntities(User sender, MapBuild WorldMap)
         {
-            return WorldMap.Rooms[sender.CurrRoomId].Entities.Count != 0;
+            return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].Entities.Count != 0;
         }
         // Utility func for finding if a room has Things
         public static bool HasThings(User sender, MapBuild WorldMap)
         {
-            return WorldMap.Rooms[sender.CurrRoomId].Things.Count != 0;
+            return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].Things.Count != 0;
         }
         // Utility func for finding if a room has Doors
         public static bool HasDoors(User sender, MapBuild WorldMap)
         {
-            return WorldMap.Rooms[sender.CurrRoomId].Doors.Count != 0;
+            return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].Doors.Count != 0;
         }
         // Utility function for string matching
         public static  bool FuzzyEquals(string a, string b)
