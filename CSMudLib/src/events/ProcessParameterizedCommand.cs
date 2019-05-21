@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CSMud.Client;
+using CSMud.Thingamajig;
+using CSMud.Utils;
 
-namespace CSMud
+namespace CSMud.Events
 {
     public class ProcessParameterizedCommand
     {

@@ -1,6 +1,8 @@
 ﻿using System;
+using CSMud.Client;
+using CSMud.Events;
 
-namespace CSMud
+namespace CSMud.Utils
 {
     // Class for handling commands user sends
     public class HandleCommand

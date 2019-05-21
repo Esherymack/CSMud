@@ -5,7 +5,7 @@
  * An Inventory is a collection of Things 
  */
 
-namespace CSMud
+namespace CSMud.Thingamajig
 {
     public class Inventory
     {

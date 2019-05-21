@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using CSMud.Utils;
 
 /* A 'Door' object is a collection of room ID numbers connected by another ID to allow 
  * nonlinear map construction. Also allows flagging if doors are locked and have keys. */
 
-namespace CSMud
+namespace CSMud.Thingamajig
 {
     [XmlRoot("Doors")]
     public class Door : Identifiable

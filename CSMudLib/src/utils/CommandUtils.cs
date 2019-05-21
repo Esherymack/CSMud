@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using CSMud.Client;
+using CSMud.Thingamajig;
 
-namespace CSMud
+namespace CSMud.Utils
 {
     public static class CommandUtils
     {

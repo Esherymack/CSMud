@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CSMud.Client;
+using CSMud.Thingamajig;
+using CSMud.Utils;
 
 
 /* Conversation class for interacting with friendly NPCs.
  * Conversation is initiated through a 'talk' command
  */
-namespace CSMud
+namespace CSMud.Events
 {
     public class Conversation
     {

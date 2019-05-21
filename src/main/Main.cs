@@ -6,6 +6,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using CSMud.Client;
 
 namespace CSMud
 {

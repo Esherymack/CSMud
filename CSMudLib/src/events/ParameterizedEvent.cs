@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSMud
+namespace CSMud.Events
 {
     // Class for parameterized events
     public class ParameterizedEvent : EventArgs

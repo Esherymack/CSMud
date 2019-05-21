@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net.Sockets;
 
-namespace CSMud
+namespace CSMud.Client
 {
     /* Connection is basically the "client" - you don't have to have a separate client program
 	 * this decision was largely due to all the other MUDs out there being Telnet connections

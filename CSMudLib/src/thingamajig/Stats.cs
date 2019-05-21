@@ -1,4 +1,4 @@
-﻿namespace CSMud
+﻿namespace CSMud.Thingamajig
 {
     /* The stats class houses statistics for players including health pool and damage output. */
     public class Stats

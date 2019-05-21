@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using CSMud.Events;
+using CSMud.Thingamajig;
 
-namespace CSMud
+namespace CSMud.Client
 {
     /* The Player object houses the current User's statistics and currently equipped and held Things */
     public class Player

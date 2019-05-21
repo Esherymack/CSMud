@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>CSMud</RootNamespace>
     <AssemblyName>CSMud</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
@@ -43,31 +43,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\client\Connection.cs" />
-    <Compile Include="src\client\Player.cs" />
-    <Compile Include="src\client\User.cs" />
-    <Compile Include="src\client\World.cs" />
-    <Compile Include="src\entity\Door.cs" />
-    <Compile Include="src\entity\Entity.cs" />
-    <Compile Include="src\entity\Inventory.cs" />
-    <Compile Include="src\entity\Room.cs" />
-    <Compile Include="src\entity\Stats.cs" />
-    <Compile Include="src\entity\Thing.cs" />
-    <Compile Include="src\events\Combat.cs" />
-    <Compile Include="src\events\Conversation.cs" />
-    <Compile Include="src\events\ParameterizedEvent.cs" />
-    <Compile Include="src\events\ProcessParameterizedCommand.cs" />
-    <Compile Include="src\events\ProcessUnparameterizedCommand.cs" />
-    <Compile Include="src\server\Main.cs" />
-    <Compile Include="src\server\MapBuild.cs" />
-    <Compile Include="src\utils\CommandUtils.cs" />
-    <Compile Include="src\utils\Dice.cs" />
-    <Compile Include="src\utils\HandleCommand.cs" />
-    <Compile Include="src\utils\StatValue.cs" />
-    <Compile Include="src\utils\XMLReference.cs" />
+    <Compile Include="src\main\Main.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="CSMudLib\CSMudLib.csproj">
+      <Project>{F5EEEFE6-AC2D-47E8-A2E1-B9B13F95F305}</Project>
+      <Name>CSMudLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using CSMud.Utils;
 
 /* A 'Thing' object is a collection of commands, an Id, a Name, and a Description
  */
 
-namespace CSMud
+namespace CSMud.Thingamajig
 {
     [XmlRoot("Things")]
     public class Thing : Identifiable

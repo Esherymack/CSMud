@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
+using CSMud.Thingamajig;
 
 /* MapBuild generates the list of Thing objects, the list of Entity objects,
  * and the list of Room objects that implement those Thing and Entitiy objects,
  * effectively building the interactable map.
  */
 
-namespace CSMud
+namespace CSMud.Utils
 {
     public class MapBuild
     {

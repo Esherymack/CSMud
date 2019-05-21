@@ -1,6 +1,8 @@
 ﻿using System;
+using CSMud.Thingamajig;
+using CSMud.Utils;
 
-namespace CSMud
+namespace CSMud.Client
 {
     public class User : IDisposable
     {

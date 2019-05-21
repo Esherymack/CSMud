@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using CSMud.Events;
+using CSMud.Utils;
 
 /* Entity class for CSMud
  * An entity is any NPC
@@ -7,7 +9,7 @@ using System.Xml.Serialization;
  * Entities have specific sets of commands, unique ID Numbers, a name, and a description.
  */
 
-namespace CSMud
+namespace CSMud.Thingamajig
 {
     [XmlRoot("Entities")]
     public class Entity : Identifiable

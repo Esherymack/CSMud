@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Timers;
+using CSMud.Events;
+using CSMud.Thingamajig;
+using CSMud.Utils;
 
-namespace CSMud
+namespace CSMud.Client
 {
     // A World holds connections and handles broadcasting messages from those connections
     // The world also handles taking care of all of the commands, both parameterized and unparameterized.
