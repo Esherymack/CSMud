@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CSMud.Client;
-using CSMud.Thingamajig;
+using CSMud.Entity;
 using CSMud.Utils;
 
 namespace CSMud.Events
@@ -117,7 +117,7 @@ namespace CSMud.Events
                 return;
             }
             int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
-            var target = Map.Rooms[roomId].Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e));
+            var target = Map.Rooms[roomId].Items.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e));
             
             if (target == null)
             {
@@ -132,9 +132,9 @@ namespace CSMud.Events
             }
             
             // Prevent the chance that two users try to take the same item at the same time.
-            lock (Map.Rooms[roomId].Things)
+            lock (Map.Rooms[roomId].Items)
             {
-                if (Map.Rooms[roomId].Things.Remove(target))
+                if (Map.Rooms[roomId].Items.Remove(target))
                 {
                     sender.Inventory.setCurrentRaisedCapacity(target.Actual.Weight);
                     if(sender.Inventory.CurrentCapacity <= sender.Inventory.CarryCapacity)
@@ -153,7 +153,7 @@ namespace CSMud.Events
 
         /* Like Handletake, HandleDrop checks for an item's existence, but in this case it has to be in the 
          * requesting user's inventory.
-         * if item exists, remove it from the user inventory's list of refs and add to the room's Things instead
+         * if item exists, remove it from the user inventory's list of refs and add to the room's Items instead
          */
         void HandleDrop(User sender, string e)
         {
@@ -163,7 +163,7 @@ namespace CSMud.Events
                 return;
             }
             int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
-            Thing target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
+            Item target = sender.Inventory.Items.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
 
             if (target == null)
             {
@@ -177,11 +177,11 @@ namespace CSMud.Events
                 return;
             }
 
-             XMLReference<Thing> thing = new XMLReference<Thing> { Actual = target };
+             XMLReference<Item> item = new XMLReference<Item> { Actual = target };
              sender.Player.Drop(target);
              sender.Inventory.setCurrentLoweredCapacity(target.Weight);
              sender.Inventory.RemoveFromInventory(target);
-             Map.Rooms[roomId].Things.Add(thing);
+             Map.Rooms[roomId].Items.Add(item);
         }
 
         void HandleHoldDrop(User sender, string e)
@@ -213,7 +213,7 @@ namespace CSMud.Events
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            var target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Items.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             
             if(!target.IsConsumable)
             {
@@ -243,7 +243,7 @@ namespace CSMud.Events
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            var target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Items.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             if(!target.IsConsumable)
             {
                 sender.Connection.SendMessage("You cannot drink that.");
@@ -267,7 +267,7 @@ namespace CSMud.Events
         }
 
         /* HandleExamine allows a user to examine an object or themselves
-         * 'examine self' returns a description of the user's player entity, including what they're wearing and appearance.
+         * 'examine self' returns a description of the user's player npc, including what they're wearing and appearance.
          * 'examine <item>' returns the description of the item. The item can be either in the room or in the user's inventory.
          * If the item is in neither, there is no description.       
          */
@@ -300,40 +300,40 @@ namespace CSMud.Events
             }
 
             int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
-            Thing thing = Map.Rooms[roomId].Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
-            if(thing == null)
+            Item item = Map.Rooms[roomId].Items.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual ?? sender.Inventory.Items.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
+            if(item == null)
             {
-                // If it's not a thing, try and see if the target is an entity
-                HandleEntityExamine(sender, e);
+                // If it's not a item, try and see if the target is an npc
+                HandleNPCExamine(sender, e);
                 return;
             }
-            if(!thing.Commands.Contains("examine"))
+            if(!item.Commands.Contains("examine"))
             {
                 sender.Connection.SendMessage("You cannot examine that.");
                 return;
             }
 
             sender.Connection.SendMessage($"You examine the {e}.");
-            sender.Connection.SendMessage($"{thing.Description}");
+            sender.Connection.SendMessage($"{item.Description}");
         }
 
-        void HandleEntityExamine(User sender, string e)
+        void HandleNPCExamine(User sender, string e)
         {
             int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
-            Entity entity = Map.Rooms[roomId].Entities.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual;
-            if(entity == null)
+            NPC npc = Map.Rooms[roomId].NPCs.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual;
+            if(npc == null)
             {
-                // If it's not an entity or a thing, it's not examinable.
+                // If it's not an npc or a item, it's not examinable.
                 sender.Connection.SendMessage("That does not exist here!");
                 return;
             }
-            if (!entity.Commands.Contains("examine"))
+            if (!npc.Commands.Contains("examine"))
             {
                 sender.Connection.SendMessage("You cannot examine that.");
                 return;
             }
             sender.Connection.SendMessage($"You examine the {e}.");
-            sender.Connection.SendMessage($"{entity.Description}");
+            sender.Connection.SendMessage($"{npc.Description}");
         }
 
         void HandleEquip(User sender, string e)
@@ -343,7 +343,7 @@ namespace CSMud.Events
                 sender.Connection.SendMessage("You cannot do that while defeated!");
                 return;
             }
-            var target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Items.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
             bool isWearing = false;
 
             if(!target.IsWearable)
@@ -367,9 +367,9 @@ namespace CSMud.Events
                     return;
                 }
 
-                foreach (Thing thing in sender.Player.Equipped)
+                foreach (Item item in sender.Player.Equipped)
                 {
-                    if (target.Slot == thing.Slot)
+                    if (target.Slot == item.Slot)
                     {
                         sender.Connection.SendMessage($"You are already wearing a {target.Slot} item.");
                         isWearing = true;
@@ -411,7 +411,7 @@ namespace CSMud.Events
 
         void HandleHold(User sender, string e)
        {
-            var target = sender.Inventory.Things.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
+            var target = sender.Inventory.Items.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Name, e));
 
             if (target == null)
             {
@@ -501,7 +501,7 @@ namespace CSMud.Events
                 
             if(directionGone.HasKey)
             {
-                if(CommandUtils.OwnsThing(sender, "key"))
+                if(CommandUtils.OwnsItem(sender, "key"))
                 {
                     proceed();
                     return;
@@ -523,7 +523,7 @@ namespace CSMud.Events
                 return;
             }
             int currRoom = CommandUtils.GetCurrentRoomId(sender, Map);
-            Entity target = CommandUtils.GetTarget(currRoom, e, Map);
+            NPC target = CommandUtils.GetTarget(currRoom, e, Map);
             // Make sure the target is actually attackable
             if(target == null)
             {
@@ -579,10 +579,10 @@ r: Run");
                     if(CommandUtils.FuzzyEquals(action, "h"))
                     {
                         sender.Connection.SendMessage("Consume what?");
-                        var consumables = sender.Inventory.Things.Where(t => t.IsConsumable);
-                        foreach(Thing thing in consumables)
+                        var consumables = sender.Inventory.Items.Where(t => t.IsConsumable);
+                        foreach(Item item in consumables)
                         {
-                            sender.Connection.SendMessage(thing.Name);
+                            sender.Connection.SendMessage(item.Name);
                         }
                         string choice = sender.Connection.ReadMessage();
                         HandleEat(sender, choice);
@@ -617,32 +617,32 @@ r: Run");
                     }
                 }
                 sender.Connection.SendMessage("As you were the only soul in this place, you have been sent back to the start.");
-                foreach(Thing things in sender.Inventory.Things.ToList())
+                foreach(Item items in sender.Inventory.Items.ToList())
                 {
-                    sender.Inventory.RemoveFromInventory(things);
-                    XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
-                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Things.Add(thing);
+                    sender.Inventory.RemoveFromInventory(items);
+                    XMLReference<Item> item = new XMLReference<Item> { Actual = items };
+                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Items.Add(item);
                 }
                 sender.Player.Stats.CurrHealth = sender.Player.Stats.MaxHealth;
                 sender.CurrRoomId = 0001;
                 return;
             }
-            // After this loop, the target is dead. Remove them from the entity list and add them to the dead list/faction.
+            // After this loop, the target is dead. Remove them from the npc list and add them to the dead list/faction.
             target.Faction = "dead";
-            // Upon death, an entity's inventory gets dropped to the room.
-            foreach(Thing things in target.Inventory.Things.ToList())
+            // Upon death, an npc's inventory gets dropped to the room.
+            foreach(Item items in target.Inventory.Items.ToList())
             {
-                target.Inventory.RemoveFromInventory(things);
-                XMLReference<Thing> thing = new XMLReference<Thing> { Actual = things };
-                Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Things.Add(thing);
+                target.Inventory.RemoveFromInventory(items);
+                XMLReference<Item> item = new XMLReference<Item> { Actual = items };
+                Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Items.Add(item);
             }
 
-            foreach (var i in Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Entities.ToList())
+            foreach (var i in Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].NPCs.ToList())
             {
                 if(i.Actual.Name == target.Name)
                 {
-                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Entities.Remove(i);
-                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].DeadEntities.Add(i);
+                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].NPCs.Remove(i);
+                    Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].DeadNPCs.Add(i);
                 }
             }
 
@@ -660,7 +660,7 @@ r: Run");
                 return;
             }
             int currRoom = CommandUtils.GetCurrentRoomId(sender, Map);
-            Entity target = CommandUtils.GetTarget(currRoom, e, Map);
+            NPC target = CommandUtils.GetTarget(currRoom, e, Map);
             if(target == null)
             {
                 sender.Connection.SendMessage("You babble to no one in particular for a moment.");

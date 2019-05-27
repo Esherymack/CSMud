@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Rooms>
   <Room>
-    <Things>
+    <Items>
 	    <Id>0001</Id>
-    </Things>
-    <Things>
+    </Items>
+    <Items>
 	    <Id>0002</Id>
-    </Things>
-    <Things>
+    </Items>
+    <Items>
       <Id>0001</Id>
-    </Things>
-    <Things>
+    </Items>
+    <Items>
       <Id>0006</Id>
-    </Things>
-    <Things>
+    </Items>
+    <Items>
       <Id>0007</Id>
-    </Things>
-    <Entities>
+    </Items>
+    <NPCs>
         <Id>0003</Id>
-    </Entities>
-    <Entities>
+    </NPCs>
+    <NPCs>
       <Id>0004</Id>
-    </Entities>
+    </NPCs>
     <Doors>
       <Id>0001</Id>
     </Doors>
@@ -34,18 +34,18 @@
   </Room>
 
   <Room>
-    <Things>
+    <Items>
       <Id>0003</Id>
-    </Things>
-    <Things>
+    </Items>
+    <Items>
       <Id>0004</Id>
-    </Things>
-    <Entities>
+    </Items>
+    <NPCs>
       <Id>0001</Id>
-    </Entities>
-    <Entities>
+    </NPCs>
+    <NPCs>
       <Id>0002</Id>
-    </Entities>
+    </NPCs>
     <Doors>
       <Id>0002</Id>
     </Doors>

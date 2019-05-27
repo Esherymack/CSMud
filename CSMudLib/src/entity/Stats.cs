@@ -1,7 +1,7 @@
-﻿namespace CSMud.Thingamajig
+﻿namespace CSMud.Entity
 {
-    /* The stats class houses statistics for players including health pool and damage output. */
-    public class Stats
+/* The stats class houses statistics for players including health pool and damage output. */
+public class Stats
     {
         // The player's health determines how many hit points (HP) they have.
         public int MaxHealth { get; set; }

@@ -6,19 +6,19 @@ using CSMud.Utils;
  * and a description.
  */
 
-namespace CSMud.Thingamajig
+namespace CSMud.Entity
 {
     [XmlRoot("Rooms")]
     public class Room 
     { 
         [XmlElement]
-        public List<XMLReference<Thing>> Things { get; set; }
+        public List<XMLReference<Item>> Items { get; set; }
         [XmlElement]
-        public List<XMLReference<Entity>> Entities { get; set; }
+        public List<XMLReference<NPC>> NPCs { get; set; }
         [XmlElement]
         public List<XMLReference<Door>> Doors { get; set; }
         [XmlIgnore]
-        public List<XMLReference<Entity>> DeadEntities { get; set; }
+        public List<XMLReference<NPC>> DeadNPCs { get; set; }
 
 
         [XmlElement]
@@ -30,10 +30,10 @@ namespace CSMud.Thingamajig
 
         public Room()
         {
-            Entities = new List<XMLReference<Entity>>();
+            NPCs = new List<XMLReference<NPC>>();
             Doors = new List<XMLReference<Door>>();
-            Things = new List<XMLReference<Thing>>();
-            DeadEntities = new List<XMLReference<Entity>>();
+            Items = new List<XMLReference<Item>>();
+            DeadNPCs = new List<XMLReference<NPC>>();
 
             Name = "";
             Id = 0;

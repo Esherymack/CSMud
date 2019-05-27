@@ -5,18 +5,18 @@
  * An Inventory is a collection of Things 
  */
 
-namespace CSMud.Thingamajig
+namespace CSMud.Entity
 {
     public class Inventory
     {
-        public List<Thing> Things { get; }
+        public List<Item> Items { get; }
         public int CarryCapacity { get; set; }
         public int CurrentCapacity { get; set; }
-        public bool Empty => Things.Count == 0;
+        public bool Empty => Items.Count == 0;
         
         public Inventory()
         {
-            Things = new List<Thing>();
+            Items = new List<Item>();
             CarryCapacity = 50;
             CurrentCapacity = 0;
         }
@@ -40,19 +40,19 @@ namespace CSMud.Thingamajig
             }
         }
 
-        public void AddToInventory(Thing thing)
+        public void AddToInventory(Item item)
         {              
-            Things.Add(thing);
+            Items.Add(item);
         }
 
-        public void RemoveFromInventory(Thing thing)
+        public void RemoveFromInventory(Item item)
         {
-            Things.Remove(thing);
+            Items.Remove(item);
         }
 
         public override string ToString()
         {
-            return $"{string.Join(", ", Things)}";
+            return $"{string.Join(", ", Items)}";
         }
     }
 }

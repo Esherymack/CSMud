@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Timers;
 using CSMud.Events;
-using CSMud.Thingamajig;
+using CSMud.Entity;
 using CSMud.Utils;
 
 namespace CSMud.Client
@@ -45,7 +45,7 @@ namespace CSMud.Client
             PUC = new ProcessUnparameterizedCommand(WorldMap, Users);
             PPC = new ProcessParameterizedCommand(WorldMap, Users);
 
-            foreach(Entity e in WorldMap.Entities)
+            foreach(NPC e in WorldMap.NPCs)
             {
                 e.PopulateInventory();
             }

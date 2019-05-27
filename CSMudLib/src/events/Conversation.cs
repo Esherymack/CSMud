@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CSMud.Client;
-using CSMud.Thingamajig;
+using CSMud.Entity;
 using CSMud.Utils;
 
 
@@ -12,7 +12,7 @@ namespace CSMud.Events
 {
     public class Conversation
     {
-        public Entity Subject { get; set; }
+        public NPC Subject { get; set; }
         public User Sender { get; set; }
 
         public string GreetingFlavor { get; set; }
@@ -22,7 +22,7 @@ namespace CSMud.Events
         public string QuestFlavor { get; set; }
         public string ByeFlavor { get; set; }
 
-        public Conversation(Entity subject, User sender)
+        public Conversation(NPC subject, User sender)
         {
             Subject = subject;
             Sender = sender;
@@ -37,7 +37,7 @@ namespace CSMud.Events
                 WhoFlavor = $"I'm {Subject.Name}";
                 NewsFlavor = $"I got some news just recently!";
                 TradeFlavor = $"With you? Always.";
-                QuestFlavor = $"There was something I could use your help on.";
+                QuestFlavor = $"There was someitem I could use your help on.";
                 ByeFlavor = $"See you around, {Sender.Name}!";
                 return;
             }
@@ -90,8 +90,8 @@ namespace CSMud.Events
         public void Trade()
         {
             Sender.Player.IsTrading = true;
-            List<Thing> TradeItemsTo = new List<Thing>();
-            List<Thing> TradeItemsFrom = new List<Thing>();
+            List<Item> TradeItemsTo = new List<Item>();
+            List<Item> TradeItemsFrom = new List<Item>();
             Sender.Connection.SendMessage(TradeFlavor);
             while(Sender.Player.IsTrading)
             {
@@ -107,13 +107,13 @@ q: Quit trading");
                 if (CommandUtils.FuzzyEquals(action, "ao"))
                 {
                     Sender.Connection.SendMessage("You have: ");
-                    foreach (Thing thing in Sender.Inventory.Things)
+                    foreach (Item item in Sender.Inventory.Items)
                     {
-                        Sender.Connection.SendMessage($"{thing.Name} - Value: {thing.Value}");
+                        Sender.Connection.SendMessage($"{item.Name} - Value: {item.Value}");
                     }
                     Sender.Connection.SendMessage("What would you like to trade?");
                     string tradeItem = Sender.Connection.ReadMessage();
-                    var trade = Sender.Inventory.Things.Find(t => CommandUtils.FuzzyEquals(t.Name, tradeItem));
+                    var trade = Sender.Inventory.Items.Find(t => CommandUtils.FuzzyEquals(t.Name, tradeItem));
                     if(trade == null)
                     {
                         Sender.Connection.SendMessage($"You do not have a {trade.Name} to offer.");
@@ -127,13 +127,13 @@ q: Quit trading");
                 if (CommandUtils.FuzzyEquals(action, "at"))
                 {
                     Sender.Connection.SendMessage($"{Subject.Name} has: ");
-                    foreach (Thing thing in Subject.Inventory.Things)
+                    foreach (Item item in Subject.Inventory.Items)
                     {
-                        Sender.Connection.SendMessage($"{thing.Name} - Value: {thing.Value}");
+                        Sender.Connection.SendMessage($"{item.Name} - Value: {item.Value}");
                     }
                     Sender.Connection.SendMessage("What would you like to request?");
                     string tradeItem = Sender.Connection.ReadMessage();
-                    var trade = Subject.Inventory.Things.Find(t => CommandUtils.FuzzyEquals(t.Name, tradeItem));
+                    var trade = Subject.Inventory.Items.Find(t => CommandUtils.FuzzyEquals(t.Name, tradeItem));
                     if (trade == null)
                     {
                         Sender.Connection.SendMessage($"{Subject.Name} does not have a {trade.Name}.");
@@ -147,9 +147,9 @@ q: Quit trading");
                 if (CommandUtils.FuzzyEquals(action, "ro"))
                 {
                     Sender.Connection.SendMessage("You offered: ");
-                    foreach (Thing thing in TradeItemsTo)
+                    foreach (Item item in TradeItemsTo)
                     {
-                        Sender.Connection.SendMessage($"{thing.Name} - Value: {thing.Value}");
+                        Sender.Connection.SendMessage($"{item.Name} - Value: {item.Value}");
                     }
                     Sender.Connection.SendMessage("What would you like to remove from the offers?");
                     string removeItem = Sender.Connection.ReadMessage();
@@ -167,9 +167,9 @@ q: Quit trading");
                 if (CommandUtils.FuzzyEquals(action, "rt"))
                 {
                     Sender.Connection.SendMessage("You requested: ");
-                    foreach (Thing thing in TradeItemsFrom)
+                    foreach (Item item in TradeItemsFrom)
                     {
-                        Sender.Connection.SendMessage($"{thing.Name} - Value: {thing.Value}");
+                        Sender.Connection.SendMessage($"{item.Name} - Value: {item.Value}");
                     }
                     Sender.Connection.SendMessage($"What would you like to return to {Subject.Name}?");
                     string removeItem = Sender.Connection.ReadMessage();
@@ -187,13 +187,13 @@ q: Quit trading");
                 if (CommandUtils.FuzzyEquals(action, "v"))
                 {
                     Sender.Connection.SendMessage("Current trade pools:");
-                    foreach(Thing thing in TradeItemsTo)
+                    foreach(Item item in TradeItemsTo)
                     {
-                        Sender.Connection.SendMessage($"Giving {thing.Name} to {Subject.Name} (Value: {thing.Value})");
+                        Sender.Connection.SendMessage($"Giving {item.Name} to {Subject.Name} (Value: {item.Value})");
                     }
-                    foreach(Thing thing in TradeItemsFrom)
+                    foreach(Item item in TradeItemsFrom)
                     {
-                        Sender.Connection.SendMessage($"Getting {thing.Name} from {Subject.Name} (Value: {thing.Value})");
+                        Sender.Connection.SendMessage($"Getting {item.Name} from {Subject.Name} (Value: {item.Value})");
                     }
                     int TradeToValue = TradeItemsTo.Sum(t => t.Value);
                     int TradeFromValue = TradeItemsFrom.Sum(t => t.Value);
@@ -206,15 +206,15 @@ q: Quit trading");
                     {
                         if(TradeItemsFrom.Sum(t => t.Weight) <= Sender.Inventory.CurrentCapacity)
                         {
-                            foreach (Thing thing in TradeItemsFrom)
+                            foreach(Item item in TradeItemsFrom)
                             {
-                                Sender.Inventory.setCurrentRaisedCapacity(thing.Weight);
-                                Sender.Inventory.AddToInventory(thing);
+                                Sender.Inventory.setCurrentRaisedCapacity(item.Weight);
+                                Sender.Inventory.AddToInventory(item);
                             }
-                            foreach (Thing thing in TradeItemsTo)
+                            foreach (Item item in TradeItemsTo)
                             {
-                                Sender.Inventory.setCurrentLoweredCapacity(thing.Weight);
-                                Subject.Inventory.AddToInventory(thing);
+                                Sender.Inventory.setCurrentLoweredCapacity(item.Weight);
+                                Subject.Inventory.AddToInventory(item);
                             }
                             Sender.Connection.SendMessage("Trade succesful.");
                             TradeItemsFrom.Clear();
@@ -230,14 +230,14 @@ q: Quit trading");
                 }
                 if (CommandUtils.FuzzyEquals(action, "q"))
                 {
-                    foreach(Thing thing in TradeItemsTo)
+                    foreach(Item item in TradeItemsTo)
                     {
-                        Sender.Inventory.AddToInventory(thing);
+                        Sender.Inventory.AddToInventory(item);
                     }
                     
-                    foreach(Thing thing in TradeItemsFrom)
+                    foreach(Item item in TradeItemsFrom)
                     {
-                        Subject.Inventory.AddToInventory(thing);
+                        Subject.Inventory.AddToInventory(item);
                     }
                     Sender.Connection.SendMessage("Trade cancelled.");
                     TradeItemsFrom.Clear();

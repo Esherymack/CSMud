@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using CSMud.Client;
-using CSMud.Thingamajig;
+using CSMud.Entity;
 
 namespace CSMud.Utils
 {
@@ -14,14 +14,14 @@ namespace CSMud.Utils
             return WorldMap.Rooms.FindIndex(a => a.Id == sender.CurrRoomId);
         }
         // Utility func for HandleWhoEvent, returns whether or not a room has NPC entities.
-        public static bool HasEntities(User sender, MapBuild WorldMap)
+        public static bool HasNPCs(User sender, MapBuild WorldMap)
         {
-            return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].Entities.Count != 0;
+            return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].NPCs.Count != 0;
         }
-        // Utility func for finding if a room has Things
-        public static bool HasThings(User sender, MapBuild WorldMap)
+        // Utility func for finding if a room has Items
+        public static bool HasItems(User sender, MapBuild WorldMap)
         {
-            return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].Things.Count != 0;
+            return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].Items.Count != 0;
         }
         // Utility func for finding if a room has Doors
         public static bool HasDoors(User sender, MapBuild WorldMap)
@@ -53,9 +53,9 @@ namespace CSMud.Utils
             }
         }
         // Same as GetRecipient, but for NPCs. Used in combat, trades, conversation.
-        public static Entity GetTarget(int room, string a, MapBuild WorldMap)
+        public static NPC GetTarget(int room, string a, MapBuild WorldMap)
         {
-            foreach (var i in WorldMap.Rooms[room].Entities)
+            foreach (var i in WorldMap.Rooms[room].NPCs)
             {
                 if (FuzzyEquals(i.Actual.Name, a))
                 {
@@ -65,7 +65,7 @@ namespace CSMud.Utils
             return null;
         }
         // Helps change user stats based on item modifiers
-        public static void ChangeStats(Thing target, User sender)
+        public static void ChangeStats(Item target, User sender)
         {
             foreach (KeyValuePair<string, int> entry in target.StatIncrease)
             {
@@ -94,7 +94,7 @@ namespace CSMud.Utils
             }
         }
         // The inverse of ChangeStats, for removing equipped items & handling timeouts on potions.
-        public static void RemoveItemChangeStats(Thing target, User sender)
+        public static void RemoveItemChangeStats(Item target, User sender)
         {
             foreach (KeyValuePair<string, int> entry in target.StatIncrease)
             {
@@ -116,10 +116,10 @@ namespace CSMud.Utils
                 sender.Connection.SendMessage($"Current {entry.Key} rating: {increase}");
             }
         }
-        // Check if player has a Thing in their inventory
-        public static bool OwnsThing(User sender, string item)
+        // Check if player has a Item in their inventory
+        public static bool OwnsItem(User sender, string item)
         {
-            foreach(Thing thing in sender.Inventory.Things)
+            foreach(Item thing in sender.Inventory.Items)
             {
                 if(FuzzyEquals(thing.Name, item))
                 {

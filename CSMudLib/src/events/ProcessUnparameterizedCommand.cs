@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CSMud.Client;
-using CSMud.Thingamajig;
+using CSMud.Entity;
 using CSMud.Utils;
 
 namespace CSMud.Events
@@ -50,17 +50,17 @@ namespace CSMud.Events
             User s = sender as User;
             int index = CommandUtils.GetCurrentRoomId(s, Map);
             s.Connection.SendMessage($"You look around:\n{Map.Rooms[index].Description}");
-            if (CommandUtils.HasThings(s, Map))
+            if (CommandUtils.HasItems(s, Map))
             {
-                s.Connection.SendMessage($"You see some interesting things: {string.Join(", ", Map.Rooms[index].Things.Select(t => t.Actual))}.");
+                s.Connection.SendMessage($"You see some interesting things: {string.Join(", ", Map.Rooms[index].Items.Select(t => t.Actual))}.");
             }
             if (CommandUtils.HasDoors(s, Map))
             {
                 s.Connection.SendMessage($"You see doors to: {string.Join(", ", Map.Rooms[index].Doors.Select(t => t.Actual))}.");
             }
-            if (Map.Rooms[index].DeadEntities.ToList().Count > 0)
+            if (Map.Rooms[index].DeadNPCs.ToList().Count > 0)
             {
-                s.Connection.SendMessage($"There are some dead bodies here: {string.Join(", ", Map.Rooms[index].DeadEntities.Select(t => t.Actual.Name))}");
+                s.Connection.SendMessage($"There are some dead bodies here: {string.Join(", ", Map.Rooms[index].DeadNPCs.Select(t => t.Actual.Name))}");
             }
         }
 
@@ -95,13 +95,13 @@ namespace CSMud.Events
             {
                 s.Connection.SendMessage("You have no allies nearby.");
             }
-            if (CommandUtils.HasEntities(s, Map))
+            if (CommandUtils.HasNPCs(s, Map))
             {
-                List<Entity> friendlies = new List<Entity>();
-                List<Entity> meanies = new List<Entity>();
-                List<Entity> sneakies = new List<Entity>();
-                List<Entity> detectedSneakies = new List<Entity>();
-                foreach (var i in Map.Rooms[CommandUtils.GetCurrentRoomId(s, Map)].Entities)
+                List<NPC> friendlies = new List<NPC>();
+                List<NPC> meanies = new List<NPC>();
+                List<NPC> sneakies = new List<NPC>();
+                List<NPC> detectedSneakies = new List<NPC>();
+                foreach (var i in Map.Rooms[CommandUtils.GetCurrentRoomId(s, Map)].NPCs)
                 {
                     // each i is a reference to an entity
                     if (CommandUtils.FuzzyEquals(i.Actual.Faction, "enemy"))
@@ -131,7 +131,7 @@ namespace CSMud.Events
                 if (sneakies.Count > 0)
                 {
                     // sender.Player.Stats.Dexterity >= directionGone.Actual.minDexterity
-                    foreach(Entity entity in sneakies)
+                    foreach(NPC entity in sneakies)
                     {
                         if (s.Player.Stats.Perception >= entity.minPerception)
                         {

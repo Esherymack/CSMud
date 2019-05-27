@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CSMud.Client;
-using CSMud.Thingamajig;
+using CSMud.Entity;
 using CSMud.Utils;
 
 /* Combat class for CSMud
@@ -15,7 +15,7 @@ namespace CSMud.Events
         // The list of users currently in the combat session.
         public List<User> Combatants { get; set; }
         // The enemy of the fight
-        public Entity Target { get; set; }
+        public NPC Target { get; set; }
 
         // The enemy's next strike
         public int Strike { get; set; }
@@ -32,7 +32,7 @@ namespace CSMud.Events
         public string BlockFlavor { get; set; }
         public string LowHealthFlavor { get; set; }
 
-        public Combat(Entity target)
+        public Combat(NPC target)
         {
             Combatants = new List<User>();
             Target = target;
@@ -177,26 +177,26 @@ namespace CSMud.Events
             */
             if(current.Player.Held.Count != 0)
             {
-                foreach (Thing thing in current.Player.Held)
+                foreach (Item item in current.Player.Held)
                 {
-                    if(thing.IsWeapon)
+                    if(item.IsWeapon)
                     {
-                        if(CommandUtils.FuzzyEquals(thing.WeaponType, "slow"))
+                        if(CommandUtils.FuzzyEquals(item.WeaponType, "slow"))
                         {
                             damage = damage + (current.Player.Stats.Strength / 2);
                             current.Connection.SendMessage($"Bonus: Slow Weapon - {damage} damage!");
                         }
-                        if(CommandUtils.FuzzyEquals(thing.WeaponType, "fast"))
+                        if(CommandUtils.FuzzyEquals(item.WeaponType, "fast"))
                         {
                             damage = damage + (current.Player.Stats.Dexterity / 2);
                             current.Connection.SendMessage($"Bonus: Fast Weapon - {damage} damage!");
                         }
-                        if(CommandUtils.FuzzyEquals(thing.WeaponType, "spell"))
+                        if(CommandUtils.FuzzyEquals(item.WeaponType, "spell"))
                         {
                             damage = damage + (current.Player.Stats.Knowledge / 2);
                             current.Connection.SendMessage($"Bonus: Magic - {damage} damage!");
                         }
-                        if(CommandUtils.FuzzyEquals(thing.WeaponType, "ranged"))
+                        if(CommandUtils.FuzzyEquals(item.WeaponType, "ranged"))
                         {
                             damage = damage + (current.Player.Stats.Dexterity / 2) + (current.Player.Stats.Agility / 2);
                             current.Connection.SendMessage($"Bonus: Ranged - {damage} damage!");

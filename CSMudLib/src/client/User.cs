@@ -1,5 +1,5 @@
 ﻿using System;
-using CSMud.Thingamajig;
+using CSMud.Entity;
 using CSMud.Utils;
 
 namespace CSMud.Client

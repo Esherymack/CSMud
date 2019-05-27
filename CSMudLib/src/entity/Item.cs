@@ -5,10 +5,10 @@ using CSMud.Utils;
 /* A 'Thing' object is a collection of commands, an Id, a Name, and a Description
  */
 
-namespace CSMud.Thingamajig
+namespace CSMud.Entity
 {
-    [XmlRoot("Things")]
-    public class Thing : Identifiable
+    [XmlRoot("Items")]
+    public class Item : Identifiable
     {
         [XmlElement]
         public List<string> Commands { get; set; }
@@ -46,7 +46,7 @@ namespace CSMud.Thingamajig
         [XmlElement]
         public string WeaponType { get; set; }
 
-        public Thing()
+        public Item()
         {
             Commands = new List<string>();
             Id = 0;
