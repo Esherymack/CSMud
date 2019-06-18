@@ -4,7 +4,6 @@ using CSMud.Events;
 using CSMud.Utils;
 
 /* NPC class for CSMud
- * An NPC is a special case of a User
  * NPCs can be friendly or enemies
  * NPCs have specific sets of commands, unique ID Numbers, a name, and a description.
  */

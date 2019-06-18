@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CSMud.Client;
 using CSMud.Entity;
@@ -61,6 +60,9 @@ namespace CSMud.Events
                     break;
                 case "attack":
                     HandleAttack(s, action);
+                    break;
+                case "loot":
+                    HandleLoot(s, action);
                     break;
                 case "talk":
                     HandleTalkTo(s, action);
@@ -629,13 +631,14 @@ r: Run");
             }
             // After this loop, the target is dead. Remove them from the npc list and add them to the dead list/faction.
             target.Faction = "dead";
+
             // Upon death, an npc's inventory gets dropped to the room.
-            foreach(Item items in target.Inventory.Items.ToList())
+            /* foreach(Item items in target.Inventory.Items.ToList())
             {
                 target.Inventory.RemoveFromInventory(items);
                 XMLReference<Item> item = new XMLReference<Item> { Actual = items };
                 Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].Items.Add(item);
-            }
+            } */
 
             foreach (var i in Map.Rooms[CommandUtils.GetCurrentRoomId(sender, Map)].NPCs.ToList())
             {
@@ -649,6 +652,11 @@ r: Run");
             sender.Connection.SendMessage("Send 'q' to exit combat.");
             sender.Player.Combat = null;
             target.Combat = null;
+        }
+
+        void HandleLoot(User sender, string e)
+        {
+
         }
 
         // Talk to an NPC
