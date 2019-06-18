@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSMud
+namespace CSMud.Utils
 {
     /* A series of dice for rolling in game events. */
     public static class Dice

@@ -1,18 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CSMud.Client;
+using CSMud.Entity;
+using CSMud.Utils;
 
 /* Combat class for CSMud
  * Combat is initiated by interacting with enemies through 'attack' or 'talk' commands.
  */
 
-namespace CSMud
+namespace CSMud.Events
 {
     public class Combat
     {
         // The list of users currently in the combat session.
         public List<User> Combatants { get; set; }
         // The enemy of the fight
-        public Entity Target { get; set; }
+        public NPC Target { get; set; }
 
         // The enemy's next strike
         public int Strike { get; set; }
@@ -29,7 +32,7 @@ namespace CSMud
         public string BlockFlavor { get; set; }
         public string LowHealthFlavor { get; set; }
 
-        public Combat(Entity target)
+        public Combat(NPC target)
         {
             Combatants = new List<User>();
             Target = target;
@@ -40,7 +43,7 @@ namespace CSMud
 
         public void GetFlavorText()
         {
-            if (World.FuzzyEquals(Target.AttackSpeed, "fast"))
+            if (CommandUtils.FuzzyEquals(Target.AttackSpeed, "fast"))
             {
                 AttackSuccessFlavor = $"The {Target.Name} attacks quickly!";
                 AttackFailFlavor = $"The {Target.Name} tries to strike fast, but misses!";
@@ -50,7 +53,7 @@ namespace CSMud
                 LowHealthFlavor = $"The {Target.Name} looks weak!";
                 return;
             }
-            if (World.FuzzyEquals(Target.AttackSpeed, "slow"))
+            if (CommandUtils.FuzzyEquals(Target.AttackSpeed, "slow"))
             {
                 AttackSuccessFlavor = $"The {Target.Name} attacks slowly!";
                 AttackFailFlavor = $"The {Target.Name} tries to strike, but is too slow!";
@@ -60,7 +63,7 @@ namespace CSMud
                 LowHealthFlavor = $"The {Target.Name} looks like it might pass out!";
                 return;
             }
-            if (World.FuzzyEquals(Target.AttackSpeed, "mid"))
+            if (CommandUtils.FuzzyEquals(Target.AttackSpeed, "mid"))
             {
                 AttackSuccessFlavor = $"The {Target.Name} attacks!";
                 AttackFailFlavor = $"The {Target.Name} tries to strike, but misses!";
@@ -174,26 +177,26 @@ namespace CSMud
             */
             if(current.Player.Held.Count != 0)
             {
-                foreach (Thing thing in current.Player.Held)
+                foreach (Item item in current.Player.Held)
                 {
-                    if(thing.IsWeapon)
+                    if(item.IsWeapon)
                     {
-                        if(World.FuzzyEquals(thing.WeaponType, "slow"))
+                        if(CommandUtils.FuzzyEquals(item.WeaponType, "slow"))
                         {
                             damage = damage + (current.Player.Stats.Strength / 2);
                             current.Connection.SendMessage($"Bonus: Slow Weapon - {damage} damage!");
                         }
-                        if(World.FuzzyEquals(thing.WeaponType, "fast"))
+                        if(CommandUtils.FuzzyEquals(item.WeaponType, "fast"))
                         {
                             damage = damage + (current.Player.Stats.Dexterity / 2);
                             current.Connection.SendMessage($"Bonus: Fast Weapon - {damage} damage!");
                         }
-                        if(World.FuzzyEquals(thing.WeaponType, "spell"))
+                        if(CommandUtils.FuzzyEquals(item.WeaponType, "spell"))
                         {
                             damage = damage + (current.Player.Stats.Knowledge / 2);
                             current.Connection.SendMessage($"Bonus: Magic - {damage} damage!");
                         }
-                        if(World.FuzzyEquals(thing.WeaponType, "ranged"))
+                        if(CommandUtils.FuzzyEquals(item.WeaponType, "ranged"))
                         {
                             damage = damage + (current.Player.Stats.Dexterity / 2) + (current.Player.Stats.Agility / 2);
                             current.Connection.SendMessage($"Bonus: Ranged - {damage} damage!");

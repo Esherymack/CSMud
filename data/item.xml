@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Things>
-  <Thing>
+<Items>
+  <Item>
     <Name>Apple</Name>
     <Description>It's an apple. It's red. You eat it.</Description>
     <Id>0001</Id>
@@ -19,8 +19,8 @@
     <ConsumableType>food</ConsumableType>
     <Weight>1</Weight>
     <Value>1</Value>
-  </Thing>
-  <Thing>
+  </Item>
+  <Item>
     <Name>Quesombrero</Name>
     <Description>A hat made of cheese. You can eat it or wear it.</Description>
     <Id>0002</Id>
@@ -46,8 +46,8 @@
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
     <Value>300</Value>
-  </Thing>
-  <Thing>
+  </Item>
+  <Item>
     <Name>Sword</Name>
     <Description>A sword. It's a little rusty from sitting on the floor for who-knows-how-long.</Description>
     <Id>0003</Id>
@@ -64,8 +64,8 @@
     <Weight>2</Weight>
     <Value>20</Value>
     <WeaponType>slow</WeaponType>
-  </Thing>
-  <Thing>
+  </Item>
+  <Item>
     <Name>White T-Shirt</Name>
     <Description>A plain white t-shirt, luckily exactly your size.</Description>
     <Id>0004</Id>
@@ -84,8 +84,8 @@
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
     <Value>20</Value>
-  </Thing>
-  <Thing>
+  </Item>
+  <Item>
     <Name>Gold Coin</Name>
     <Description>A solid gold coin.</Description>
     <Id>0005</Id>
@@ -97,8 +97,8 @@
     <IsWeapon>false</IsWeapon>
     <Weight>0</Weight>
     <Value>1</Value>
-  </Thing>
-  <Thing>
+  </Item>
+  <Item>
     <Name>Gaudy Hat</Name>
     <Description>The most hideous hat you've ever seen.</Description>
     <Id>0006</Id>
@@ -117,8 +117,8 @@
     <IsWeapon>false</IsWeapon>
     <Weight>1</Weight>
     <Value>4000</Value>
-  </Thing>
-  <Thing>
+  </Item>
+  <Item>
     <Name>Bottled Water</Name>
     <Description>A plastic bottle of stale water. Who knows how long it's been here.</Description>
     <Id>0007</Id>
@@ -137,5 +137,5 @@
     <ConsumableType>drink</ConsumableType>
     <Weight>1</Weight>
     <Value>1</Value>
-  </Thing>
-</Things>
+  </Item>
+</Items>

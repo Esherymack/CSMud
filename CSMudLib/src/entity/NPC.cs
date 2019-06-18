@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using CSMud.Events;
+using CSMud.Utils;
 
-/* Entity class for CSMud
- * An entity is any NPC
- * Entities can be friendly or enemies
- * Entities have specific sets of commands, unique ID Numbers, a name, and a description.
+/* NPC class for CSMud
+ * NPCs can be friendly or enemies
+ * NPCs have specific sets of commands, unique ID Numbers, a name, and a description.
  */
 
-namespace CSMud
+namespace CSMud.Entity
 {
-    [XmlRoot("Entities")]
-    public class Entity : Identifiable
+    [XmlRoot("NPCs")]
+    public class NPC : Identifiable
     {
         // Valid commands for a given entity
         [XmlElement]
@@ -53,7 +54,7 @@ namespace CSMud
 
         // The entity's inventory
         [XmlElement]
-        public List<XMLReference<Thing>> Things { get; set; }
+        public List<XMLReference<Item>> Items { get; set; }
         [XmlIgnore]
         public Inventory Inventory { get; set; }
 
@@ -69,7 +70,7 @@ namespace CSMud
         [XmlElement]
         public bool HasQuest { get; set; }
 
-        public Entity()
+        public NPC()
         {
             Commands = new List<string>();
             Id = 0;
@@ -85,7 +86,7 @@ namespace CSMud
             MinDefend = 0;
             CritChance = 0;
             AttackSpeed = "";
-            Things = new List<XMLReference<Thing>>();
+            Items = new List<XMLReference<Item>>();
             Inventory = new Inventory();
             InCombat = false;
             IsDead = false;
@@ -94,7 +95,7 @@ namespace CSMud
 
         public void PopulateInventory()
         {
-            foreach (var i in Things)
+            foreach (var i in Items)
             {
                 Inventory.AddToInventory(i.Actual);
             }

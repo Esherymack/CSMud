@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
+using CSMud.Events;
+using CSMud.Entity;
 
-namespace CSMud
+namespace CSMud.Client
 {
-    /* The Player object houses the current User's statistics and currently equipped and held Things */
+    /* The Player object houses the current User's statistics and currently equipped and held Items */
     public class Player
     {
-        public List<Thing> Equipped { get; }
-        public List<Thing> Held { get; }
+        public List<Item> Equipped { get; }
+        public List<Item> Held { get; }
         public Stats Stats { get; set; }
 
         public Combat Combat { get; set; }
@@ -21,8 +23,8 @@ namespace CSMud
 
         public Player(string name)
         {
-            Equipped = new List<Thing>();
-            Held = new List<Thing>();
+            Equipped = new List<Item>();
+            Held = new List<Item>();
             IsBlocking = false;
             IsDead = false;
             IsTrading = false;
@@ -46,25 +48,25 @@ namespace CSMud
         }
 
         // Equip a wearable item
-        public void Equip(Thing thing)
+        public void Equip(Item thing)
         {
             Equipped.Add(thing);
         }
 
         // Unequip a worn item
-        public void Unequip(Thing thing)
+        public void Unequip(Item thing)
         {
             Equipped.Remove(thing);
         }
 
         // Hold an item in your hand
-        public void Hold(Thing thing)
+        public void Hold(Item thing)
         {
             Held.Add(thing);
         }
 
         // Drop a held item.
-        public void Drop(Thing thing)
+        public void Drop(Item thing)
         {
             Held.Remove(thing);
         }

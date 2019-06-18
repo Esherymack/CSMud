@@ -1,11 +1,12 @@
-﻿/* CSMud - Rev 1
+﻿/* CSMud - Rev 2
  * Author: Madison Tibbett
- * Last Modified: 02/22/2019
+ * Last Modified: 05/14/2019
  */
 
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using CSMud.Client;
 
 namespace CSMud
 {
@@ -47,19 +48,19 @@ namespace CSMud
         public Server()
         {
             // Create a new world on the server
-            this.World = new World();
+            World = new World();
             /* 
             * Instantiate Socket object 'server'
             * 'AddressFamily.InterNetwork' refers to the AddressFamily enum - specifically addresses for IPv4
             * 'SocketType.Stream' refers to the SocketType enum - Stream supports two-way conn-based byte streams without duplication of data
             * 'ProtocolType.Tcp' refers to the ProtocolType enum - Tcp is a TCP server
             */
-            this.ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             /*
             * Socket.Bind method takes a local endpoint
             * IPEndPoint class represents a network endpoint as an IP address and port number
             */
-            this.ListenSocket.Bind(new IPEndPoint(IPAddress.Any, port));
+            ListenSocket.Bind(new IPEndPoint(IPAddress.Any, port));
         }
 
         // Start starts the server. 
@@ -85,7 +86,7 @@ namespace CSMud
         {
             Socket clientSock = (ar.AsyncState as Socket).EndAccept(ar);
             connectionEvent.Set();
-            this.World.NewConnection(clientSock);
+            World.NewConnection(clientSock);
         }
 
         // main just starts a new server 

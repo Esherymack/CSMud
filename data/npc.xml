@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Entities>
-  <Entity>
+<NPCs>
+  <NPC>
     <Name>Jane Doe</Name>
     <Id>0001</Id>
-    <Description>Jane Doe is a friendly entity.</Description>
+    <Description>Jane Doe is a friendly NPC.</Description>
     <Commands>examine</Commands>
     <Commands>talk to</Commands>
     <Commands>listen to</Commands>
@@ -13,14 +13,14 @@
     <Faction>ally</Faction>
     <IsHidden>false</IsHidden>
     <minPerception>0</minPerception>
-    <Things>
+    <Items>
       <Id>0001</Id>
-    </Things>
-    <Things>
+    </Items>
+    <Items>
       <Id>0003</Id>
-    </Things>
-  </Entity>
-  <Entity>
+    </Items>
+  </NPC>
+  <NPC>
     <Name>Ork</Name>
     <Id>0002</Id>
     <Description>An angry green fungus. He's not very friendly.</Description>
@@ -37,11 +37,11 @@
     <MinDefend>15</MinDefend>
     <AttackSpeed>slow</AttackSpeed>
     <CritChance>30</CritChance>
-    <Things>
+    <Items>
       <Id>0005</Id>
-    </Things>
-  </Entity>
-  <Entity>
+    </Items>
+  </NPC>
+  <NPC>
     <Name>Purple Ork</Name>
     <Id>0003</Id>
     <Description>An angry green fungus, this time wearing purple, to be sneaky.</Description>
@@ -58,11 +58,11 @@
     <MinDefend>10</MinDefend>
     <AttackSpeed>fast</AttackSpeed>
     <CritChance>10</CritChance>
-    <Things>
+    <Items>
       <Id>0005</Id>
-    </Things>
-  </Entity>
-  <Entity>
+    </Items>
+  </NPC>
+  <NPC>
     <Name>Rat</Name>
     <Id>0004</Id>
     <Description>A large, grey rat. It's missing an eye.</Description>
@@ -79,8 +79,8 @@
     <MinDefend>1</MinDefend>
     <CritChance>20</CritChance>
     <AttackSpeed>mid</AttackSpeed>
-    <Things>
+    <Items>
       <Id>0001</Id>
-    </Things>
-  </Entity>
-</Entities>
+    </Items>
+  </NPC>
+</NPCs>

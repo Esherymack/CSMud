@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using CSMud.Utils;
 
 /* A 'Thing' object is a collection of commands, an Id, a Name, and a Description
  */
 
-namespace CSMud
+namespace CSMud.Entity
 {
-    [XmlRoot("Things")]
-    public class Thing : Identifiable
+    [XmlRoot("Items")]
+    public class Item : Identifiable
     {
         [XmlElement]
         public List<string> Commands { get; set; }
@@ -45,7 +46,7 @@ namespace CSMud
         [XmlElement]
         public string WeaponType { get; set; }
 
-        public Thing()
+        public Item()
         {
             Commands = new List<string>();
             Id = 0;

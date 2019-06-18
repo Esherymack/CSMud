@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace CSMud
+namespace CSMud.Utils
 {
     public class StatValue
     {

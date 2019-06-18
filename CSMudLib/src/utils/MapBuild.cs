@@ -3,22 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
+using CSMud.Entity;
 
-/* MapBuild generates the list of Thing objects, the list of Entity objects,
- * and the list of Room objects that implement those Thing and Entitiy objects,
+/* MapBuild generates the list of Item objects, the list of NPC objects,
+ * and the list of Room objects that implement those Item and Entitiy objects,
  * effectively building the interactable map.
  */
 
-namespace CSMud
+namespace CSMud.Utils
 {
     public class MapBuild
     {
-        public List<Thing> Things { get; set; }
-        public List<Entity> Entities { get; set; }
-        public List<Entity> DeadEntities { get; set; }
+        public List<Item> Items { get; set; }
+        public List<NPC> NPCs { get; set; }
+        public List<NPC> DeadNPCs { get; set; }
         public List<Door> Doors { get; set; }  
         public List<Room> Rooms { get; set; }
-        public Dictionary<int, Thing> AllThings { get; set; }
+        public Dictionary<int, Item> AllItems { get; set; }
 
         public MapBuild()
         {
@@ -28,8 +29,8 @@ namespace CSMud
         public void GenerateMap()
         {
             Console.WriteLine("Generating map...");
-            Things = CreateThing();
-            Entities = CreateEntity();
+            Items = CreateItem();
+            NPCs = CreateNPC();
             Doors = CreateDoor();
             CreateRoom();
             Console.WriteLine("Map generated!");
@@ -37,31 +38,31 @@ namespace CSMud
 
         /* The process with all of these functions is basically the same.
          */
-        public List<Thing> CreateThing()
+        public List<Item> CreateItem()
         {
             // Define a new serializer object
-            XmlSerializer serializer = new XmlSerializer(typeof(List<Thing>), new XmlRootAttribute("Things"));
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Item>), new XmlRootAttribute("Items"));
             // Read the data
-            using (XmlReader reader = XmlReader.Create(@"..\..\data\thing.xml"))
+            using (XmlReader reader = XmlReader.Create(@"..\..\data\item.xml"))
             {
                 // Set the list
-                Things = (List<Thing>)serializer.Deserialize(reader);
-                foreach(Thing things in Things)
+                Items = (List<Item>)serializer.Deserialize(reader);
+                foreach(Item items in Items)
                 {
-                    things.StatIncrease = things.StatIncreaseList.ToDictionary(t => t.Stat, t => t.Value);
+                    items.StatIncrease = items.StatIncreaseList.ToDictionary(t => t.Stat, t => t.Value);
                 }
-                return Things;
+                return Items;
             }
         }
 
-        public List<Entity> CreateEntity()
+        public List<NPC> CreateNPC()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(List<Entity>), new XmlRootAttribute("Entities"));
-            using (XmlReader reader = XmlReader.Create(@"..\..\data\entity.xml"))
+            XmlSerializer serializer = new XmlSerializer(typeof(List<NPC>), new XmlRootAttribute("NPCs"));
+            using (XmlReader reader = XmlReader.Create(@"..\..\data\npc.xml"))
             {
-                Entities = (List<Entity>)serializer.Deserialize(reader);
-                Entities.ForEach(i => XMLReference<Thing>.Link(i.Things, Things));
-                return Entities;
+                NPCs = (List<NPC>)serializer.Deserialize(reader);
+                NPCs.ForEach(i => XMLReference<Item>.Link(i.Items, Items));
+                return NPCs;
             }
         }
 
@@ -87,22 +88,22 @@ namespace CSMud
             using (XmlReader reader = XmlReader.Create(@"..\..\data\room.xml"))
             {
                 Rooms = (List<Room>)serializer.Deserialize(reader);
-                // Rooms are generated with specific Thing and Entity ID's
+                // Rooms are generated with specific Item and NPC ID's
                 // We can parse through them with XMLReference lists.
-                Rooms.ForEach(i => XMLReference<Thing>.Link(i.Things, Things));
-                Rooms.ForEach(i => XMLReference<Entity>.Link(i.Entities, Entities));
+                Rooms.ForEach(i => XMLReference<Item>.Link(i.Items, Items));
+                Rooms.ForEach(i => XMLReference<NPC>.Link(i.NPCs, NPCs));
                 Rooms.ForEach(i => XMLReference<Door>.Link(i.Doors, Doors));
                 // Printing is just for testing purposes, presently
                 // Rooms.ForEach(r => PrintRoomDescription(r));
             }
         }
 
-        /* Just for testing purposes - prints various Thing pools so that I can determine what's where */
+        /* Just for testing purposes - prints various Item pools so that I can determine what's where */
         public static void PrintRoomDescription(Room room)
         {
             // Console.WriteLine($"{room.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{room.Name}\t{room.Description}\t{room.Id}");
-            var roomthings = room.Things.Select(t => t.Actual);
-            var roomentities = room.Entities.Select(t => t.Actual);
+            var roomthings = room.Items.Select(t => t.Actual);
+            var roomentities = room.NPCs.Select(t => t.Actual);
             // Console.WriteLine(string.Join("", roomthings));
             // Console.WriteLine(string.Join("", roomentities));
         }
