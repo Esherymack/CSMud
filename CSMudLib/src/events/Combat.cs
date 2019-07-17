@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CSMud.Client;
 using CSMud.Entity;
@@ -12,6 +13,13 @@ namespace CSMud.Events
 {
     public class Combat
     {
+        // A utility function for rolling dice
+        public static int Roll(int max)
+        {
+            Random rand = new Random();
+            return rand.Next(max + 1);
+        }
+
         // The list of users currently in the combat session.
         public List<User> Combatants { get; set; }
         // The enemy of the fight
@@ -101,13 +109,13 @@ namespace CSMud.Events
                 return;
             }
             // Roll to see if the monster lands a hit
-            int hit = Dice.RollHundred();
+            int hit = Roll(100);
             int attack = Strike;
             if (hit >= AttackTarget.Player.Stats.Agility)
             {
                 // Check if the attack is a critical
-                int crit = Dice.RollHundred();
-                if(crit >= AttackTarget.Player.Stats.CritAvoid)
+                int crit = Roll(100);
+                if (crit >= AttackTarget.Player.Stats.CritAvoid)
                 {
                     AttackTarget.Connection.SendMessage(AttackCriticalFlavor);
                     attack = attack + (Strike / 2);
@@ -115,8 +123,8 @@ namespace CSMud.Events
                 if(crit < AttackTarget.Player.Stats.CritAvoid)
                 {
                     // If it's not critical, check if it's weak
-                    int weak = Dice.RollHundred();
-                    if(weak <= AttackTarget.Player.Stats.Luck)
+                    int weak = Roll(100);
+                    if (weak <= AttackTarget.Player.Stats.Luck)
                     {
                         AttackTarget.Connection.SendMessage(AttackWeakFlavor);
                         attack = attack - (Strike / 2);
@@ -145,7 +153,7 @@ namespace CSMud.Events
         public void Attack(User current)
         {
             // first roll:
-            int hit = Dice.RollHundred();
+            int hit = Roll(100);
             hit = hit + current.Player.Stats.Accuracy;
             // Check and see if the attack actually hits
             if(hit < Target.MinStrike)
@@ -155,7 +163,7 @@ namespace CSMud.Events
             }
             int damage = current.Player.Stats.Damage;
             // if the attack does hit, determine if the attack is a critical hit.
-            int crit = Dice.RollHundred();
+            int crit = Roll(100);
             crit = crit + (current.Player.Stats.Luck);
             // A critical hit does base damage + 1/2 the base damage value.
             if(crit >= Target.CritChance)
@@ -234,7 +242,7 @@ namespace CSMud.Events
         {
             CombatSay($"{current.Name} defends!");
             // Roll to see if the defend is successful
-            int defend = Dice.RollHundred();
+            int defend = Roll(100);
             // Defend chance is modded by luck and defense level
             defend = defend + current.Player.Stats.Defense + current.Player.Stats.Luck;
             // Check and see if defend is >= target's min strike defense
