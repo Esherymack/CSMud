@@ -10,6 +10,8 @@ namespace CSMud.Client
         public List<Item> Equipped { get; }
         public List<Item> Held { get; }
         public Stats Stats { get; set; }
+        public int Level { get; set; }
+        public int Experience { get; set; }
 
         public Combat Combat { get; set; }
         public Conversation Conversation { get; set; }
@@ -20,7 +22,6 @@ namespace CSMud.Client
         string Name { get; set; }
         string Appearance { get; set; }
 
-
         public Player(string name)
         {
             Equipped = new List<Item>();
@@ -30,6 +31,8 @@ namespace CSMud.Client
             IsTrading = false;
             // Stats have a maximum of 100, except for health and defense.
             Stats = new Stats(100, 5, 5, 5, 5, 5, 5, 5, 5, 5);
+            Level = 1;
+            Experience = 0;
             Name = name;
         }
 
@@ -47,28 +50,33 @@ namespace CSMud.Client
             }
         }
 
-        // Equip a wearable item
-        public void Equip(Item thing)
+        public void LevelUp()
         {
-            Equipped.Add(thing);
+            Level++;
+        }
+
+        // Equip a wearable item
+        public void Equip(Item item)
+        {
+            Equipped.Add(item);
         }
 
         // Unequip a worn item
-        public void Unequip(Item thing)
+        public void Unequip(Item item)
         {
-            Equipped.Remove(thing);
+            Equipped.Remove(item);
         }
 
         // Hold an item in your hand
-        public void Hold(Item thing)
+        public void Hold(Item item)
         {
-            Held.Add(thing);
+            Held.Add(item);
         }
 
         // Drop a held item.
-        public void Drop(Item thing)
+        public void Drop(Item item)
         {
-            Held.Remove(thing);
+            Held.Remove(item);
         }
     }
 }
