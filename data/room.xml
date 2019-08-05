@@ -31,6 +31,7 @@
     <Id>0001</Id>
     <Name>The Test Room</Name>
     <Description>A vast room, with white floors.</Description>
+    <Ambient>You hear something patter around in the distance.</Ambient>
   </Room>
 
   <Room>
@@ -52,6 +53,7 @@
     <Id>0002</Id>
     <Name>The Second Room</Name>
     <Description>This is the second room.</Description>
+    <Ambient>You hear water dripping nearby.</Ambient>
   </Room>
 
   <Room>
@@ -61,5 +63,6 @@
     <Id>0003</Id>
     <Name>Locked Door Test</Name>
     <Description>If you're reading this, you've managed to unlock the door. Congratulations.</Description>
+    <Ambient>Are those footsteps?</Ambient>
   </Room>
 </Rooms>

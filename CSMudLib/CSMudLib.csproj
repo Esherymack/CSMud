@@ -52,6 +52,7 @@
     <Compile Include="src\entity\Room.cs" />
     <Compile Include="src\entity\Stats.cs" />
     <Compile Include="src\entity\Item.cs" />
+    <Compile Include="src\events\WorldTimer.cs" />
     <Compile Include="src\utils\CommandUtils.cs" />
     <Compile Include="src\utils\HandleCommand.cs" />
     <Compile Include="src\utils\MapBuild.cs" />

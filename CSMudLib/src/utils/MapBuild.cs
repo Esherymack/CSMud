@@ -104,8 +104,9 @@ namespace CSMud.Utils
             // Console.WriteLine($"{room.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{room.Name}\t{room.Description}\t{room.Id}");
             var roomthings = room.Items.Select(t => t.Actual);
             var roomentities = room.NPCs.Select(t => t.Actual);
-            // Console.WriteLine(string.Join("", roomthings));
-            // Console.WriteLine(string.Join("", roomentities));
+            Console.WriteLine(string.Join(", ", roomthings));
+            Console.WriteLine(string.Join(", ", roomentities));
+            Console.WriteLine(room.Ambient);
         }
     }
 }

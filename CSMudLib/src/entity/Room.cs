@@ -27,6 +27,8 @@ namespace CSMud.Entity
         public int Id { get; set; }
         [XmlElement]
         public string Description { get; set; }
+        [XmlElement]
+        public string Ambient { get; set; }
 
         public Room()
         {
@@ -38,6 +40,7 @@ namespace CSMud.Entity
             Name = "";
             Id = 0;
             Description = "";
+            Ambient = "";
         }
     }
 }

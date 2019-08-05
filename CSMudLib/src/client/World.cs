@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using System.Timers;
 using CSMud.Events;
 using CSMud.Entity;
 using CSMud.Utils;
@@ -16,9 +15,6 @@ namespace CSMud.Client
         // a world has connections
         public List<User> Users { get; }
 
-        // a beat is a periodic message sent over the server
-        private Timer Beat { get; }
-
         public MapBuild WorldMap { get; set; }
 
         public ProcessUnparameterizedCommand PUC { get; set; }
@@ -30,13 +26,6 @@ namespace CSMud.Client
         {
             // create a list object of connections
             Users = new List<User>();
-            // Create a beat on the server
-            Beat = new Timer(45000)
-            {
-                AutoReset = true,
-                Enabled = true
-            };
-            Beat.Elapsed += OnTimedEvent;
 
             // Generate the map
             WorldMap = new MapBuild();
@@ -49,12 +38,6 @@ namespace CSMud.Client
             {
                 e.PopulateInventory();
             }
-        }
-
-        // OnTimedEvent goes with the Beat property and is the function containing whatever happens every time the timer runs out.
-        void OnTimedEvent(object source, ElapsedEventArgs e)
-        {
-            Broadcast("Something scurries around in the distance.");
         }
 
         // add new Connections to the world
@@ -106,7 +89,7 @@ namespace CSMud.Client
 
                         // tell the server that a user has connected
                         Console.WriteLine($"{user.Name} has connected.");
-                        Broadcast($"{user.Name} has connected.");
+                        Broadcast($"{user.Name} has connected.", Users);
                     }
                     catch (System.IO.IOException e) when (e.InnerException is SocketException)
                     {
@@ -125,7 +108,7 @@ namespace CSMud.Client
                     finally
                     {
                         EndConnection(user);
-                        Broadcast($"{user.Name} has disconnected.");
+                        Broadcast($"{user.Name} has disconnected.", Users);
                         Console.WriteLine($"{user.Name} has disconnected.");
                     }
                 }
@@ -142,7 +125,7 @@ namespace CSMud.Client
         }
 
         // Broadcast handles sending a message over the entire server (all players can see it regardless of their room)
-        public void Broadcast(string msg)
+        public static void Broadcast(string msg, List<User> Users)
         {
             lock (Users)
             {

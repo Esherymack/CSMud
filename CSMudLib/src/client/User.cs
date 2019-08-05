@@ -1,6 +1,9 @@
 ﻿using System;
 using CSMud.Entity;
+using CSMud.Events;
 using CSMud.Utils;
+using System.Timers;
+using System.Linq;
 
 namespace CSMud.Client
 {
@@ -13,11 +16,15 @@ namespace CSMud.Client
         // a user belongs to a world
         private World World { get; }
 
+        public WorldTimer wt { get; set; }
+
         // a user has a unique inventory
         public Inventory Inventory { get; set; }
 
         // a user is set in a specific room
         public int CurrRoomId { get; set; }
+
+        public Timer Beat { get; set; }
 
         // a user has a player object holding their "profile"
         // this consists of things they are wearing, things they are holding, and their stats
@@ -31,11 +38,20 @@ namespace CSMud.Client
             Connection = conn;
             Command = new HandleCommand(this);
             World = world;
+            wt = new WorldTimer(this);
             Name = name;
             Player = new Player(name);
             Inventory = new Inventory();
             Inventory.setCarryCapacity(Player.Stats.Strength);
             CurrRoomId = 0001;
+
+            // Create a beat on the server
+            Beat = new Timer(45000)
+            {
+                AutoReset = true,
+                Enabled = true
+            };
+            Beat.Elapsed += wt.OnTimedEvent;
         }
 
         // OnConnect handles the welcome messages and tells the server client that someone has connected.
@@ -57,7 +73,7 @@ Send 'help' for help.");
         private void OnDisconnect()
         {
             World.EndConnection(this);
-            World.Broadcast($"{Name} has disconnected.");
+            World.Broadcast($"{Name} has disconnected.", World.Users);
             Console.WriteLine($"{Name} has disconnected.");
         }
 
@@ -80,6 +96,13 @@ Send 'help' for help.");
                 // Get a message that's sent to the server
                 Command.ProcessCommand(splitLine);
             } 
+        }
+        
+        // Sends the room ambiance specific to the user's current room.
+        public void Ping()
+        {
+            int idx = World.WorldMap.Rooms.FindIndex(t => t.Id == CurrRoomId);
+            Connection.SendMessage(World.WorldMap.Rooms[idx].Ambient);
         }
 
         /*
