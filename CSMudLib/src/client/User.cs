@@ -101,8 +101,8 @@ Send 'help' for help.");
         // Sends the room ambiance specific to the user's current room.
         public void Ping()
         {
-            int idx = World.WorldMap.Rooms.FindIndex(t => t.Id == CurrRoomId);
-            Connection.SendMessage(World.WorldMap.Rooms[idx].Ambient);
+            Room room = World.WorldMap.Rooms.FirstOrDefault(t => t.Id == CurrRoomId);
+            Connection.SendMessage(room.Ambient);
         }
 
         /*
