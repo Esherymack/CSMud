@@ -12,21 +12,6 @@ namespace CSMud
 {
     /* The Server class is a simple TCP server to accept connections
      * Server also holds the main function.
-     * this is inspired by this forum post:
-     * https://bytes.com/topic/c-sharp/answers/275416-c-mud-telnet-server
-     * and also from Microsoft's notes:
-     * https://docs.microsoft.com/en-us/dotnet/csharp/
-     * 
-     * My major modifications are as follows:
-     * - Moved the locks into the methods that actually affect connections, cleaner code 
-     *      - TODO: Possibly refactor for async/await instead of threading?
-     * - Lots of QOL refactoring - World now holds Connections instead of Server holding Connections, a Connection has a World
-     * - Added 'user' name for differentiating between users
-     * - Changed ProcessLine to handle all incoming messages, differentiate between messages and commands
-     * - Designated SendMessage for sending chat messages.
-     * - Added connection and disconnection messages on the server for other users
-     * - Added ambient periodic message sending (HeartBeat)
-     * - Broadcast function
      */
     public class Server
     {
@@ -90,9 +75,6 @@ namespace CSMud
         }
 
         // main just starts a new server 
-        static void Main(string[] args)
-        {
-            new Server().Start();
-        }
+        static void Main(string[] args) => new Server().Start();
     }
 }
