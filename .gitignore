@@ -1,4 +1,4 @@
-.vs/
+.vs
 bin
 obj
 *.swp
@@ -19,6 +19,3 @@ bld/
 [Oo]bj/
 [Ll]og/
 
-# Idk why I need this
-.vs\CSMud\v15\.suo
-.vs/CSMud/v15/.suo
