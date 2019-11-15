@@ -1,0 +1,47 @@
+[    
+    {
+        "RoomsIConnect": 
+        [
+            "0001",
+            "0002"
+        ],
+        "Locked": "false",
+        "HasKey": "false",
+        "Id": "0001",
+        "Direction": "N"
+    },    
+    {
+        "RoomsIConnect": 
+        [
+            "0001",
+            "0003"
+        ],
+        "Locked": "true",
+        "HasKey": "false",
+        "minDexterity": "13",
+        "Id": "0003",
+        "Direction": "W"
+    },    
+    {
+        "RoomsIConnect": 
+        [
+            "0002",
+            "0001"
+        ],
+        "Locked": "false",
+        "HasKey": "false",
+        "Id": "0002",
+        "Direction": "S"
+    },
+    {
+        "RoomsIConnect": [
+            "0003",
+            "0001"
+        ],
+        "Locked": "false",
+        "HasKey": "false",
+        "Id": "0004",
+        "Direction": "E"
+    }
+]
+

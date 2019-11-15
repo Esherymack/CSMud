@@ -1,0 +1,96 @@
+[
+    {
+        "Name": "Jane Doe",
+        "Id": "0001",
+        "Description": "Jane Doe is a friendly NPC.",
+        "Commands": [
+            "examine",
+            "talk to",
+            "listen to"
+        ],
+        "Health": "100",
+        "Defense": "100",
+        "Damage": "10",
+        "Faction": "ally",
+        "IsHidden": "false",
+        "minPerception": "0",
+        "Items": [
+            {
+                "Id": "0001"
+            },
+            {
+                "Id": "0003"
+            }
+        ]
+    },
+    {
+        "Name": "Ork",
+        "Id": "0002",
+        "Description": "An angry green fungus. He's not very friendly.",
+        "Commands": [
+            "examine",
+            "attack",
+            "loot"
+        ],
+        "Health": "100",
+        "Defense": "8",
+        "Damage": "15",
+        "Faction": "enemy",
+        "IsHidden": "false",
+        "minPerception": "0",
+        "MinStrike": "2",
+        "MinDefend": "15",
+        "AttackSpeed": "slow",
+        "CritChance": "30",
+        "Items": {
+            "Id": "0005"
+        }
+    },
+    {
+        "Name": "Purple Ork",
+        "Id": "0003",
+        "Description": "An angry green fungus, this time wearing purple, to be sneaky.",
+        "Commands": [
+            "examine",
+            "attack",
+            "loot"
+        ],
+        "Health": "200",
+        "Defense": "0",
+        "Damage": "10",
+        "Faction": "enemy",
+        "IsHidden": "true",
+        "minPerception": "15",
+        "MinStrike": "8",
+        "MinDefend": "10",
+        "AttackSpeed": "fast",
+        "CritChance": "10",
+        "Items": {
+            "Id": "0005"
+        }
+    },
+    {
+        "Name": "Rat",
+        "Id": "0004",
+        "Description": "A large, grey rat. It's missing an eye.",
+        "Commands": [
+            "examine",
+            "attack",
+            "loot"
+        ],
+        "Health": "10",
+        "Defense": "0",
+        "Damage": "1",
+        "Faction": "wildlife",
+        "IsHidden": "false",
+        "minPerception": "0",
+        "MinStrike": "1",
+        "MinDefend": "1",
+        "CritChance": "20",
+        "AttackSpeed": "mid",
+        "Items": {
+            "Id": "0001"
+        }
+    }
+]
+

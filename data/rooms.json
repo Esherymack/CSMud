@@ -1,0 +1,73 @@
+[
+    {
+        "Items": [
+            {
+                "Id": "0001"
+            },
+            {
+                "Id": "0002"
+            },
+            {
+                "Id": "0001"
+            },
+            {
+                "Id": "0006"
+            },
+            {
+                "Id": "0007"
+            }
+        ],
+        "NPCs": [
+            {
+                "Id": "0003"
+            },
+            {
+                "Id": "0004"
+            }
+        ],
+        "Doors": [
+            {
+                "Id": "0001"
+            },
+            {
+                "Id": "0003"
+            }
+        ],
+        "Id": "0001",
+        "Name": "The Test Room",
+        "Description": "A vast room, with white floors."
+    },
+    {
+        "Items": [
+            {
+                "Id": "0003"
+            },
+            {
+                "Id": "0004"
+            }
+        ],
+        "NPCs": [
+            {
+                "Id": "0001"
+            },
+            {
+                "Id": "0002"
+            }
+        ],
+        "Doors": {
+            "Id": "0002"
+        },
+        "Id": "0002",
+        "Name": "The Second Room",
+        "Description": "This is the second room."
+    },
+    {
+        "Doors": {
+            "Id": "0004"
+        },
+        "Id": "0003",
+        "Name": "Locked Door Test",
+        "Description": "If you're reading this, you've managed to unlock the door. Congratulations."
+    }
+]
+

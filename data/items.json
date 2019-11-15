@@ -1,0 +1,157 @@
+[
+    {
+        "Name": "Apple",
+        "Description": "It's an apple. It's red. You eat it.",
+        "Id": "0001",
+        "Commands": [
+            "eat",
+            "take",
+            "examine",
+            "drop",
+            "hold"
+        ],
+        "IsWearable": "false",
+        "IsWeapon": "false",
+        "IsConsumable": "true",
+        "StatIncreaseList": {
+            "Stat": "Health",
+            "Value": "10"
+        },
+        "ConsumableType": "food",
+        "Weight": "1",
+        "Value": "1"
+    },
+    {
+        "Name": "Quesombrero",
+        "Description": "A hat made of cheese. You can eat it or wear it.",
+        "Id": "0002",
+        "Commands": [
+            "eat",
+            "equip",
+            "remove",
+            "examine",
+            "take",
+            "drop",
+            "hold"
+        ],
+        "IsWearable": "true",
+        "IsConsumable": "true",
+        "Slot": "head",
+        "StatIncreaseList": [
+            {
+                "Stat": "Defense",
+                "Value": "4"
+            },
+            {
+                "Stat": "Strength",
+                "Value": "2"
+            }
+        ],
+        "ConsumableType": "food",
+        "IsWeapon": "false",
+        "Weight": "1",
+        "Value": "300"
+    },
+    {
+        "Name": "Sword",
+        "Description": "A sword. It's a little rusty from sitting on the floor for who-knows-how-long.",
+        "Id": "0003",
+        "Commands": [
+            "take",
+            "hold",
+            "examine",
+            "drop"
+        ],
+        "IsWearable": "false",
+        "IsWeapon": "true",
+        "StatIncreaseList": {
+            "Stat": "Damage",
+            "Value": "8"
+        },
+        "Weight": "2",
+        "Value": "20",
+        "WeaponType": "slow"
+    },
+    {
+        "Name": "White T-Shirt",
+        "Description": "A plain white t-shirt, luckily exactly your size.",
+        "Id": "0004",
+        "Commands": [
+            "take",
+            "hold",
+            "examine",
+            "drop",
+            "equip",
+            "remove"
+        ],
+        "IsWearable": "true",
+        "Slot": "torso",
+        "StatIncreaseList": {
+            "Stat": "Defense",
+            "Value": "3"
+        },
+        "IsWeapon": "false",
+        "Weight": "1",
+        "Value": "20"
+    },
+    {
+        "Name": "Gold Coin",
+        "Description": "A solid gold coin.",
+        "Id": "0005",
+        "Commands": [
+            "take",
+            "hold",
+            "examine",
+            "drop"
+        ],
+        "IsWearable": "false",
+        "IsWeapon": "false",
+        "Weight": "0",
+        "Value": "1"
+    },
+    {
+        "Name": "Gaudy Hat",
+        "Description": "The most hideous hat you've ever seen.",
+        "Id": "0006",
+        "Commands": [
+            "take",
+            "hold",
+            "examine",
+            "drop",
+            "equip",
+            "remove"
+        ],
+        "IsWearable": "true",
+        "Slot": "head",
+        "StatIncreaseList": {
+            "Stat": "Defense",
+            "Value": "20"
+        },
+        "IsWeapon": "false",
+        "Weight": "1",
+        "Value": "4000"
+    },
+    {
+        "Name": "Bottled Water",
+        "Description": "A plastic bottle of stale water. Who knows how long it's been here.",
+        "Id": "0007",
+        "Commands": [
+            "take",
+            "hold",
+            "examine",
+            "drop",
+            "drink"
+        ],
+        "IsWearable": "false",
+        "IsWeapon": "false",
+        "IsConsumable": "true",
+        "StatIncreaseList": {
+            "Stat": "Health",
+            "Value": "25"
+        },
+        "ConsumableType": "drink",
+        "Weight": "1",
+        "Value": "1"
+    }
+]
+
