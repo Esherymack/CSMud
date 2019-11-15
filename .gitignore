@@ -5,6 +5,7 @@ obj
 *.suo
 *.user
 *.userosscache
+tokens
 
 # Build results
 [Dd]ebug/
