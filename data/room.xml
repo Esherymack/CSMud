@@ -28,6 +28,9 @@
     <Doors>
       <Id>0003</Id>
     </Doors>
+    <Containers>
+      <Id>0001</Id>
+    </Containers>
     <Id>0001</Id>
     <Name>The Test Room</Name>
     <Description>A vast room, with white floors.</Description>

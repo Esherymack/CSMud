@@ -47,12 +47,25 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="data\door.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="data\room.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="CSMudLib\CSMudLib.csproj">
       <Project>{F5EEEFE6-AC2D-47E8-A2E1-B9B13F95F305}</Project>
       <Name>CSMudLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="data\containers.xml" />
+    <Content Include="data\door.xml" />
+    <Content Include="data\item.xml" />
+    <Content Include="data\npc.xml" />
+    <Content Include="data\room.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

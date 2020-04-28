@@ -41,7 +41,8 @@ namespace CSMud.Events
 'say <message>' : Talk to the players in your room.
 'whisper <user> <message>' : Talk to a specific player. You cannot talk privately to Someones.
 'talk <entity>' : Talk to an NPC.
-'attack <entity>' : Attack an enemy.");
+'attack <entity>' : Attack an enemy.
+'open <container>' : Attempt to open a container and view its contents.");
         }
    
         // Look gets the description of a room.
@@ -53,6 +54,10 @@ namespace CSMud.Events
             if (CommandUtils.HasItems(s, Map))
             {
                 s.Connection.SendMessage($"You see some interesting things: {string.Join(", ", Map.Rooms[index].Items.Select(t => t.Actual))}.");
+            }
+            if (CommandUtils.HasContainers(s, Map))
+            {
+                s.Connection.SendMessage($"You see some containers that might contain useful things: {string.Join(", ", Map.Rooms[index].Containers.Select(t => t.Actual))}.");
             }
             if (CommandUtils.HasDoors(s, Map))
             {

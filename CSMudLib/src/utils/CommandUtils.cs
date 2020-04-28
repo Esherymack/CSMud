@@ -28,6 +28,11 @@ namespace CSMud.Utils
         {
             return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].Doors.Count != 0;
         }
+        // Utility func for finding if a room has Containers
+        public static bool HasContainers(User sender, MapBuild WorldMap)
+        {
+            return WorldMap.Rooms[GetCurrentRoomId(sender, WorldMap)].Containers.Count != 0;
+        }
         // Utility function for string matching
         public static  bool FuzzyEquals(string a, string b)
         {

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Containers>
+  <Container>
+    <Contents>
+      <Id>0001</Id>
+    </Contents>
+    <IsUnlocked>true</IsUnlocked>
+    <IsStatic>true</IsStatic>
+    <Capacity>10</Capacity>
+    <Name>Rotten Crate</Name>
+    <Id>0001</Id>
+    <Description>This is a rotten crate. It is rotten. And ugly.</Description>
+  </Container>
+</Containers>

@@ -19,6 +19,7 @@ namespace CSMud.Utils
         public List<NPC> DeadNPCs { get; set; }
         public List<Door> Doors { get; set; }  
         public List<Room> Rooms { get; set; }
+        public List<Container> Containers { get; set; }
         public Dictionary<int, Item> AllItems { get; set; }
 
         public MapBuild()
@@ -32,6 +33,7 @@ namespace CSMud.Utils
             Items = CreateItem();
             NPCs = CreateNPC();
             Doors = CreateDoor();
+            Containers = CreateContainers();
             CreateRoom();
             Console.WriteLine("Map generated!");
         }
@@ -76,6 +78,17 @@ namespace CSMud.Utils
             }
         }
 
+        public List<Container> CreateContainers()
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Container>), new XmlRootAttribute("Containers"));
+            using (XmlReader reader = XmlReader.Create(@"..\..\data\containers.xml"))
+            {
+                Containers = (List<Container>)serializer.Deserialize(reader);
+                Containers.ForEach(i => XMLReference<Item>.Link(i.Contents, Items));
+                return Containers;
+            }
+        }
+
         /* CreateRoom is a little different in that it calls upon an XMLReference object
          * kudos to my friend Matthew Hatch for coming up with that idea
          * basically he suggested that I "smarten" C#'s deserializer in this regard
@@ -93,8 +106,9 @@ namespace CSMud.Utils
                 Rooms.ForEach(i => XMLReference<Item>.Link(i.Items, Items));
                 Rooms.ForEach(i => XMLReference<NPC>.Link(i.NPCs, NPCs));
                 Rooms.ForEach(i => XMLReference<Door>.Link(i.Doors, Doors));
+                Rooms.ForEach(i => XMLReference<Container>.Link(i.Containers, Containers));
                 // Printing is just for testing purposes, presently
-                // Rooms.ForEach(r => PrintRoomDescription(r));
+                Rooms.ForEach(r => PrintRoomDescription(r));
             }
         }
 
@@ -104,8 +118,10 @@ namespace CSMud.Utils
             // Console.WriteLine($"{room.Doors.Aggregate((a, b) => $"{a}, {b}")}\t{room.Name}\t{room.Description}\t{room.Id}");
             var roomthings = room.Items.Select(t => t.Actual);
             var roomentities = room.NPCs.Select(t => t.Actual);
-            // Console.WriteLine(string.Join("", roomthings));
-            // Console.WriteLine(string.Join("", roomentities));
+            var roomcontainers = room.Containers.Select(t => t.Actual);
+            Console.WriteLine(string.Join("", roomthings));
+            Console.WriteLine(string.Join("", roomentities));
+            Console.WriteLine(string.Join("", roomcontainers));
         }
     }
 }

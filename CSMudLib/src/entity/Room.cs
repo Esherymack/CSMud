@@ -17,6 +17,8 @@ namespace CSMud.Entity
         public List<XMLReference<NPC>> NPCs { get; set; }
         [XmlElement]
         public List<XMLReference<Door>> Doors { get; set; }
+        [XmlElement]
+        public List<XMLReference<Container>> Containers { get; set; }
         [XmlIgnore]
         public List<XMLReference<NPC>> DeadNPCs { get; set; }
 
@@ -33,6 +35,7 @@ namespace CSMud.Entity
             NPCs = new List<XMLReference<NPC>>();
             Doors = new List<XMLReference<Door>>();
             Items = new List<XMLReference<Item>>();
+            Containers = new List<XMLReference<Container>>();
             DeadNPCs = new List<XMLReference<NPC>>();
 
             Name = "";

@@ -3,7 +3,7 @@ using System.Linq;
 
 /* A foray into generics
  * Basically tried to smarten up the deserializer to function more like a 
- * SQL "INNER JOIN" between the Thing, Entity, and Room objects.
+ * SQL "INNER JOIN" between the Item, NPC, Container, and Room objects.
  */
 namespace CSMud.Utils
 {

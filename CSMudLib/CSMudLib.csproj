@@ -41,6 +41,8 @@
     <Compile Include="src\client\Connection.cs" />
     <Compile Include="src\client\Player.cs" />
     <Compile Include="src\client\World.cs" />
+    <Compile Include="src\entity\Body.cs" />
+    <Compile Include="src\entity\Container.cs" />
     <Compile Include="src\events\Combat.cs" />
     <Compile Include="src\events\Conversation.cs" />
     <Compile Include="src\events\ParameterizedEvent.cs" />

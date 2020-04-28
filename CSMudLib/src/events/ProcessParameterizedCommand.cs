@@ -61,8 +61,8 @@ namespace CSMud.Events
                 case "attack":
                     HandleAttack(s, action);
                     break;
-                case "loot":
-                    HandleLoot(s, action);
+                case "open":
+                    HandleOpen(s, action);
                     break;
                 case "talk":
                     HandleTalkTo(s, action);
@@ -142,6 +142,7 @@ namespace CSMud.Events
                     if(sender.Inventory.CurrentCapacity <= sender.Inventory.CarryCapacity)
                     {
                         sender.Inventory.AddToInventory(target.Actual);
+                        sender.Connection.SendMessage($"You add the {e} to your inventory.");
                         return;
                     }
                     sender.Connection.SendMessage("You're carrying too much to take that.");
@@ -325,8 +326,8 @@ namespace CSMud.Events
             NPC npc = Map.Rooms[roomId].NPCs.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual;
             if(npc == null)
             {
-                // If it's not an npc or a item, it's not examinable.
-                sender.Connection.SendMessage("That does not exist here!");
+                // If it's not an npc or a item, try and see if the target is a container
+                HandleContainerExamine(sender, e);
                 return;
             }
             if (!npc.Commands.Contains("examine"))
@@ -336,6 +337,21 @@ namespace CSMud.Events
             }
             sender.Connection.SendMessage($"You examine the {e}.");
             sender.Connection.SendMessage($"{npc.Description}");
+        }
+
+        void HandleContainerExamine(User sender, string e)
+        {
+            int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
+            Container container = Map.Rooms[roomId].Containers.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e))?.Actual;
+
+            if(container == null)
+            {
+                // If it's not an npc, item, or container, it's unexaminable
+                sender.Connection.SendMessage("That does not exist here!");
+                return;
+            }
+            sender.Connection.SendMessage($"You examine the {e}.");
+            sender.Connection.SendMessage($"{container.Description}");
         }
 
         void HandleEquip(User sender, string e)
@@ -654,9 +670,41 @@ r: Run");
             target.Combat = null;
         }
 
-        void HandleLoot(User sender, string e)
+        void HandleOpen(User sender, string e)
         {
+            if(sender.Player.IsDead)
+            {
+                sender.Connection.SendMessage("You cannot do that while defeated!");
+                return;
+            }
 
+            int roomId = CommandUtils.GetCurrentRoomId(sender, Map);
+            var target = Map.Rooms[roomId].Containers.FirstOrDefault(t => CommandUtils.FuzzyEquals(t.Actual.Name, e));
+
+            if (target == null)
+            {
+                sender.Connection.SendMessage("No such container exists.");
+                return;
+            }
+
+            if(!target.Actual.IsUnlocked)
+            {
+                sender.Connection.SendMessage("This container is locked.");
+                return;
+            }
+
+            lock(Map.Rooms[roomId].Containers)
+            {
+                sender.Connection.SendMessage($"You open the {target.Actual.Name}.");
+                if (target.Actual.Contents.Count != 0)
+                {
+                    sender.Connection.SendMessage($"The {target.Actual.Name} contains: {string.Join(", " , target.Actual.Contents.Select(t => t.Actual.Name))}");
+                }
+                else
+                {
+                    sender.Connection.SendMessage($"The {target.Actual.Name} is empty.");
+                }
+            }
         }
 
         // Talk to an NPC
