@@ -6,9 +6,24 @@
     </Contents>
     <IsUnlocked>true</IsUnlocked>
     <IsStatic>true</IsStatic>
-    <Capacity>10</Capacity>
+    <IsTakable>false</IsTakable>
+    <Weight>100</Weight>
+    <Capacity>100</Capacity>
     <Name>Rotten Crate</Name>
     <Id>0001</Id>
     <Description>This is a rotten crate. It is rotten. And ugly.</Description>
+  </Container>
+  <Container>
+    <Contents>
+      <Id>0002</Id>
+    </Contents>
+    <IsUnlocked>true</IsUnlocked>
+    <IsStatic>false</IsStatic>
+    <IsTakable>true</IsTakable>
+    <Weight>10</Weight>
+    <Capacity>10</Capacity>
+    <Name>Small Backpack</Name>
+    <Id>0002</Id>
+    <Description>A small, hot pink backpack.</Description>
   </Container>
 </Containers>

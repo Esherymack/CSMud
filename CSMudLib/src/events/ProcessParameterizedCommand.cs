@@ -154,6 +154,7 @@ namespace CSMud.Events
             }
         }
 
+
         /* Like Handletake, HandleDrop checks for an item's existence, but in this case it has to be in the 
          * requesting user's inventory.
          * if item exists, remove it from the user inventory's list of refs and add to the room's Items instead
@@ -698,12 +699,13 @@ r: Run");
                 sender.Connection.SendMessage($"You open the {target.Actual.Name}.");
                 if (target.Actual.Contents.Count != 0)
                 {
-                    sender.Connection.SendMessage($"The {target.Actual.Name} contains: {string.Join(", " , target.Actual.Contents.Select(t => t.Actual.Name))}");
+                    sender.Connection.SendMessage($"The {target.Actual.Name} contains some items!");
                 }
                 else
                 {
                     sender.Connection.SendMessage($"The {target.Actual.Name} is empty.");
                 }
+                target.Actual.UseContainer(sender);
             }
         }
 

@@ -108,7 +108,7 @@ namespace CSMud.Utils
                 Rooms.ForEach(i => XMLReference<Door>.Link(i.Doors, Doors));
                 Rooms.ForEach(i => XMLReference<Container>.Link(i.Containers, Containers));
                 // Printing is just for testing purposes, presently
-                Rooms.ForEach(r => PrintRoomDescription(r));
+                // Rooms.ForEach(r => PrintRoomDescription(r));
             }
         }
 
@@ -119,9 +119,9 @@ namespace CSMud.Utils
             var roomthings = room.Items.Select(t => t.Actual);
             var roomentities = room.NPCs.Select(t => t.Actual);
             var roomcontainers = room.Containers.Select(t => t.Actual);
-            Console.WriteLine(string.Join("", roomthings));
-            Console.WriteLine(string.Join("", roomentities));
-            Console.WriteLine(string.Join("", roomcontainers));
+            Console.WriteLine(string.Join(" ", roomthings));
+            Console.WriteLine(string.Join(" ", roomentities));
+            Console.WriteLine(string.Join(" ", roomcontainers));
         }
     }
 }

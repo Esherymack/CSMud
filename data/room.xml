@@ -31,6 +31,9 @@
     <Containers>
       <Id>0001</Id>
     </Containers>
+    <Containers>
+      <Id>0002</Id>
+    </Containers>
     <Id>0001</Id>
     <Name>The Test Room</Name>
     <Description>A vast room, with white floors.</Description>
